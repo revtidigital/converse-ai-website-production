@@ -394,8 +394,8 @@ const AgenticAutomation = () => {
                           <p className="text-xs text-muted-foreground">First agent live</p>
                         </div>
                         <div>
-                          <p className="text-xl font-bold text-violet">$999</p>
-                          <p className="text-xs text-muted-foreground">Agent Sprint fixed fee</p>
+                          <p className="text-xl font-bold text-violet">Agent Sprint</p>
+                          <p className="text-xs text-muted-foreground">Fixed-scope 4-week engagement</p>
                         </div>
                         <div>
                           <p className="text-xl font-bold text-mint">24/7</p>

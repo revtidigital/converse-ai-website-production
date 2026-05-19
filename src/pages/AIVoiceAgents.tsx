@@ -304,7 +304,7 @@ const faqs = [
   {
     question: "How much does an AI voice agent cost?",
     answer:
-      "Setup from $999, then per-minute usage. At typical SMB volume (5,000 minutes/month), all-in cost is 60–80% less than a human SDR or BPO agent.",
+      "Setup begins with implementation, then usage-based pricing per minute. At typical SMB volume (5,000 minutes/month), total cost is 60–80% lower than a human SDR or BPO agent.",
   },
   {
     question: "Can AI voice agents speak Hindi and regional languages?",

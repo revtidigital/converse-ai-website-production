@@ -85,7 +85,7 @@ const differentiators = [
   },
   {
     title: "India + US delivery economics.",
-    description: "From $999 — under 10% of what Deloitte or BCG quote.",
+    description: "Designed to deliver enterprise outcomes at a fraction of traditional consulting costs — under 10% of what Deloitte or BCG quote.",
   },
 ];
 
@@ -157,7 +157,7 @@ const faqs = [
   {
     question: "How much does an AI readiness audit cost?",
     answer:
-      "Our ROI-First Audit starts at $999 for a single-function scope. Cross-functional audits are $4,999. Enterprise/multi-BU scope is custom. Compare: Deloitte, BCG, and McKinsey quote $75K–$250K for equivalent work.",
+      "Our ROI-First Audit is scoped based on business complexity — starting from single-function reviews to cross-functional and enterprise-level engagements. Traditional consulting firms such as Deloitte, BCG, and McKinsey typically deliver comparable work in the $75K–$250K range depending on scope.",
   },
   {
     question: "How long does an AI audit take?",
@@ -372,7 +372,7 @@ const AIStrategyAudit = () => {
                       </div>
                       <div className="mt-6 pt-5 border-t border-border/50 text-center">
                         <p className="text-xs text-muted-foreground mb-1">Audit fee credited toward build</p>
-                        <p className="text-2xl font-bold text-primary">From $999</p>
+                        <p className="text-2xl font-bold text-primary">Starts with a focused AI Strategy & Readiness Audit</p>
                       </div>
                     </div>
                     <div className="absolute -top-4 -right-4 glass-card rounded-xl px-4 py-3 shadow-lg animate-float">

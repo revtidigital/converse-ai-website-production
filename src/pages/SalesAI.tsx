@@ -361,7 +361,7 @@ const SalesAI = () => {
                       </div>
                       <div className="mt-5 p-3 rounded-xl bg-primary/5 border border-primary/10 text-center">
                         <p className="text-sm font-semibold text-primary">Pay per Stage-2 meeting</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">From $300/meeting · 6-week pilot</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">From pilot-based engagement · 6-week pilot</p>
                       </div>
                     </div>
                     <div className="absolute -top-4 -right-4 glass-card rounded-xl px-4 py-3 shadow-lg animate-float">
