@@ -10,6 +10,7 @@ import { usePricingPlans } from "@/hooks/usePricingPlans";
 const Pricing = () => {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const { data: plans, loading } = usePricingPlans();
+  const { data: plans, loading, error } = usePricingPlans();
 
   return (
     <>
@@ -53,6 +54,7 @@ const Pricing = () => {
           <section className="-mt-20 pb-24">
             <div className="container-tight">
               {loading && <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />}
+              {error && <p className="text-center text-muted-foreground">Unable to load pricing from the database. Showing saved defaults.</p>}
               <div className="grid gap-8 md:grid-cols-3">
                 {plans.map((plan, index) => {
                   const price = billing === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;

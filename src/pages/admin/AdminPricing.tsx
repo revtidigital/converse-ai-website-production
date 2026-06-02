@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Plus, Pencil, Trash2 } from "lucide-react";
 
 const PRICING_MIGRATION_PATH = "supabase/migrations/20260602090000_create_pricing_plans.sql";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const AdminPricing = () => {
   const { data: plans, loading, error } = usePricingPlans();
@@ -22,6 +23,9 @@ const AdminPricing = () => {
 
   async function handleDelete() {
     if (!deleteId || !databaseReady) return;
+
+  async function handleDelete() {
+    if (!deleteId) return;
     const { error: deleteError } = await supabase.from("pricing_plans").delete().eq("id", deleteId);
     setDeleteId(null);
     if (deleteError) {
@@ -36,6 +40,7 @@ const AdminPricing = () => {
     <AdminShell>
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Pricing</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">Manage the pricing plans shown on your website.</p>
@@ -69,6 +74,14 @@ const AdminPricing = () => {
 
         {loading && <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />}
         {!loading && (
+          <Button asChild>
+            <Link to="/admin/pricing/new"><Plus className="mr-1.5 h-4 w-4" />New Plan</Link>
+          </Button>
+        </div>
+
+        {loading && <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />}
+        {error && <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-700">Failed to load pricing plans: {error}</div>}
+        {!loading && !error && (
           <div className="overflow-hidden rounded-xl border border-border/60 bg-white">
             <Table>
               <TableHeader>
@@ -99,6 +112,8 @@ const AdminPricing = () => {
                       ) : (
                         <span className="text-xs text-muted-foreground">Run migration to edit</span>
                       )}
+                      <Button variant="ghost" size="sm" asChild><Link to={`/admin/pricing/${plan.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button>
+                      <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setDeleteId(plan.id)}><Trash2 className="h-4 w-4" /></Button>
                     </TableCell>
                   </TableRow>
                 ))}
