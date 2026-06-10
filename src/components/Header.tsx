@@ -1,13 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.webp";
 
 // ─── Constants ──────────────────────────────────────────────────────────────────
 
 const GET_DEMO_URL = "https://theconverseai.com/book-demo";
+
+const isBrowserHandledNavigation = (event: MouseEvent<HTMLAnchorElement>) =>
+  event.defaultPrevented ||
+  event.button !== 0 ||
+  event.metaKey ||
+  event.altKey ||
+  event.ctrlKey ||
+  event.shiftKey;
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -238,11 +246,11 @@ const Header = () => {
   };
 
   const handleNavClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
+    e: MouseEvent<HTMLAnchorElement>,
     link: { href: string; isRoute: boolean; hasDropdown?: string; isExternal?: boolean }
   ) => {
     if (link.hasDropdown && !link.isRoute) { e.preventDefault(); return; }
-    if (link.isExternal) { setIsMobileMenuOpen(false); return; }
+    if (link.isExternal || isBrowserHandledNavigation(e)) { setIsMobileMenuOpen(false); return; }
     e.preventDefault();
     if (link.isRoute) { navigate(link.href); setActiveDropdown(null); setIsMobileMenuOpen(false); return; }
     if (link.href === "#") {
