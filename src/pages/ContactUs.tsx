@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { MapPin, Phone, Mail, Shield, Clock, Users, Send } from "lucide-react";
 import { validateContactForm } from "@/lib/validations/contact";
 import { submitContactForm } from "@/lib/submitContactForm";
 import PhoneInputField from "@/components/ui/PhoneInputField";
-import { trackFormSuccess } from "@/lib/tracking";
+import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -35,14 +35,29 @@ const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const hasStartedForm = useRef(false);
+
+  useEffect(() => {
+    trackFormView("contact_page_form", { form_location: "contact_page" });
+  }, []);
+
+  const handleFormStart = () => {
+    if (hasStartedForm.current) return;
+    hasStartedForm.current = true;
+    trackFormStart("contact_page_form", { form_location: "contact_page" });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    trackFormSubmitClick("contact_page_form", { form_location: "contact_page" });
     setErrors({});
     
     const validation = validateContactForm(formData);
     if (!validation.success) {
       setErrors(validation.errors);
+      trackFormError("contact_page_form", Object.values(validation.errors)[0] || "validation_error", {
+        form_location: "contact_page",
+      });
       toast({
         title: "Please fix the errors",
         description: Object.values(validation.errors)[0],
@@ -65,7 +80,7 @@ const ContactUs = () => {
         form_source: "Contact Page Form",
       });
       
-      trackFormSuccess("contact_page_form");
+      trackFormSuccess("contact_page_form", { form_location: "contact_page" });
       
       setFormData({
         name: "",
@@ -79,6 +94,7 @@ const ContactUs = () => {
       });
       navigate("/thank-you");
     } catch {
+      trackFormError("contact_page_form", "submission_failed", { form_location: "contact_page" });
       toast({
         title: "Failed to send message",
         description: "Please try again or contact us directly.",
@@ -157,7 +173,7 @@ const ContactUs = () => {
                   Send us a message
                 </h2>
                 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} onFocus={handleFormStart} className="space-y-5" noValidate>
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-foreground">

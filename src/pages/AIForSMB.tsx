@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { submitContactForm } from "@/lib/submitContactForm";
-import { trackFormError, trackFormStart, trackFormSuccess, trackFormView } from "@/lib/tracking";
+import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
 const metaTitle = "AI for Small & Mid-Sized Businesses (SMB) | ConverseAI";
 const metaDescription =
@@ -227,6 +227,7 @@ const AIForSMB = () => {
 
   const handlePdfRequest = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    trackFormSubmitClick("smb_ai_starting_point_pdf", { form_location: "smb_page_pdf_card" });
     setEmailError("");
 
     if (!email.trim()) {
