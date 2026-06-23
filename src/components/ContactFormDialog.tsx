@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateContactForm } from "@/lib/validations/contact";
 import { submitContactForm } from "@/lib/submitContactForm";
 import PhoneInputField from "@/components/ui/PhoneInputField";
-import { trackFormError, trackFormStart, trackFormSuccess, trackFormView } from "@/lib/tracking";
+import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
 interface ContactFormDialogProps {
   children: React.ReactNode;
@@ -64,6 +64,7 @@ const ContactFormDialog = ({ children }: ContactFormDialogProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    trackFormSubmitClick("contact_form", { form_location: "popup_dialog" });
     setErrors({});
 
     const validation = validateContactForm(formData);
