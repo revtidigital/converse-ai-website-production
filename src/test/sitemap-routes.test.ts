@@ -24,15 +24,17 @@ describe("sitemap routes", () => {
     expect(new Set(sitemapPaths).size).toBe(sitemapPaths.length);
   });
 
-  it("publishes canonical non-www URLs only", () => {
+  it("publishes canonical www URLs only", () => {
     expect(sitemapUrls.map((url) => url.origin)).toEqual(
       Array.from({ length: sitemapUrls.length }, () => SITE_URL),
     );
   });
 
+  it("does not publish redirected or non-canonical legacy paths", () => {
+    expect(sitemapPaths).not.toContain("/teams-2");
+  });
+
   it("advertises the canonical sitemap URL in robots.txt", () => {
     expect(robotsTxt).toContain(`Sitemap: ${SITE_URL}/sitemap.xml`);
-  it("uses the canonical www host for every sitemap URL", () => {
-    expect(sitemapUrls.every((url) => url.origin === "https://www.theconverseai.com")).toBe(true);
   });
 });
