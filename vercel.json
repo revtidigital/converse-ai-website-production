@@ -20,7 +20,7 @@
       "status": 410
     },
     {
-      "src": "/product/theconverseai.com/(.*)",
+      "src": "/product/(.*)",
       "status": 410
     },
     {
