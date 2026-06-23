@@ -220,7 +220,7 @@ const AIStrategyAudit = () => {
     "@graph": [
       {
         "@type": "Service",
-        "@id": "https://www.theconverseai.com/services/ai-strategy-audit#service",
+        "@id": "https://theconverseai.com/services/ai-strategy-audit#service",
         name: "AI Strategy & Readiness Audit",
         description:
           "3-week fixed-fee AI readiness audit that identifies 5–10 high-ROI use cases and delivers a 90-day roadmap.",
@@ -228,12 +228,12 @@ const AIStrategyAudit = () => {
         provider: {
           "@type": "Organization",
           name: "ConverseAI",
-          url: "https://www.theconverseai.com",
+          url: "https://theconverseai.com",
         },
         areaServed: ["India", "United States"],
         offers: {
           "@type": "Offer",
-          url: "https://www.theconverseai.com/services/ai-strategy-audit",
+          url: "https://theconverseai.com/services/ai-strategy-audit",
           availability: "https://schema.org/InStock",
           priceSpecification: [
             {
@@ -251,19 +251,19 @@ const AIStrategyAudit = () => {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://www.theconverseai.com/",
+            item: "https://theconverseai.com/",
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Services",
-            item: "https://www.theconverseai.com/services",
+            item: "https://theconverseai.com/services",
           },
           {
             "@type": "ListItem",
             position: 3,
             name: "AI Strategy & Readiness Audit",
-            item: "https://www.theconverseai.com/services/ai-strategy-audit",
+            item: "https://theconverseai.com/services/ai-strategy-audit",
           },
         ],
       },
@@ -307,7 +307,7 @@ const AIStrategyAudit = () => {
           property="og:description"
           content="3-week fixed-fee AI readiness audit. Identify 5–10 high-ROI use cases and get a 90-day roadmap. From $999 — book a free fit call today."
         />
-        <link rel="canonical" href="https://www.theconverseai.com/services/ai-strategy-audit" />
+        <link rel="canonical" href="https://theconverseai.com/services/ai-strategy-audit" />
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
       </Helmet>
 
