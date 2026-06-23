@@ -234,7 +234,7 @@ const AgenticAutomation = () => {
     "@graph": [
       {
         "@type": "Service",
-        "@id": "https://www.theconverseai.com/services/agentic-automation#service",
+        "@id": "https://theconverseai.com/services/agentic-automation#service",
         name: "Agentic Process Automation",
         description:
           "Agentic Process Automation services that replace brittle RPA with AI agents that reason across your SaaS stack.",
@@ -242,18 +242,18 @@ const AgenticAutomation = () => {
         provider: {
           "@type": "Organization",
           name: "ConverseAI",
-          url: "https://www.theconverseai.com",
+          url: "https://theconverseai.com",
         },
         areaServed: ["India", "United States"],
         offers: {
-          "@id": "https://www.theconverseai.com/services/agentic-automation#agent-sprint",
+          "@id": "https://theconverseai.com/services/agentic-automation#agent-sprint",
         },
       },
       {
         "@type": "Offer",
-        "@id": "https://www.theconverseai.com/services/agentic-automation#agent-sprint",
+        "@id": "https://theconverseai.com/services/agentic-automation#agent-sprint",
         name: "Agent Sprint",
-        url: "https://www.theconverseai.com/services/agentic-automation#agent-sprint",
+        url: "https://theconverseai.com/services/agentic-automation#agent-sprint",
         availability: "https://schema.org/InStock",
         priceSpecification: [
           {
@@ -279,19 +279,19 @@ const AgenticAutomation = () => {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://www.theconverseai.com/",
+            item: "https://theconverseai.com/",
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Services",
-            item: "https://www.theconverseai.com/services",
+            item: "https://theconverseai.com/services",
           },
           {
             "@type": "ListItem",
             position: 3,
             name: "Agentic Process Automation",
-            item: "https://www.theconverseai.com/services/agentic-automation",
+            item: "https://theconverseai.com/services/agentic-automation",
           },
         ],
       },
@@ -323,7 +323,7 @@ const AgenticAutomation = () => {
           property="og:description"
           content="Replace brittle RPA with AI agents that reason across your SaaS stack. First production agent live in 30 days — book a free scoping call."
         />
-        <link rel="canonical" href="https://www.theconverseai.com/services/agentic-automation" />
+        <link rel="canonical" href="https://theconverseai.com/services/agentic-automation" />
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
       </Helmet>
 
