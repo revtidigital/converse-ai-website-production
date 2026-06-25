@@ -12,6 +12,7 @@ import FeatureCard from '@/components/FeatureCard'
 import SectionHeading from '@/components/SectionHeading'
 import StatCard from '@/components/StatCard'
 import Footer from '@/components/Footer'
+import UserSection from '@/components/UserSection'
 
 const products = [
   { icon: Bot, title: 'AI Chatbot', description: 'Natural language understanding with 24/7 automated support, lead qualification, and smart handover to human agents.', path: '/chatbot' },
@@ -344,6 +345,9 @@ export default function Index() {
           </div>
         </section>
 
+        {/* ── Our Clients ── */}
+        <UserSection />
+
         {/* ── Industries ── */}
         <section className="py-24 bg-secondary/30 border-y border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -367,9 +371,6 @@ export default function Index() {
             </div>
           </div>
         </section>
-
-        {/* ── Clients ── (hidden for now)
-        <UserSection /> */}
 
         {/* ── Final CTA ── */}
         <section className="py-24 relative overflow-hidden">
