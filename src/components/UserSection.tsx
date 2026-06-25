@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
 
 const clients = [
   { name: "Tata Motors", logo: "/logos/tata-motors.jpg" },
@@ -20,13 +20,36 @@ const clients = [
 const UserSection = () => {
   const marqueeClients = [...clients, ...clients];
   const [api, setApi] = useState<CarouselApi>();
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto-slide on mobile carousel
+  // (Re)start auto-slide. Called again on every user interaction so the
+  // timer resets and auto-advance is effectively paused right after the user
+  // uses an arrow or swipes.
+  const startAuto = useCallback(() => {
+    if (!api) return;
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => api.scrollNext(), 2500);
+  }, [api]);
+
   useEffect(() => {
     if (!api) return;
-    const id = setInterval(() => api.scrollNext(), 2500);
-    return () => clearInterval(id);
-  }, [api]);
+    startAuto();
+    // Reset the timer when the user drags/swipes the carousel.
+    api.on("pointerDown", startAuto);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      api.off("pointerDown", startAuto);
+    };
+  }, [api, startAuto]);
+
+  const handlePrev = () => {
+    api?.scrollPrev();
+    startAuto();
+  };
+  const handleNext = () => {
+    api?.scrollNext();
+    startAuto();
+  };
 
   return (
     <section
@@ -90,8 +113,24 @@ const UserSection = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="-left-3" />
-          <CarouselNext className="-right-3" />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePrev}
+            aria-label="Previous logo"
+            className="absolute -left-3 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleNext}
+            aria-label="Next logo"
+            className="absolute -right-3 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </Carousel>
       </div>
     </section>
