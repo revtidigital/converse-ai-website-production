@@ -11,7 +11,7 @@ import {
 const clients = [
   { name: "Tata Motors", logo: "/logos/tata-motors.jpg" },
   { name: "Mapsor Experiential Weddings", logo: "/logos/mapsor.jpg" },
-  { name: "Meghaa Modi Design Studio", logo: "/logos/meghaa-modi.png" },
+  { name: "Meghaa Modi Design Studio", logo: "/logos/meghaa-modi.png", invert: true },
   { name: "Zapp Loans", logo: "/logos/zapp-loans.webp" },
   { name: "Readiprint Fashions", logo: "/logos/readiprint.svg" },
   { name: "Heritage Food Diary", logo: "/logos/heritage-food-diary.jpg" },
@@ -61,7 +61,7 @@ const UserSection = () => {
                 src={client.logo}
                 alt={client.name}
                 loading="lazy"
-                className="max-h-16 max-w-full object-contain md:max-h-20"
+                className={`max-h-16 max-w-full object-contain md:max-h-20 ${client.invert ? "invert" : ""}`}
               />
             </li>
           ))}
@@ -84,7 +84,7 @@ const UserSection = () => {
                     src={client.logo}
                     alt={client.name}
                     loading="lazy"
-                    className="max-h-16 max-w-full object-contain"
+                    className={`max-h-16 max-w-full object-contain ${client.invert ? "invert" : ""}`}
                   />
                 </div>
               </CarouselItem>
