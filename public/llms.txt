@@ -1,0 +1,55 @@
+# ConverseAI
+
+> ConverseAI helps businesses automate, engage, and support customers using intelligent chatbots, AI voice agents, and real-time messaging. AI conversations that feel human.
+
+ConverseAI builds and deploys AI-powered conversational agents, agentic automation, and customer engagement tools across web, WhatsApp, and omni-channel messaging.
+
+## Main
+
+- [Home](https://theconverseai.com/): Overview of ConverseAI's conversational AI platform and services
+- [About Us](https://theconverseai.com/about-us): Company, mission, and team
+- [Contact Us](https://theconverseai.com/contact-us): Get in touch with the ConverseAI team
+- [Book a Demo](https://theconverseai.com/book-demo): Schedule a product demo
+- [Blog](https://theconverseai.com/blog): Articles on AI, automation, and customer engagement
+- [Case Studies](https://theconverseai.com/case-studies): Customer results and success stories
+
+## Services
+
+- [Services Overview](https://theconverseai.com/services): Full range of AI consulting and build services
+- [AI Strategy & Audit](https://theconverseai.com/services/ai-strategy-audit): Assess AI readiness and opportunities
+- [Agentic Automation](https://theconverseai.com/services/agentic-automation): Automate workflows with AI agents
+- [AI Integration](https://theconverseai.com/services/ai-integration): Integrate AI into existing systems
+- [AI Voice Agents](https://theconverseai.com/services/ai-voice-agents): Voice-based conversational AI agents
+- [Custom AI Agents](https://theconverseai.com/services/custom-ai-agents): Bespoke AI agents built for your use case
+- [Knowledge Intelligence](https://theconverseai.com/services/knowledge-intelligence): Turn company knowledge into AI answers
+- [Sales AI](https://theconverseai.com/services/sales-ai): AI agents for sales and lead conversion
+- [AI for SMB](https://theconverseai.com/solutions/ai-for-smb): AI solutions for small and medium businesses
+
+## Product Features
+
+- [Chatbot](https://theconverseai.com/chatbot): AI chatbot for websites
+- [Live Chat](https://theconverseai.com/live-chat): Real-time human live chat
+- [Pre-Chat Forms](https://theconverseai.com/pre-chat-forms): Capture visitor details before chat
+- [Omni-Channel](https://theconverseai.com/omni-channel): Unified inbox across channels
+- [Agent Capacity](https://theconverseai.com/agent-capacity): Manage agent workload and limits
+- [Private Notes](https://theconverseai.com/private-notes): Internal notes on conversations
+- [Live View](https://theconverseai.com/live-view): See visitors in real time
+- [Teams](https://theconverseai.com/teams): Organize agents into teams
+
+## WhatsApp
+
+- [WhatsApp AI Chatbot](https://theconverseai.com/whatsapp-ai-chatbot): AI chatbot on WhatsApp
+- [WhatsApp Shop](https://theconverseai.com/whatsapp-shop): Sell products via WhatsApp
+- [WhatsApp Marketing](https://theconverseai.com/whatsapp-marketing): Marketing campaigns on WhatsApp
+
+## Reports & Analytics
+
+- [Agent Reports](https://theconverseai.com/agent-reports): Per-agent performance reports
+- [CSAT Report](https://theconverseai.com/csat-report): Customer satisfaction reporting
+- [Team Reports](https://theconverseai.com/team-reports): Team-level performance reports
+- [Inbox Reports](https://theconverseai.com/inbox-reports): Inbox and conversation metrics
+
+## Legal
+
+- [Terms and Conditions](https://theconverseai.com/terms-and-conditions): Terms of service
+- [Privacy Policy](https://theconverseai.com/privacy-policy): How we handle your data
