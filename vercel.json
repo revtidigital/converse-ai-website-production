@@ -1,12 +1,5 @@
 {
   "routes": [
-    {
-      "has": [{ "type": "host", "value": "www.theconverseai.com" }],
-      "src": "/(.*)",
-      "status": 301,
-      "headers": { "Location": "https://theconverseai.com/$1" }
-    },
-
     { "handle": "filesystem" },
 
     {
