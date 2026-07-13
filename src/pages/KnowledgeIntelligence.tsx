@@ -212,24 +212,6 @@ const outcomes = [
   "100% citation-backed answers — zero hallucination tolerance for compliance",
 ];
 
-const pricingRows = [
-  {
-    engagement: "Pilot",
-    scope: "One use case, one data source, 4–6 weeks",
-    range: "$15K–$40K",
-  },
-  {
-    engagement: "Production build",
-    scope: "Multi-source, multi-channel deployment",
-    range: "$40K–$150K",
-  },
-  {
-    engagement: "Managed retainer",
-    scope: "Tuning, evals, re-indexing, new sources",
-    range: "$2K–$10K/month",
-  },
-];
-
 const faqs = [
   {
     question: "How does RAG work on internal documents?",
@@ -309,8 +291,6 @@ const KnowledgeIntelligence = () => {
         "@id": "https://theconverseai.com/services/knowledge-intelligence#offer",
         name: "Knowledge intelligence build",
         url: "https://theconverseai.com/services/knowledge-intelligence",
-        price: "15000-150000",
-        priceCurrency: "USD",
         availability: "https://schema.org/InStock",
       },
       {

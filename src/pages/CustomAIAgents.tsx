@@ -283,62 +283,6 @@ const CustomAIAgents = () => {
           url: "https://theconverseai.com",
         },
         areaServed: ["India", "United States"],
-        offers: {
-          "@type": "AggregateOffer",
-          priceCurrency: "USD",
-          lowPrice: 2000,
-          highPrice: 150000,
-          offerCount: 4,
-          offers: [
-            {
-              "@type": "Offer",
-              name: "Agent Feasibility Review",
-              priceCurrency: "USD",
-              price: 2000,
-              url: "https://theconverseai.com/services/custom-ai-agents",
-            },
-            {
-              "@type": "Offer",
-              name: "Agent Sprint",
-              priceCurrency: "USD",
-              price: 9995,
-              url: "https://theconverseai.com/services/agentic-automation",
-            },
-            {
-              "@type": "Offer",
-              name: "Custom Agent Build",
-              priceCurrency: "USD",
-              priceSpecification: {
-                "@type": "PriceSpecification",
-                minPrice: 25000,
-                maxPrice: 150000,
-                priceCurrency: "USD",
-              },
-            },
-            {
-              "@type": "Offer",
-              name: "Managed Retainer",
-              priceCurrency: "USD",
-              priceSpecification: {
-                "@type": "PriceSpecification",
-                minPrice: 5000,
-                maxPrice: 20000,
-                priceCurrency: "USD",
-                unitText: "MONTH",
-              },
-            },
-          ],
-        },
-      },
-      {
-        "@type": "Offer",
-        name: "India pricing",
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          minPrice: 150000,
-          maxPrice: 6000000,
-          priceCurrency: "INR",
-        },
       },
       {
         "@type": "BreadcrumbList",
@@ -460,7 +404,7 @@ const CustomAIAgents = () => {
                     </div>
                     <div className="absolute -top-4 -right-4 glass-card rounded-xl px-4 py-3 shadow-lg animate-float">
                       <p className="text-xs text-muted-foreground">Feasibility Review</p>
-                      <p className="text-lg font-bold text-primary">From $2K</p>
+                      <p className="text-lg font-bold text-primary">1-week scope</p>
                     </div>
                   </div>
                 </AnimatedSection>

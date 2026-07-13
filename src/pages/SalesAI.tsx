@@ -95,16 +95,15 @@ const outboundPillars = [
 ];
 
 const pilotDetails = [
-  "Price: $300–$500 per Stage-2-qualified meeting (based on ICP complexity, ACV, geography)",
-  "Setup: $2,500 one-time (domains, warming, Clay tables, copy, ICP workshop, CRM integration)",
+  "Price: pay per Stage-2-qualified meeting (based on ICP complexity, ACV, geography)",
+  "Setup: one-time onboarding (domains, warming, Clay tables, copy, ICP workshop, CRM integration)",
   "Volume: ~500 tier-1 accounts over 6 weeks, not 5,000",
   "Commitment: 6 weeks, no contract rollover",
 ];
 
 const retainedDetails = [
   "Monthly retainer + shared KPIs on pipeline and opportunities created, not meetings",
-  "Starts at $7,500/month for single-play + single-inbox setups",
-  "Scales to $20,000+/month for multi-play, multi-channel programs with voice follow-up",
+  "Single-play + single-inbox setups, or multi-play, multi-channel programs with voice follow-up",
   "Quoted after a pilot, never sold upfront",
 ];
 

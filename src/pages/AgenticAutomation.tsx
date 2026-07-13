@@ -23,7 +23,6 @@ const useCases = [
 
 const agentSprintDetails = [
   { label: "Timeline", value: "4 weeks, fixed" },
-  { label: "Price", value: "flat fee" },
   { label: "Deliverable", value: "One production agent, eval harness, observability dashboard, runbook" },
   { label: "Best for", value: "Testing the waters — or shipping one workflow fast" },
   { label: "What comes next", value: "Optional retained engagement for additional agents" },
@@ -255,13 +254,6 @@ const AgenticAutomation = () => {
         name: "Agent Sprint",
         url: "https://theconverseai.com/services/agentic-automation#agent-sprint",
         availability: "https://schema.org/InStock",
-        priceSpecification: [
-          {
-            "@type": "UnitPriceSpecification",
-            priceCurrency: "USD",
-            price: 999,
-          },
-        ],
       },
       {
         "@type": "ItemList",
@@ -394,8 +386,8 @@ const AgenticAutomation = () => {
                           <p className="text-xs text-muted-foreground">First agent live</p>
                         </div>
                         <div>
-                          <p className="text-xl font-bold text-violet">$999</p>
-                          <p className="text-xs text-muted-foreground">Agent Sprint fixed fee</p>
+                          <p className="text-xl font-bold text-violet">Flat fee</p>
+                          <p className="text-xs text-muted-foreground">Agent Sprint — fixed scope</p>
                         </div>
                         <div>
                           <p className="text-xl font-bold text-mint">24/7</p>

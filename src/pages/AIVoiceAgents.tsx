@@ -281,30 +281,11 @@ const outcomes = [
   "Recover 15–25% more on early-stage collections buckets",
 ];
 
-const pricingCards = [
-  {
-    title: "Setup",
-    detail: "From $2,500 / ₹1,50,000 per use case (scripts, CRM integration, telephony setup, voice tuning)",
-  },
-  {
-    title: "Usage",
-    detail: "Pay-as-you-go per minute — all-in pricing including LLM, TTS, telephony, platform",
-  },
-  {
-    title: "Retainer (optional)",
-    detail: "Monthly ops, tuning, reporting",
-  },
-  {
-    title: "Outcome-based pilots",
-    detail: "Per-qualified-lead or per-booked-appointment pricing for select use cases",
-  },
-];
-
 const faqs = [
   {
     question: "How much does an AI voice agent cost?",
     answer:
-      "Setup from $999, then per-minute usage. At typical SMB volume (5,000 minutes/month), all-in cost is 60–80% less than a human SDR or BPO agent.",
+      "A one-time setup plus per-minute usage. At typical SMB volume (5,000 minutes/month), all-in cost is 60–80% less than a human SDR or BPO agent. Book a call and we'll scope it to your use case.",
   },
   {
     question: "Can AI voice agents speak Hindi and regional languages?",
@@ -403,23 +384,6 @@ const AIVoiceAgents = () => {
           url: "https://theconverseai.com",
         },
         areaServed: ["India", "United States", "Global"],
-        offers: {
-          "@type": "Offer",
-          url: "https://theconverseai.com/services/ai-voice-agents",
-          availability: "https://schema.org/InStock",
-          priceSpecification: [
-            {
-              "@type": "UnitPriceSpecification",
-              priceCurrency: "USD",
-              price: 2500,
-            },
-            {
-              "@type": "UnitPriceSpecification",
-              priceCurrency: "INR",
-              price: 150000,
-            },
-          ],
-        },
       },
       {
         "@type": "BreadcrumbList",
