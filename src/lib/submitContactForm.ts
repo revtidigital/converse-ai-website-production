@@ -11,6 +11,8 @@ interface ContactPayload {
   subject: string;
   message: string;
   form_source: string;
+  /** Optional extra fields appended to the payload (e.g. PDF attachment for the audit report). */
+  extraFields?: Record<string, string>;
 }
 
 const getDefaultSubject = (payload: ContactPayload) => {
@@ -53,6 +55,12 @@ export const submitContactForm = async (payload: ContactPayload): Promise<void> 
     page_url: window.location.href,
     device_info: navigator.userAgent.substring(0, 200),
   };
+
+  if (payload.extraFields) {
+    Object.entries(payload.extraFields).forEach(([key, value]) => {
+      finalPayload[key] = value ?? "";
+    });
+  }
 
   const params = new URLSearchParams();
   Object.entries(finalPayload).forEach(([key, value]) => {

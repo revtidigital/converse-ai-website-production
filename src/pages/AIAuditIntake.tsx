@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { submitContactForm } from "@/lib/submitContactForm";
+import { generateAuditReportPdf, uint8ToBase64, downloadPdf, type AuditInput } from "@/lib/auditReport";
 import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
 const industries = [
@@ -150,6 +151,40 @@ const AIAuditIntake = () => {
     }
 
     setIsSubmitting(true);
+
+    const auditInput: AuditInput = {
+      fullName: fullName.trim(),
+      email: email.trim(),
+      company: company.trim(),
+      role,
+      industry,
+      teamSize,
+      revenue,
+      region,
+      pains,
+      depts,
+      aiMaturity,
+      dataReadiness,
+      tools,
+      budget,
+      timeline,
+      compliance,
+      notes,
+    };
+
+    // Build the branded PDF report. Never block lead capture if this fails.
+    const extraFields: Record<string, string> = {};
+    try {
+      const bytes = await generateAuditReportPdf(auditInput);
+      const filename = `AI-Readiness-Report-${company.trim().replace(/[^a-z0-9]+/gi, "-") || "ConverseAI"}.pdf`;
+      downloadPdf(bytes, filename); // instant copy for the visitor
+      extraFields.pdf_base64 = uint8ToBase64(bytes);
+      extraFields.pdf_filename = filename;
+      extraFields.report_recipient = email.trim();
+    } catch {
+      // PDF generation failed — continue so the lead is still captured.
+    }
+
     try {
       await submitContactForm({
         fullName: fullName.trim(),
@@ -160,6 +195,7 @@ const AIAuditIntake = () => {
         subject: `AI Readiness Audit request — ${company.trim()}`,
         message: buildMessage(),
         form_source: "AI Readiness Audit Intake",
+        extraFields,
       });
       trackFormSuccess(FORM_ID, { form_location: FORM_LOC });
       setSubmitted(true);
@@ -231,10 +267,11 @@ const AIAuditIntake = () => {
                 <AnimatedSection>
                   <div className="glass-card rounded-3xl p-10 text-center border border-primary/10">
                     <CheckCircle className="w-14 h-14 text-primary mx-auto mb-5" />
-                    <h2 className="text-2xl md:text-3xl font-bold mb-3">Got it — your audit request is in.</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold mb-3">Your AI Readiness Report is ready.</h2>
                     <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-                      Thanks{fullName ? `, ${fullName.split(" ")[0]}` : ""}. Our team is reviewing your details and will email a
-                      tailored proposal to <span className="font-semibold text-foreground">{email}</span> within 48 hours.
+                      Thanks{fullName ? `, ${fullName.split(" ")[0]}` : ""} — your personalized report just downloaded, and a copy
+                      is on its way to <span className="font-semibold text-foreground">{email}</span>. Our team will follow up
+                      with a tailored proposal within 48 hours.
                     </p>
                     <Link to="/services/ai-strategy-audit">
                       <Button variant="hero-outline" size="lg">
