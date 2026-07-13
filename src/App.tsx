@@ -27,6 +27,7 @@ import ContactUs from "./pages/ContactUs";
 import AboutUs from "./pages/AboutUs";
 import Services from "./pages/Services";
 import AIStrategyAudit from "./pages/AIStrategyAudit";
+import AIAuditIntake from "./pages/AIAuditIntake";
 import AIVoiceAgents from "./pages/AIVoiceAgents";
 import AgenticAutomation from "./pages/AgenticAutomation";
 import AIIntegration from "./pages/AIIntegration";
@@ -75,6 +76,7 @@ const staticRouteElements: Record<PublicStaticRoutePath, ReactNode> = {
   "/solutions/ai-for-smb": <AIForSMB />,
   "/services": <Services />,
   "/services/ai-strategy-audit": <AIStrategyAudit />,
+  "/services/ai-strategy-audit/start": <AIAuditIntake />,
   "/services/agentic-automation": <AgenticAutomation />,
   "/services/ai-integration": <AIIntegration />,
   "/services/ai-voice-agents": <AIVoiceAgents />,

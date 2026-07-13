@@ -302,7 +302,7 @@ const AIStrategyAudit = () => {
                       </span>
                     </p>
                     <div className="flex flex-col gap-4 sm:max-w-xs">
-                      <Link to="/contact-us">
+                      <Link to="/services/ai-strategy-audit/start">
                         <Button variant="hero" size="xl" title="Start my audit — proposal in 48 hours">
                           Start my audit — proposal in 48 hours
                           <ArrowRight className="w-5 h-5" />
