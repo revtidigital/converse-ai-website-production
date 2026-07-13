@@ -226,6 +226,18 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
     page.drawText(`Page ${n}`, { x: W - M - 34, y: 40, size: 8, font, color: BRAND.muted });
   };
 
+  // small mint accent bar under a section title
+  const accent = (page: PDFPage, x: number, titleBaseline: number, w = 38) =>
+    page.drawRectangle({ x, y: titleBaseline - 7, width: w, height: 3, color: BRAND.mint });
+
+  // rounded-ish tag pill; returns its width for chaining
+  const pill = (page: PDFPage, x: number, y: number, label: string, bg: RGB, fg: RGB) => {
+    const w = font.widthOfTextAtSize(label, 8) + 16;
+    page.drawRectangle({ x, y: y - 4, width: w, height: 16, color: bg });
+    page.drawText(label, { x: x + 8, y, size: 8, font: bold, color: fg });
+    return w;
+  };
+
   /* ===== PAGE 1 ===== */
   const p1 = doc.addPage([W, H]);
   drawHeader(p1);
@@ -261,6 +273,7 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
 
   // Snapshot
   p1.drawText("Snapshot", { x: M, y, size: 13, font: bold, color: BRAND.ink });
+  accent(p1, M, y);
   y -= 20;
   const snap: [string, string][] = [
     ["Industry", input.industry || "—"],
@@ -280,6 +293,7 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
 
   // Readiness breakdown bars
   p1.drawText("Where you stand today", { x: M, y, size: 13, font: bold, color: BRAND.ink });
+  accent(p1, M, y);
   y -= 24;
   const barW = contentW - 160;
   for (const d of readiness.dims) {
@@ -290,6 +304,37 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
     p1.drawText(`${Math.round((d.value / d.max) * 100)}%`, { x: bx + barW + 8, y: y - 3, size: 9, font: bold, color: BRAND.muted });
     y -= 24;
   }
+  y -= 12;
+
+  // Top opportunity highlight
+  const top = useCases[0];
+  if (top) {
+    const oppLines = wrap(top.why, font, 10.5, contentW - 34);
+    const oppH = 44 + oppLines.length * 14;
+    p1.drawRectangle({ x: M, y: y - oppH, width: contentW, height: oppH, color: rgb(0.95, 0.99, 0.975), borderColor: BRAND.mint, borderWidth: 1 });
+    p1.drawRectangle({ x: M, y: y - oppH, width: 4, height: oppH, color: BRAND.mint });
+    p1.drawText("RECOMMENDED FIRST BUILD", { x: M + 16, y: y - 20, size: 8, font: bold, color: rgb(0.04, 0.52, 0.4) });
+    p1.drawText(top.title, { x: M + 16, y: y - 37, size: 14, font: bold, color: BRAND.ink });
+    oppLines.forEach((ln, i) => p1.drawText(ln, { x: M + 16, y: y - 54 - i * 14, size: 10.5, font, color: BRAND.muted }));
+    y -= oppH + 30;
+  }
+
+  // What the audit delivers
+  p1.drawText("What your ROI-First Audit delivers", { x: M, y, size: 13, font: bold, color: BRAND.ink });
+  accent(p1, M, y);
+  y -= 26;
+  const delivers = [
+    "5–10 high-ROI use cases, scored & ranked",
+    "A 90-day roadmap with owners & milestones",
+    "Board-ready executive readout",
+    "Clear recommendation for the first build",
+  ];
+  delivers.forEach((d, i) => {
+    const x = M + (i % 2) * (contentW / 2);
+    const yy = y - Math.floor(i / 2) * 22;
+    p1.drawCircle({ x: x + 4, y: yy - 2, size: 3, color: BRAND.primary });
+    p1.drawText(d, { x: x + 14, y: yy - 5, size: 10, font, color: BRAND.ink });
+  });
 
   drawFooter(p1, 1);
 
@@ -299,6 +344,7 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
   let y2 = H - 130;
 
   p2.drawText("Recommended AI use cases", { x: M, y: y2, size: 16, font: bold, color: BRAND.ink });
+  accent(p2, M, y2);
   y2 -= 12;
   p2.drawText("Prioritized from your inputs — scored on business impact and feasibility.", {
     x: M, y: y2 - 8, size: 10, font, color: BRAND.muted,
@@ -306,20 +352,26 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
   y2 -= 34;
 
   useCases.forEach((uc, i) => {
-    const lines = wrap(uc.why, font, 10, contentW - 32);
-    const boxH = 34 + lines.length * 13;
+    const lines = wrap(uc.why, font, 10, contentW - 34);
+    const boxH = 56 + lines.length * 13;
     p2.drawRectangle({ x: M, y: y2 - boxH, width: contentW, height: boxH, color: BRAND.white, borderColor: BRAND.line, borderWidth: 1 });
     p2.drawRectangle({ x: M, y: y2 - boxH, width: 4, height: boxH, color: BRAND.primary });
-    p2.drawText(`${i + 1}.  ${uc.title}`, { x: M + 14, y: y2 - 18, size: 12, font: bold, color: BRAND.ink });
-    const tag = `Impact: ${uc.impact}   ·   Feasibility: ${uc.feasibility}`;
-    p2.drawText(tag, { x: W - M - font.widthOfTextAtSize(tag, 8.5) - 10, y: y2 - 18, size: 8.5, font: bold, color: BRAND.primary });
-    lines.forEach((ln, j) => p2.drawText(ln, { x: M + 14, y: y2 - 34 - j * 13, size: 10, font, color: BRAND.muted }));
+    // number badge
+    p2.drawCircle({ x: M + 24, y: y2 - 20, size: 10, color: BRAND.primary });
+    p2.drawText(String(i + 1), { x: M + 24 - bold.widthOfTextAtSize(String(i + 1), 10) / 2, y: y2 - 24, size: 10, font: bold, color: BRAND.white });
+    p2.drawText(uc.title, { x: M + 42, y: y2 - 24, size: 12.5, font: bold, color: BRAND.ink });
+    lines.forEach((ln, j) => p2.drawText(ln, { x: M + 42, y: y2 - 40 - j * 13, size: 10, font, color: BRAND.muted }));
+    // impact / feasibility pills
+    const pillY = y2 - boxH + 13;
+    const w1 = pill(p2, M + 42, pillY, `${uc.impact} impact`, rgb(0.86, 0.98, 0.94), rgb(0.04, 0.5, 0.38));
+    pill(p2, M + 42 + w1 + 8, pillY, `${uc.feasibility} feasibility`, rgb(0.93, 0.9, 1), BRAND.primaryDark);
     y2 -= boxH + 12;
   });
 
   // Roadmap
   y2 -= 6;
   p2.drawText("Your 90-day roadmap", { x: M, y: y2, size: 14, font: bold, color: BRAND.ink });
+  accent(p2, M, y2);
   y2 -= 22;
   const phases: [string, string][] = [
     ["Weeks 1–3", "ROI-First Audit: score use cases, confirm the first build, lock success metrics."],
