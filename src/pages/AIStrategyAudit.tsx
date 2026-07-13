@@ -85,7 +85,7 @@ const differentiators = [
   },
   {
     title: "India + US delivery economics.",
-    description: "From $999 — under 10% of what Deloitte or BCG quote.",
+    description: "A fraction of what Deloitte or BCG quote — without the enterprise overhead.",
   },
 ];
 
