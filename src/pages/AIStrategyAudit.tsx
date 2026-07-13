@@ -130,24 +130,6 @@ const outcomes = [
   "Clear path from audit to first live AI system in 60–90 days",
 ];
 
-const pricingTiers = [
-  {
-    title: "Essential",
-    scope: "Single function (e.g., CX or RevOps)",
-    price: "$999",
-  },
-  {
-    title: "Growth",
-    scope: "Cross-functional, 3 workstreams",
-    price: "$4,999",
-  },
-  {
-    title: "Enterprise",
-    scope: "Multi-BU, data readiness deep-dive",
-    price: "Custom",
-  },
-];
-
 const faqs = [
   {
     question: "What’s an AI readiness assessment?",
@@ -157,7 +139,7 @@ const faqs = [
   {
     question: "How much does an AI readiness audit cost?",
     answer:
-      "Our ROI-First Audit starts at $999 for a single-function scope. Cross-functional audits are $4,999. Enterprise/multi-BU scope is custom. Compare: Deloitte, BCG, and McKinsey quote $75K–$250K for equivalent work.",
+      "Pricing depends on scope — single-function, cross-functional, or enterprise/multi-BU. Book a free fit call and we’ll scope it with you. Compare: Deloitte, BCG, and McKinsey quote $75K–$250K for equivalent work.",
   },
   {
     question: "How long does an AI audit take?",
@@ -231,18 +213,6 @@ const AIStrategyAudit = () => {
           url: "https://theconverseai.com",
         },
         areaServed: ["India", "United States"],
-        offers: {
-          "@type": "Offer",
-          url: "https://theconverseai.com/services/ai-strategy-audit",
-          availability: "https://schema.org/InStock",
-          priceSpecification: [
-            {
-              "@type": "UnitPriceSpecification",
-              priceCurrency: "USD",
-              price: 999,
-            },
-          ],
-        },
       },
       {
         "@type": "BreadcrumbList",
@@ -299,13 +269,13 @@ const AIStrategyAudit = () => {
         <title>AI Readiness Audit — 3-Week Strategy Roadmap | ConverseAI</title>
         <meta
           name="description"
-          content="3-week fixed-fee AI readiness audit. Identify 5–10 high-ROI use cases and get a 90-day roadmap. From $999 — book a free fit call today."
+          content="3-week fixed-fee AI readiness audit. Identify 5–10 high-ROI use cases and get a 90-day roadmap. Book a free fit call today."
         />
         <meta name="robots" content="index, follow" />
         <meta property="og:title" content="AI Readiness Audit — 3-Week Strategy Roadmap | ConverseAI" />
         <meta
           property="og:description"
-          content="3-week fixed-fee AI readiness audit. Identify 5–10 high-ROI use cases and get a 90-day roadmap. From $999 — book a free fit call today."
+          content="3-week fixed-fee AI readiness audit. Identify 5–10 high-ROI use cases and get a 90-day roadmap. Book a free fit call today."
         />
         <link rel="canonical" href="https://theconverseai.com/services/ai-strategy-audit" />
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
@@ -371,8 +341,7 @@ const AIStrategyAudit = () => {
                         ))}
                       </div>
                       <div className="mt-6 pt-5 border-t border-border/50 text-center">
-                        <p className="text-xs text-muted-foreground mb-1">Audit fee credited toward build</p>
-                        <p className="text-2xl font-bold text-primary">From $999</p>
+                        <p className="text-xs text-muted-foreground">Audit fee credited toward build</p>
                       </div>
                     </div>
                     <div className="absolute -top-4 -right-4 glass-card rounded-xl px-4 py-3 shadow-lg animate-float">
@@ -592,31 +561,6 @@ const AIStrategyAudit = () => {
                     <CheckCircle className="w-5 h-5 text-primary mt-1" />
                     <span>{item}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="py-12 md:py-16">
-            <div className="container-tight">
-              <AnimatedSection>
-                <div className="text-center mb-10">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">Pricing</h2>
-                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    All tiers include the full deliverable set. Pricing differs by scope and interview count. Audit fee is
-                    credited toward the first build if we work together.
-                  </p>
-                </div>
-              </AnimatedSection>
-              <div className="grid md:grid-cols-3 gap-6">
-                {pricingTiers.map((tier) => (
-                  <AnimatedSection key={tier.title}>
-                    <div className="rounded-2xl border border-border/60 bg-white/90 p-6 h-full">
-                      <p className="text-sm uppercase tracking-wide text-primary mb-2">{tier.title}</p>
-                      <h3 className="text-xl font-semibold mb-2">{tier.price}</h3>
-                      <p className="text-muted-foreground">{tier.scope}</p>
-                    </div>
-                  </AnimatedSection>
                 ))}
               </div>
             </div>
