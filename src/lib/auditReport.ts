@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage, type RGB } from "pdf-lib";
+import { PDFDocument, StandardFonts, PDFName, PDFString, rgb, type PDFFont, type PDFPage, type RGB } from "pdf-lib";
 
 export interface AuditInput {
   fullName: string;
@@ -229,10 +229,46 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
     page.drawRectangle({ x: 0, y: H - 96, width: W, height: 6, color: BRAND.mint });
   };
 
+  // Attach a clickable URI link annotation over a rectangular area.
+  const addLink = (page: PDFPage, x: number, y: number, w: number, h: number, uri: string) => {
+    const context = page.doc.context;
+    const annot = context.obj({
+      Type: "Annot",
+      Subtype: "Link",
+      Rect: [x, y, x + w, y + h],
+      Border: [0, 0, 0],
+      A: { Type: "Action", S: "URI", URI: PDFString.of(uri) },
+    });
+    const ref = context.register(annot);
+    const existing = page.node.Annots();
+    if (existing) {
+      existing.push(ref);
+    } else {
+      page.node.set(PDFName.of("Annots"), context.obj([ref]));
+    }
+  };
+
+  // Draw a clickable text link; returns the advance width.
+  const linkText = (page: PDFPage, label: string, x: number, y: number, size: number, uri: string, color: RGB) => {
+    const w = font.widthOfTextAtSize(label, size);
+    page.drawText(label, { x, y, size, font, color });
+    addLink(page, x, y - 2, w, size + 2, uri);
+    return w;
+  };
+
   const drawFooter = (page: PDFPage, n: number) => {
-    page.drawLine({ start: { x: M, y: 54 }, end: { x: W - M, y: 54 }, thickness: 0.75, color: BRAND.line });
-    page.drawText("theconverseai.com  ·  Prepared by ConverseAI", { x: M, y: 40, size: 8, font, color: BRAND.muted });
-    page.drawText(`Page ${n}`, { x: W - M - 34, y: 40, size: 8, font, color: BRAND.muted });
+    page.drawLine({ start: { x: M, y: 58 }, end: { x: W - M, y: 58 }, thickness: 0.75, color: BRAND.line });
+    const fy = 43;
+    const sep = "   ·   ";
+    let x = M;
+    x += linkText(page, "theconverseai.com", x, fy, 8, "https://theconverseai.com", BRAND.primary);
+    page.drawText(sep, { x, y: fy, size: 8, font, color: BRAND.muted });
+    x += font.widthOfTextAtSize(sep, 8);
+    x += linkText(page, "contact@theconverseai.com", x, fy, 8, "mailto:contact@theconverseai.com", BRAND.primary);
+    page.drawText(sep, { x, y: fy, size: 8, font, color: BRAND.muted });
+    x += font.widthOfTextAtSize(sep, 8);
+    linkText(page, "+91 99823 23333", x, fy, 8, "tel:+919982323333", BRAND.primary);
+    page.drawText(`Page ${n}`, { x: W - M - 34, y: fy, size: 8, font, color: BRAND.muted });
   };
 
   // small mint accent bar under a section title
@@ -413,7 +449,9 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
   p2.drawText("Book a free 20-min fit call. Your audit fee is credited toward the first build.", {
     x: M + 18, y: ctaY + ctaH - 46, size: 10, font, color: BRAND.white,
   });
-  p2.drawText("theconverseai.com/services/ai-strategy-audit", { x: M + 18, y: ctaY + 16, size: 10, font: bold, color: BRAND.mint });
+  const ctaLinkLabel = "theconverseai.com/services/ai-strategy-audit";
+  p2.drawText(ctaLinkLabel, { x: M + 18, y: ctaY + 16, size: 10, font: bold, color: BRAND.mint });
+  addLink(p2, M + 18, ctaY + 14, bold.widthOfTextAtSize(ctaLinkLabel, 10), 12, "https://theconverseai.com/services/ai-strategy-audit");
 
   drawFooter(p2, 2);
 
