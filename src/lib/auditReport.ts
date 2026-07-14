@@ -192,7 +192,7 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
   // logo (best-effort — falls back to wordmark)
   let logo: Awaited<ReturnType<typeof doc.embedPng>> | null = null;
   try {
-    const res = await fetch("/logo.png");
+    const res = await fetch("/logo-white.png");
     if (res.ok) {
       const buf = await res.arrayBuffer();
       logo = await doc.embedPng(buf);
