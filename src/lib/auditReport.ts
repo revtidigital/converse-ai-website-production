@@ -218,6 +218,15 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
       font: bold,
       color: BRAND.white,
     });
+    page.drawText("theconverseai.com", {
+      x: W - M - font.widthOfTextAtSize("theconverseai.com", 9),
+      y: H - 66,
+      size: 9,
+      font,
+      color: rgb(0.85, 0.82, 0.98),
+    });
+    // mint accent stripe below the header band
+    page.drawRectangle({ x: 0, y: H - 96, width: W, height: 6, color: BRAND.mint });
   };
 
   const drawFooter = (page: PDFPage, n: number) => {
