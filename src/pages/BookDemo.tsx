@@ -17,6 +17,7 @@ import Footer from "@/components/Footer";
 import { Send } from "lucide-react";
 import { validateContactForm } from "@/lib/validations/contact";
 import { submitContactForm } from "@/lib/submitContactForm";
+import { usePartialLeadCapture } from "@/lib/usePartialLeadCapture";
 import PhoneInputField from "@/components/ui/PhoneInputField";
 import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
@@ -34,6 +35,7 @@ const BookDemo = () => {
     agreeToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const capturePartialLead = usePartialLeadCapture("Partial Lead – Book Demo");
   const { toast } = useToast();
   const hasStartedForm = useRef(false);
 
@@ -150,6 +152,14 @@ const BookDemo = () => {
                       placeholder="john@company.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onBlur={() =>
+                        capturePartialLead(formData.email, {
+                          fullName: formData.name,
+                          phone: formData.phone,
+                          countryName: formData.countryName,
+                          product: formData.product,
+                        })
+                      }
                       maxLength={255}
                       className={`h-12 bg-white/50 border-muted focus:border-primary focus:ring-primary ${errors.email ? "border-destructive" : ""}`}
                     />

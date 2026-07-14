@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { submitContactForm } from "@/lib/submitContactForm";
+import { usePartialLeadCapture } from "@/lib/usePartialLeadCapture";
 import { generateAuditReportPdf, uint8ToBase64, downloadPdf, type AuditInput } from "@/lib/auditReport";
 import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
@@ -72,6 +73,7 @@ const AIAuditIntake = () => {
   const { toast } = useToast();
 
   // contact
+  const capturePartialLead = usePartialLeadCapture("Partial Lead – AI Audit Intake");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -293,7 +295,7 @@ const AIAuditIntake = () => {
                         </div>
                         <div>
                           <label className={labelClass}>Work email *</label>
-                          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" className="h-12 bg-white/80" />
+                          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => capturePartialLead(email, { fullName, phone })} placeholder="you@company.com" className="h-12 bg-white/80" />
                         </div>
                         <div>
                           <label className={labelClass}>Company name *</label>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { submitContactForm } from "@/lib/submitContactForm";
+import { usePartialLeadCapture } from "@/lib/usePartialLeadCapture";
 import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
 const metaTitle = "AI for Small & Mid-Sized Businesses (SMB) | ConverseAI";
@@ -204,6 +205,7 @@ const AIForSMB = () => {
   const [emailError, setEmailError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const capturePartialLead = usePartialLeadCapture("Partial Lead – SMB AI Diagnostic");
   const hasStartedPdfForm = useRef(false);
   const { toast } = useToast();
 
@@ -466,6 +468,7 @@ const AIForSMB = () => {
                             placeholder="Work email"
                             value={email}
                             onChange={(event) => setEmail(event.target.value)}
+                            onBlur={() => capturePartialLead(email, { product: "SMB AI Diagnostic" })}
                             maxLength={255}
                             aria-invalid={!!emailError}
                             aria-describedby={emailError ? "smb-email-error" : undefined}
