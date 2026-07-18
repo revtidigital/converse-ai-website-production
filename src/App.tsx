@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { AnimatePresence } from "framer-motion";
 import ScrollToTop from "./components/ScrollToTop";
@@ -37,6 +37,9 @@ import SalesAI from "./pages/SalesAI";
 import AIForSMB from "./pages/AIForSMB";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import { isBlogHost, getSubdomainHosts } from "@/lib/blogUrl";
+import Blog2 from "./pages/Blog2";
+import BlogPost2 from "./pages/BlogPost2";
 import Chatbot from "./pages/Chatbot";
 import LiveChat from "./pages/LiveChat";
 import OmniChannel from "./pages/OmniChannel";
@@ -60,18 +63,54 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminCaseStudies from "./pages/admin/AdminCaseStudies";
 import AdminCaseStudyForm from "./pages/admin/AdminCaseStudyForm";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminPricingForm from "./pages/admin/AdminPricingForm";
+import AdminBlog from "./pages/admin/AdminBlog";
+import AdminBlogForm from "./pages/admin/AdminBlogForm";
+import AdminBlogTrash from "./pages/admin/AdminBlogTrash";
+import AdminBlogCategories from "./pages/admin/AdminBlogCategories";
+import AdminRedirects from "./pages/admin/AdminRedirects";
+import AdminActivityLog from "./pages/admin/AdminActivityLog";
 
 type RouterComponent = ComponentType<{ children: ReactNode }>;
 
+const BlogRedirect = () => {
+  useEffect(() => {
+    if (!isBlogHost()) {
+      const { blogHost } = getSubdomainHosts();
+      window.location.replace(`${blogHost}/`);
+    }
+  }, []);
+  return isBlogHost() ? <Blog /> : <div className="min-h-screen bg-background" />;
+};
+
+const BlogPostRedirect = () => {
+  const { slug } = useParams();
+  useEffect(() => {
+    if (!isBlogHost()) {
+      const { blogHost } = getSubdomainHosts();
+      window.location.replace(`${blogHost}/${slug || ""}`);
+    }
+  }, [slug]);
+  return isBlogHost() ? <BlogPost /> : <div className="min-h-screen bg-background" />;
+};
+
+// On the blog subdomain (blog.theconverseai.com) the root shows the blog index;
+// on the main site it shows the homepage.
+const HomeRoute = () => (isBlogHost() ? <Blog /> : <Index />);
+// Root-level slug (blog.theconverseai.com/<slug>) resolves to a blog post on the
+// blog subdomain; on the main site an unmatched top-level path is a 404.
+const RootSlugRoute = () => (isBlogHost() ? <BlogPost /> : <NotFound />);
+
 const staticRouteElements: Record<PublicStaticRoutePath, ReactNode> = {
-  "/": <Index />,
+  "/": <HomeRoute />,
   "/about-us": <AboutUs />,
   "/contact-us": <ContactUs />,
   "/book-demo": <BookDemo />,
-  "/blog": <Blog />,
+  "/blog": <BlogRedirect />,
+  "/blog-2": <Blog2 />,
   "/case-studies": <CaseStudies />,
   "/solutions/ai-for-smb": <AIForSMB />,
   "/services": <Services />,
@@ -116,7 +155,8 @@ const AnimatedRoutes = () => {
             element={<PageTransition>{staticRouteElements[path]}</PageTransition>}
           />
         ))}
-        <Route path="/blog/:slug" element={<PageTransition><BlogPost /></PageTransition>} />
+        <Route path="/blog/:slug" element={<PageTransition><BlogPostRedirect /></PageTransition>} />
+        <Route path="/blog-2/:slug" element={<PageTransition><BlogPost2 /></PageTransition>} />
         <Route path="/case-studies/:slug" element={<PageTransition><CaseStudyDetail /></PageTransition>} />
         <Route path="/teams-2" element={<Navigate to="/teams" replace />} />
 
@@ -127,6 +167,14 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/case-studies"
+          element={
+            <ProtectedRoute>
+              <AdminCaseStudies />
             </ProtectedRoute>
           }
         />
@@ -170,7 +218,68 @@ const AnimatedRoutes = () => {
             </ProtectedRoute>
           }
         />
-        
+
+        {/* Blog admin routes */}
+        <Route
+          path="/admin/blog"
+          element={
+            <ProtectedRoute>
+              <AdminBlog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog/new"
+          element={
+            <ProtectedRoute>
+              <AdminBlogForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog/:id/edit"
+          element={
+            <ProtectedRoute>
+              <AdminBlogForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog/trash"
+          element={
+            <ProtectedRoute>
+              <AdminBlogTrash />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog/categories"
+          element={
+            <ProtectedRoute>
+              <AdminBlogCategories />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/redirects"
+          element={
+            <ProtectedRoute>
+              <AdminRedirects />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/activity"
+          element={
+            <ProtectedRoute>
+              <AdminActivityLog />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Root-level slug — blog subdomain post URLs (blog.theconverseai.com/<slug>) */}
+        <Route path="/:slug" element={<PageTransition><RootSlugRoute /></PageTransition>} />
+
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>

@@ -1,0 +1,2085 @@
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
+import { supabase } from "@/integrations/supabase/client";
+import { uploadBlogImage } from "@/lib/uploadImage";
+import AdminShell from "@/components/admin/AdminShell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useBlogCategories } from "@/hooks/useBlogCategories";
+import { useBlogTags } from "@/hooks/useBlogTags";
+import { useBlogRevisions } from "@/hooks/useBlogRevisions";
+import { calculateReadingTime, formatReadingTime } from "@/lib/readingTime";
+import { blogHref, getSubdomainHosts } from "@/lib/blogUrl";
+import { sanitizeHtml } from "@/lib/htmlSanitizer";
+import { startAutosave, loadAutosave, clearAutosave, getAutosaveAge } from "@/lib/autosave";
+import { checkDuplicates } from "@/lib/duplicateDetector";
+import { analyzeSEO, type SEOCheck } from "@/lib/seoAnalyzer";
+import { analyzeReadability, type ReadabilityCheck } from "@/lib/readabilityAnalyzer";
+import { analyzeAnchorRules, extractLinks } from "@/lib/checkLink";
+import RichTextEditor, { type RichTextEditorHandle, type ScanState } from "@/components/admin/RichTextEditor";
+import FAQRichTextEditor from "@/components/admin/FAQRichTextEditor";
+import {
+  ArrowLeft, Save, Eye, EyeOff, Clock, History, AlertTriangle,
+  CheckCircle, XCircle, ChevronDown, ChevronUp, Plus, Trash2,
+  GripVertical, RotateCcw, Globe, Share2, BookOpen, HelpCircle,
+  Link2, BarChart2, Search
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type PostStatus = "draft" | "published" | "scheduled" | "archived";
+
+interface FAQ { id?: number; question: string; answer: string; order_index: number; }
+
+interface FormValues {
+  // SEO
+  seo_title: string; meta_description: string; slug: string;
+  focus_keyphrase: string; canonical_url: string;
+  // Blog Details
+  title: string; publish_date: string; publish_at: string; unpublish_at: string;
+  status: PostStatus;
+  // Header Image
+  featured_image_url: string; featured_image_alt: string; featured_image_title: string; featured_image_caption: string;
+  // Social
+  og_title: string; og_description: string; og_image_url: string;
+  twitter_title: string; twitter_description: string; twitter_image_url: string;
+  // Publish
+  display_order: number;
+  content_html: string;
+  excerpt: string;
+  // FAQ Layout
+  faq_placement: "last" | "middle";
+  /*
+  // Uncomment when enabling Author functionality
+  author_id?: number | null;
+  show_author?: boolean;
+  */
+}
+
+function slugify(str: string): string {
+  return str.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+}
+
+// ─── Section Header ────────────────────────────────────────────────────────────
+function SectionCard({ title, icon: Icon, children, defaultOpen = true, overflowHidden = true }: {
+  title: string; icon: React.ElementType; children: React.ReactNode; defaultOpen?: boolean; overflowHidden?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={cn("rounded-xl border border-border/60 bg-white shadow-sm", overflowHidden ? "overflow-hidden" : "")}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "w-full flex items-center justify-between px-6 py-4 hover:bg-secondary/20 transition-colors",
+          open ? "rounded-t-xl" : "rounded-xl"
+        )}
+      >
+        <div className="flex items-center gap-2.5">
+          <Icon className="h-4 w-4 text-violet-600" />
+          <span className="text-sm font-semibold text-foreground">{title}</span>
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+      {open && <div className="px-6 pb-6 pt-0 space-y-4 border-t border-border/40">{children}</div>}
+    </div>
+  );
+}
+
+// ─── SEO Score Ring ───────────────────────────────────────────────────────────
+function SEOScoreRing({ score }: { score: number }) {
+  if (score === 0) {
+    return (
+      <div className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-gray-50 text-gray-400">
+        <span className="h-3 w-3 rounded-full bg-gray-300 shrink-0" />
+        SEO {score}/100
+      </div>
+    );
+  }
+  const color = score >= 75 ? "text-green-600" : score >= 50 ? "text-yellow-600" : "text-red-600";
+  const bg = score >= 75 ? "bg-green-50" : score >= 50 ? "bg-yellow-50" : "bg-red-50";
+  return (
+    <div className={cn("flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold", bg, color)}>
+      {score >= 75 ? <CheckCircle className="h-3 w-3" /> : score >= 50 ? <AlertTriangle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+      SEO {score}/100
+    </div>
+  );
+}
+
+// ─── Readability Score Ring ───────────────────────────────────────────────────
+function ReadabilityScoreRing({ score }: { score: number }) {
+  if (score === 0) {
+    return (
+      <div className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-gray-50 text-gray-400">
+        <span className="h-3 w-3 rounded-full bg-gray-300 shrink-0" />
+        Readability {score}/100
+      </div>
+    );
+  }
+  const color = score >= 75 ? "text-green-600" : score >= 50 ? "text-yellow-600" : "text-red-600";
+  const bg = score >= 75 ? "bg-green-50" : score >= 50 ? "bg-yellow-50" : "bg-red-50";
+  return (
+    <div className={cn("flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold", bg, color)}>
+      {score >= 75 ? <CheckCircle className="h-3 w-3" /> : score >= 50 ? <AlertTriangle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+      Readability {score}/100
+    </div>
+  );
+}
+
+// ─── Character Counter ────────────────────────────────────────────────────────
+function CharCounter({ value, max, ideal }: { value: string; max: number; ideal?: [number, number] }) {
+  const len = value.length;
+  const isOver = len > max;
+  const isIdeal = ideal ? len >= ideal[0] && len <= ideal[1] : false;
+  return (
+    <span className={cn("text-xs tabular-nums", isOver ? "text-red-500" : isIdeal ? "text-green-600" : "text-muted-foreground")}>
+      {len}/{max}
+    </span>
+  );
+}
+
+// ─── FAQ Editor ───────────────────────────────────────────────────────────────
+function FAQEditor({ faqs, onChange }: { faqs: FAQ[]; onChange: (f: FAQ[]) => void }) {
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const dragIdx = useRef<number | null>(null);
+
+  const toggle = (i: number) => setExpanded((s) => { const n = new Set(s); n.has(i) ? n.delete(i) : n.add(i); return n; });
+  const update = (i: number, field: keyof FAQ, val: string) => {
+    const n = [...faqs]; n[i] = { ...n[i], [field]: val }; onChange(n);
+  };
+  const remove = (i: number) => { const n = [...faqs]; n.splice(i, 1); onChange(n.map((f, j) => ({ ...f, order_index: j }))); };
+  const add = () => { onChange([...faqs, { question: "", answer: "", order_index: faqs.length }]); setExpanded((s) => new Set([...s, faqs.length])); };
+
+  return (
+    <div className="space-y-3">
+      {faqs.map((faq, i) => (
+        <div
+          key={i}
+          draggable
+          onDragStart={() => { dragIdx.current = i; }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={() => {
+            if (dragIdx.current === null || dragIdx.current === i) return;
+            const n = [...faqs]; const [moved] = n.splice(dragIdx.current, 1); n.splice(i, 0, moved);
+            onChange(n.map((f, j) => ({ ...f, order_index: j }))); dragIdx.current = null;
+          }}
+          className="rounded-lg border border-border/60 bg-secondary/10"
+        >
+          <div className="flex items-center gap-2 px-4 py-3">
+            <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab shrink-0" />
+            <span className="text-xs font-medium text-violet-700 bg-violet-100 rounded px-1.5 py-0.5">Q{i + 1}</span>
+            <button type="button" onClick={() => toggle(i)} className="flex-1 text-left text-sm font-medium truncate">
+              {faq.question ? faq.question.replace(/<[^>]*>/g, "") : <span className="text-muted-foreground italic">Untitled question</span>}
+            </button>
+            <button type="button" onClick={() => toggle(i)} className="shrink-0">
+              {expanded.has(i) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+            <button type="button" onClick={() => remove(i)} className="shrink-0 text-red-500 hover:text-red-700">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          {expanded.has(i) && (
+            <div className="px-4 pb-4 space-y-3 border-t border-border/40 pt-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider text-left">Question</label>
+                <FAQRichTextEditor 
+                  placeholder="Question..." 
+                  content={faq.question} 
+                  onChange={(html) => update(i, "question", html)}
+                  isQuestion={true}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider text-left">Answer</label>
+                <FAQRichTextEditor 
+                  placeholder="Answer..." 
+                  content={faq.answer} 
+                  onChange={(html) => update(i, "answer", html)} 
+                />
+              </div>
+              <Button 
+                type="button" 
+                variant="default" 
+                size="sm" 
+                onClick={() => toggle(i)}
+                className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+              >
+                ✓ Confirm Q&A
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+      <Button type="button" variant="outline" size="sm" onClick={add} className="w-full border-dashed">
+        <Plus className="h-3.5 w-3.5 mr-1.5" /> Add FAQ
+      </Button>
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
+const AdminBlogForm = () => {
+  const { id } = useParams<{ id: string }>();
+  const isEdit = !!id;
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const { blogHost } = getSubdomainHosts();
+  const cleanBlogHost = blogHost ? blogHost.replace(/^https?:\/\//, "") : "blog.theconverseai.com";
+
+  const { categories } = useBlogCategories();
+  const { tags } = useBlogTags();
+  const { revisions } = useBlogRevisions(isEdit ? Number(id) : undefined);
+
+  /*
+  // Uncomment when enabling Author functionality
+  const [authors, setAuthors] = useState<{ id: number; name: string }[]>([]);
+  const [showAuthor, setShowAuthor] = useState(true);
+  useEffect(() => {
+    supabase.from("blog_authors").select("id, name").then(({ data }) => setAuthors(data ?? []));
+  }, []);
+  */
+
+  const [loadingData, setLoadingData] = useState(isEdit);
+  const [saving, setSaving] = useState(false);
+  const [titleLocked, setTitleLocked] = useState(isEdit);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [selectedCatIds, setSelectedCatIds] = useState<number[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const [relatedPostIds, setRelatedPostIds] = useState<number[]>([]);
+  const [allPosts, setAllPosts] = useState<{ 
+    id: number; 
+    title: string; 
+    slug: string;
+    featured_image?: { storage_url: string } | null;
+  }[]>([]);
+  const [seoScore, setSeoScore] = useState(0);
+  const [seoChecks, setSeoChecks] = useState<SEOCheck[]>([]);
+  const [readabilityScore, setReadabilityScore] = useState(0);
+  const [readabilityChecks, setReadabilityChecks] = useState<ReadabilityCheck[]>([]);
+  const [activeAnalysisTab, setActiveAnalysisTab] = useState<"seo" | "readability">("seo");
+  const [autosaveAge, setAutosaveAge] = useState<string | null>(null);
+  const [showRestoreBanner, setShowRestoreBanner] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [featuredImageObj, setFeaturedImageObj] = useState<{ id: number; storage_url: string } | null>(null);
+
+  const [searchBlog, setSearchBlog] = useState("");
+  const [dropOpen, setDropOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
+  const prevTitleRef = useRef("");
+
+  // Carousel states for live preview
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const scrollDirectionRef = useRef(-1);
+
+  // Selected related posts as carousel cards
+  const matchedCards = useMemo(() => {
+    return relatedPostIds.map((pid) => {
+      const p = allPosts.find((item) => item.id === pid);
+      return p ? {
+        title: p.title,
+        url: `/blog/${p.slug}`,
+        image: p.featured_image?.storage_url || "",
+      } : null;
+    }).filter(Boolean) as { title: string; url: string; image: string }[];
+  }, [relatedPostIds, allPosts]);
+
+  // Duplicate cards for infinite loop effect when there are only 2 related pages
+  const displayCards = useMemo(() => {
+    if (!matchedCards || matchedCards.length === 0) return [];
+    if (matchedCards.length === 2) {
+      return [...matchedCards, ...matchedCards];
+    }
+    return matchedCards;
+  }, [matchedCards]);
+
+  const nextSlide = useCallback(() => {
+    if (displayCards.length <= 1) return;
+    setActiveIndex((prev) => (prev + 1) % displayCards.length);
+  }, [displayCards.length]);
+
+  const prevSlide = useCallback(() => {
+    if (displayCards.length <= 1) return;
+    setActiveIndex((prev) => (prev - 1 + displayCards.length) % displayCards.length);
+  }, [displayCards.length]);
+
+  // Reset active index to the last card and set direction to backward (leftward)
+  useEffect(() => {
+    if (displayCards.length > 0) {
+      setActiveIndex(displayCards.length - 1);
+      scrollDirectionRef.current = -1;
+    }
+  }, [displayCards]);
+
+  // Bouncing auto-scroll: transitions every 1.5 seconds, pauses on hover
+  useEffect(() => {
+    if (displayCards.length <= 1 || isHovered) return;
+    
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => {
+        let dir = scrollDirectionRef.current;
+        let nextIndex = prev + dir;
+        
+        if (nextIndex >= displayCards.length - 1) {
+          nextIndex = displayCards.length - 1;
+          scrollDirectionRef.current = -1;
+        } else if (nextIndex <= 0) {
+          nextIndex = 0;
+          scrollDirectionRef.current = 1;
+        }
+        
+        return nextIndex;
+      });
+    }, 1500);
+    
+    return () => clearInterval(interval);
+  }, [displayCards.length, isHovered]);
+
+  const getCardOffset = useCallback((index: number) => {
+    const N = displayCards.length;
+    if (N <= 1) return 0;
+    let offset = index - activeIndex;
+    
+    while (offset < -N / 2) offset += N;
+    while (offset > (N - 1) / 2) offset -= N;
+    
+    return offset;
+  }, [activeIndex, displayCards.length]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+        setDropOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    if (showPreview) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showPreview]);
+
+  const autosaveKey = isEdit ? `post_${id}` : "new_post";
+  const [headerImageDialogOpen, setHeaderImageDialogOpen] = useState(false);
+
+  const { register, handleSubmit, reset, control, watch, setValue, formState: { errors } } = useForm<FormValues>({
+    defaultValues: {
+      seo_title: "", meta_description: "", slug: "", focus_keyphrase: "", canonical_url: "",
+      title: "", publish_date: new Date().toISOString().split("T")[0], publish_at: "", unpublish_at: "",
+      status: "draft",
+      featured_image_url: "", featured_image_alt: "", featured_image_title: "", featured_image_caption: "",
+      og_title: "", og_description: "", og_image_url: "",
+      twitter_title: "", twitter_description: "", twitter_image_url: "",
+      content_html: "", excerpt: "", display_order: 99,
+      faq_placement: "last",
+      /*
+      // Uncomment when enabling Author functionality
+      author_id: null,
+      show_author: true,
+      */
+    },
+  });
+
+  const watchTitle = watch("title");
+  const watchSeoTitle = watch("seo_title");
+  const watchMetaDesc = watch("meta_description");
+  const watchSlug = watch("slug");
+  const watchContent = watch("content_html");
+  const watchFeaturedUrl = watch("featured_image_url");
+  const featuredFileRef = useRef<HTMLInputElement>(null);
+  const [uploadingFeatured, setUploadingFeatured] = useState(false);
+  const editorRef = useRef<RichTextEditorHandle>(null);
+  const [scanState, setScanState] = useState<ScanState | null>(null);
+
+  // Live SEO anchor-rule issues in the content (internal + external links).
+  const linkIssues = useMemo(
+    () => analyzeAnchorRules(extractLinks(watchContent || "", true)),
+    [watchContent]
+  );
+
+  // Signature of the links currently in the content. If it differs from the last
+  // scan, the scan is stale and must be re-run before publishing.
+  const currentLinksSig = useMemo(
+    () => JSON.stringify(extractLinks(watchContent || "", true)),
+    [watchContent]
+  );
+
+  // New posts may only be published once Scan Links has run on the CURRENT content
+  // and found no broken links and no anchor-rule issues.
+  const scanClean =
+    !!scanState &&
+    scanState.sig === currentLinksSig &&
+    scanState.brokenCount === 0 &&
+    scanState.anchorCount === 0;
+  const publishBlocked = !isEdit && !scanClean;
+
+  // Human-readable status shown in the publish bar.
+  const scanHint: { tone: "amber" | "green" | "muted"; text: string } = (() => {
+    if (linkIssues.length > 0)
+      return { tone: "amber", text: `⚠️ ${linkIssues.length} anchor issue${linkIssues.length > 1 ? "s" : ""} — fix & re-scan` };
+    if (!isEdit) {
+      if (!scanState) return { tone: "muted", text: "Run Scan Links before publishing" };
+      if (scanState.sig !== currentLinksSig) return { tone: "amber", text: "Content changed — re-scan before publishing" };
+      if (scanState.brokenCount > 0)
+        return { tone: "amber", text: `⚠️ ${scanState.brokenCount} broken link${scanState.brokenCount > 1 ? "s" : ""} — fix & re-scan` };
+      if (scanState.anchorCount > 0)
+        return { tone: "amber", text: `⚠️ ${scanState.anchorCount} link issue${scanState.anchorCount > 1 ? "s" : ""} — fix & re-scan` };
+      return { tone: "green", text: "✓ Links checked — ready to publish" };
+    }
+    return { tone: "muted", text: "Ordering is managed from the Blog list (arrows / Reset Order)." };
+  })();
+
+  useEffect(() => {
+    if (!showPreview) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [showPreview]);
+
+  // Lock background scroll while the Header Image Properties dialog is open
+  useEffect(() => {
+    if (!headerImageDialogOpen) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [headerImageDialogOpen]);
+
+  async function handleFeaturedUpload(file: File | undefined) {
+    if (!file) return;
+    setUploadingFeatured(true);
+    try {
+      const url = await uploadBlogImage(file);
+      setValue("featured_image_url", url, { shouldDirty: true });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err?.message, variant: "destructive" });
+    } finally {
+      setUploadingFeatured(false);
+      if (featuredFileRef.current) featuredFileRef.current.value = "";
+    }
+  }
+  const watchStatus = watch("status");
+
+  // Auto-slug from title (works cleanly for both new posts and edits)
+  useEffect(() => {
+    const currentSlug = watch("slug");
+    const prevGenerated = prevTitleRef.current ? slugify(prevTitleRef.current) : "";
+    const newGenerated = slugify(watchTitle || "");
+    
+    // Auto-generate if not locked, or if slug is empty, or if slug currently matches the previous title's slugified output
+    if (!titleLocked || !currentSlug || currentSlug === prevGenerated) {
+      if (watchTitle) {
+        setValue("slug", newGenerated, { shouldValidate: true, shouldDirty: true });
+      }
+    }
+    prevTitleRef.current = watchTitle || "";
+  }, [watchTitle, titleLocked, setValue]);
+
+  // Auto reading time
+  const readingTime = calculateReadingTime(watchContent);
+
+  // Live SEO and Readability score
+  useEffect(() => {
+    const result = analyzeSEO({
+      title: watchTitle, seo_title: watchSeoTitle, meta_description: watchMetaDesc,
+      content_html: watchContent, focus_keyphrase: watch("focus_keyphrase"),
+      canonical_url: watch("canonical_url"), featured_image_id: featuredImageObj?.id ?? null,
+      excerpt: watch("excerpt"),
+    });
+    setSeoScore(result.score);
+    setSeoChecks(result.checks);
+
+    const readResult = analyzeReadability(watchContent);
+    setReadabilityScore(readResult.score);
+    setReadabilityChecks(readResult.checks);
+  }, [watchTitle, watchSeoTitle, watchMetaDesc, watchContent, featuredImageObj]);
+
+  // Autosave — exclude display_order so a restore can never re-pin a post's order.
+  const getFormData = useCallback(() => {
+    const { display_order, ...form } = watch();
+    return { form, faqs, selectedCatIds, selectedTagIds, relatedPostIds };
+  }, [watch, faqs, selectedCatIds, selectedTagIds, relatedPostIds]);
+
+  useEffect(() => {
+    const saved = loadAutosave(autosaveKey);
+    if (saved && !isEdit) {
+      setAutosaveAge(getAutosaveAge(saved.savedAt));
+      setShowRestoreBanner(true);
+    }
+  }, [autosaveKey, isEdit]);
+
+  useEffect(() => {
+    const cleanup = startAutosave(autosaveKey, getFormData, 30_000);
+    return cleanup;
+  }, [autosaveKey, getFormData]);
+
+  // Fetch all posts for related selector (fetch all posts other than deleted ones, regardless of status)
+  useEffect(() => {
+    supabase.from("blog_posts").select("id, title, slug, featured_image:blog_images!featured_image_id(storage_url)").is("deleted_at", null)
+      .order("title").then(({ data }) => setAllPosts(data ?? []));
+  }, []);
+
+  // Load existing post for edit
+  useEffect(() => {
+    if (!isEdit) return;
+    setLoadingData(true);
+    Promise.all([
+      supabase.from("blog_posts").select("*").eq("id", Number(id)).is("deleted_at", null).single(),
+      supabase.from("blog_post_categories").select("category_id").eq("post_id", Number(id)),
+      supabase.from("blog_post_tags").select("tag_id").eq("post_id", Number(id)),
+      supabase.from("blog_faqs").select("*").eq("post_id", Number(id)).order("order_index"),
+      supabase.from("blog_related_posts").select("related_post_id").eq("post_id", Number(id)),
+      supabase.from("blog_images").select("id, storage_url").eq("id", 0), // placeholder
+    ]).then(async ([postRes, catRes, tagRes, faqRes, relRes]) => {
+      const post = postRes.data;
+      if (postRes.error || !post) {
+        toast({ title: "Failed to load post", variant: "destructive" });
+        navigate("/admin/blog");
+        return;
+      }
+
+      // Load featured image
+      let featuredUrl = "";
+      let featuredAlt = "";
+      let featuredTitle = "";
+      let featuredCaption = "";
+      if (post.featured_image_id) {
+        const { data: img } = await supabase.from("blog_images").select("id, storage_url, alt_text, description, caption").eq("id", post.featured_image_id).single();
+        if (img) {
+          setFeaturedImageObj(img);
+          featuredUrl = img.storage_url;
+          featuredAlt = img.alt_text || "";
+          featuredTitle = img.description || "";
+          featuredCaption = img.caption || "";
+        }
+      }
+
+      reset({
+        seo_title: post.seo_title ?? "", meta_description: post.meta_description ?? "",
+        slug: post.slug, focus_keyphrase: post.focus_keyphrase ?? "", canonical_url: post.canonical_url ?? "",
+        title: post.title, publish_date: post.publish_date ?? "", publish_at: post.publish_at ?? "",
+        unpublish_at: post.unpublish_at ?? "",
+        status: post.status as PostStatus,
+        featured_image_url: featuredUrl,
+        featured_image_alt: featuredAlt, featured_image_title: featuredTitle, featured_image_caption: featuredCaption,
+        og_title: post.og_title ?? "", og_description: post.og_description ?? "", og_image_url: "",
+        twitter_title: post.twitter_title ?? "", twitter_description: post.twitter_description ?? "",
+        twitter_image_url: "", content_html: post.content_html ?? "", excerpt: post.excerpt ?? "",
+        display_order: post.display_order,
+        faq_placement: (post.faq_placement as any) ?? "last",
+        /*
+        // Uncomment when enabling Author functionality
+        author_id: post.author_id,
+        // show_author: post.show_author,
+        */
+      });
+
+      setSelectedCatIds((catRes.data ?? []).map((r: any) => r.category_id));
+      setSelectedTagIds((tagRes.data ?? []).map((r: any) => r.tag_id));
+      setFaqs((faqRes.data ?? []) as FAQ[]);
+      setRelatedPostIds((relRes.data ?? []).map((r: any) => r.related_post_id).filter((pid: number) => pid !== Number(id)));
+      setLoadingData(false);
+    });
+  }, [id, isEdit]);
+
+  const onInvalid = (errors: any) => {
+    console.warn("Form validation failed:", errors);
+    const errList = Object.entries(errors);
+    if (errList.length > 0) {
+      const [field, err] = errList[0] as [string, any];
+      toast({
+        title: "Validation Error",
+        description: `${field}: ${err.message || "Invalid field value"}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onSubmit = async (values: FormValues) => {
+    setSaving(true);
+
+    // Sanitize HTML
+    const { html: cleanHtml } = sanitizeHtml(values.content_html);
+
+    // Validate anchor rules: same word→same URL may appear at most twice (3rd is an error),
+    // and one URL must use only one anchor text. Keep this in sync with analyzeAnchorRules.
+    const anchorViolations = analyzeAnchorRules(extractLinks(cleanHtml, true));
+    if (anchorViolations.length > 0) {
+      toast({
+        title: "Save failed",
+        description: anchorViolations[0].message,
+        variant: "destructive",
+      });
+      setSaving(false);
+      return;
+    }
+
+    try {
+      // Upsert featured image if URL provided
+      let featuredImgId = featuredImageObj?.id ?? null;
+      if (values.featured_image_url) {
+        if (featuredImgId) {
+          // Update existing image properties
+          await supabase.from("blog_images").update({
+            alt_text: values.featured_image_alt,
+            description: values.featured_image_title,
+            caption: values.featured_image_caption,
+            storage_url: values.featured_image_url,
+          }).eq("id", featuredImgId);
+        } else {
+          // Insert new image
+          const { data: imgData } = await supabase.from("blog_images").insert({
+            storage_path: values.featured_image_url,
+            storage_url: values.featured_image_url,
+            alt_text: values.featured_image_alt,
+            description: values.featured_image_title,
+            caption: values.featured_image_caption,
+            file_name: values.featured_image_url.split("/").pop() ?? "image",
+          }).select("id").single();
+          if (imgData) {
+            featuredImgId = imgData.id;
+            setFeaturedImageObj({ id: imgData.id, storage_url: values.featured_image_url });
+          }
+        }
+      }
+
+      const payload = {
+        title: values.title.trim(), slug: values.slug.trim(), excerpt: values.excerpt.trim(),
+        content_html: cleanHtml, seo_title: values.seo_title.trim(), meta_description: values.meta_description.trim(),
+        canonical_url: values.canonical_url.trim(), focus_keyphrase: values.focus_keyphrase.trim(),
+        og_title: values.og_title.trim(), og_description: values.og_description.trim(),
+        twitter_title: values.twitter_title.trim(), twitter_description: values.twitter_description.trim(),
+        status: values.status, publish_date: values.publish_date || null,
+        publish_at: values.publish_at || null, unpublish_at: values.unpublish_at || null,
+        reading_time: readingTime, featured_image_id: featuredImgId,
+        // NOTE: display_order is intentionally NOT written here. Ordering is managed
+        // solely from the blog list (reorder arrows + Reset Order) so that editing a
+        // post never changes its position. New posts get the default (99) on insert.
+        seo_score: seoScore,
+        permalink: `${blogHost}/${values.slug.trim()}`,
+        faq_placement: values.faq_placement || "last",
+        /*
+        // Uncomment when enabling Author functionality
+        author_id: values.author_id ? Number(values.author_id) : null,
+        // show_author: values.show_author,
+        */
+      };
+
+      let postId = isEdit ? Number(id) : null;
+
+      if (isEdit) {
+        const { error } = await supabase.from("blog_posts").update(payload).eq("id", postId!);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("blog_posts").insert({ ...payload, display_order: 99 }).select("id").single();
+        if (error) throw error;
+        postId = data.id;
+      }
+
+      // Save categories
+      await supabase.from("blog_post_categories").delete().eq("post_id", postId!);
+      if (selectedCatIds.length > 0) {
+        await supabase.from("blog_post_categories").insert(selectedCatIds.map((cid) => ({ post_id: postId!, category_id: cid })));
+      }
+
+      // Save tags
+      await supabase.from("blog_post_tags").delete().eq("post_id", postId!);
+      if (selectedTagIds.length > 0) {
+        await supabase.from("blog_post_tags").insert(selectedTagIds.map((tid) => ({ post_id: postId!, tag_id: tid })));
+      }
+
+      // Save FAQs
+      await supabase.from("blog_faqs").delete().eq("post_id", postId!);
+      if (faqs.length > 0) {
+        await supabase.from("blog_faqs").insert(faqs.map((f, i) => ({ post_id: postId!, question: f.question, answer: f.answer, order_index: i })));
+      }
+
+      // Save related posts (prevent adding itself to avoid check constraint violation)
+      await supabase.from("blog_related_posts").delete().eq("post_id", postId!);
+      const validRelatedIds = relatedPostIds.filter((rid) => rid !== postId);
+      if (validRelatedIds.length > 0) {
+        await supabase.from("blog_related_posts").insert(validRelatedIds.map((rid) => ({ post_id: postId!, related_post_id: rid })));
+      }
+
+      // Log activity
+      await supabase.from("blog_activity_log").insert({
+        action: isEdit ? "blog.updated" : "blog.created",
+        resource_type: "blog", resource_id: postId!, resource_title: values.title,
+      });
+
+      clearAutosave(autosaveKey);
+      toast({ title: isEdit ? "Post updated!" : "Post created!" });
+      if (!isEdit) navigate(`/admin/blog/${postId}/edit`);
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSoftDelete = async () => {
+    if (!isEdit) return;
+    if (!window.confirm("Are you sure you want to move this blog post to the trash?")) return;
+    await supabase.from("blog_posts").update({ deleted_at: new Date().toISOString() }).eq("id", Number(id));
+    toast({ title: "Post moved to trash" });
+    navigate("/admin/blog");
+  };
+
+  if (loadingData) {
+    return (
+      <AdminShell>
+        <div className="flex justify-center py-32">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-violet-200 border-t-violet-600" />
+        </div>
+      </AdminShell>
+    );
+  }
+
+  const selectedCategories = categories.filter((c) => selectedCatIds.includes(c.id));
+  const selectedTags = tags.filter((t) => selectedTagIds.includes(t.id));
+  const availablePosts = allPosts.filter((p) => p.id !== Number(id));
+
+  return (
+    <AdminShell>
+      <div className="mx-auto max-w-4xl">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/admin/blog"><ArrowLeft className="h-4 w-4 mr-1" /> Back</Link>
+            </Button>
+            <h1 className="text-xl font-bold">{isEdit ? "Edit Blog Post" : "New Blog Post"}</h1>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <SEOScoreRing score={seoScore} />
+            <ReadabilityScoreRing score={readabilityScore} />
+            {autosaveAge && !showRestoreBanner && (
+              <span className="text-xs text-muted-foreground">Autosaved {autosaveAge}</span>
+            )}
+            {isEdit && (
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowHistory(true)}>
+                <History className="h-3.5 w-3.5 mr-1" /> History ({revisions.length})
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Restore Banner */}
+        {showRestoreBanner && (
+          <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <RotateCcw className="h-4 w-4 shrink-0" />
+            <span>Unsaved changes found from <strong>{autosaveAge}</strong>.</span>
+            <Button type="button" size="sm" variant="outline" className="ml-auto border-amber-300 text-amber-700"
+              onClick={() => {
+                const saved = loadAutosave(autosaveKey);
+                if (saved?.data) {
+                  const d = saved.data as any;
+                  if (d.form) reset(d.form);
+                  if (d.faqs) setFaqs(d.faqs);
+                  if (d.selectedCatIds) setSelectedCatIds(d.selectedCatIds);
+                  if (d.selectedTagIds) setSelectedTagIds(d.selectedTagIds);
+                  if (d.relatedPostIds) setRelatedPostIds(d.relatedPostIds);
+                }
+                setShowRestoreBanner(false);
+              }}>
+              Restore
+            </Button>
+            <Button type="button" size="sm" variant="ghost" className="text-amber-700"
+              onClick={() => { clearAutosave(autosaveKey); setShowRestoreBanner(false); }}>
+              Discard
+            </Button>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5">
+
+          {/* ─── Section 1: SEO ─────────────────────────────────────────── */}
+          <SectionCard title="SEO & Metadata" icon={Globe}>
+            {/* Live URL preview */}
+            <div className="flex items-center gap-2 rounded-lg bg-secondary/30 px-3 py-2 font-mono text-xs text-muted-foreground">
+              <Globe className="h-3 w-3 shrink-0" />
+              <span className="truncate">{blogHost}/{watchSlug || "your-post-slug"}</span>
+              {watchSlug && watchStatus === "published" && (
+                <a href={blogHref(watchSlug)} target="_blank" rel="noopener noreferrer" title="View published post" className="ml-auto shrink-0 hover:text-foreground">
+                  <Eye className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="seo_title">SEO Title</Label>
+                  <CharCounter value={watchSeoTitle} max={60} ideal={[50, 60]} />
+                </div>
+                <Input id="seo_title" placeholder="Leave blank to use post title" {...register("seo_title")} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="focus_keyphrase">Focus Keyphrase</Label>
+                <Input id="focus_keyphrase" placeholder="e.g. ai chatbot for customer support" {...register("focus_keyphrase")} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="meta_description">Meta Description</Label>
+                <CharCounter value={watchMetaDesc} max={160} ideal={[120, 160]} />
+              </div>
+              <Textarea id="meta_description" rows={3} placeholder="120–160 character summary for search results..." {...register("meta_description")} />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="slug">URL Slug</Label>
+                <div className="flex items-center gap-2">
+                  {/* <span className="text-xs text-muted-foreground whitespace-nowrap">blog.theconverseai.com/</span> */}
+                  <Input id="slug" placeholder="auto-generated-from-title" {...register("slug", { required: "Slug is required" })}
+                    onChange={(e) => { setTitleLocked(true); register("slug").onChange(e); }} />
+                </div>
+                {errors.slug && <p className="text-xs text-red-600">{errors.slug.message}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="canonical_url">Canonical URL</Label>
+                <Input id="canonical_url" placeholder="https://..." {...register("canonical_url")} />
+              </div>
+            </div>
+
+            {/* Google SERP Preview */}
+            <div className="rounded-lg border border-border/60 bg-gray-50 p-4 space-y-1">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Google Preview</p>
+              <p className="text-sm font-medium text-blue-600 truncate">
+                {watchSeoTitle || watchTitle || "Your Post Title"}
+              </p>
+              <p className="text-xs text-green-700 truncate">
+                {cleanBlogHost} › {watchSlug || "your-slug"}
+              </p>
+              <p className="text-xs text-gray-650 line-clamp-2">
+                {watchMetaDesc || "Add a meta description to see how your post appears in search results..."}
+              </p>
+            </div>
+
+            {/* Live Analysis Tabs (SEO & Readability) */}
+            <div className="mt-6 rounded-xl border border-border/60 bg-white overflow-hidden shadow-xs">
+              {/* Tab Header Row */}
+              <div className="flex border-b border-border/60 bg-gray-50/50">
+                <button
+                  type="button"
+                  onClick={() => setActiveAnalysisTab("seo")}
+                  className={cn(
+                    "flex items-center gap-2 px-5 py-3 text-xs font-semibold border-r border-border/60 transition-all",
+                    activeAnalysisTab === "seo" 
+                      ? "bg-white text-violet-700 font-bold border-b-2 border-b-violet-600" 
+                      : "text-muted-foreground hover:bg-gray-100/50"
+                  )}
+                >
+                  <div className={cn(
+                    "h-2 w-2 rounded-full",
+                    seoScore === 0 ? "bg-gray-300" : seoScore >= 75 ? "bg-green-500" : seoScore >= 50 ? "bg-amber-500" : "bg-red-500"
+                  )} />
+                  SEO ({seoScore}/100)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveAnalysisTab("readability")}
+                  className={cn(
+                    "flex items-center gap-2 px-5 py-3 text-xs font-semibold border-r border-border/60 transition-all",
+                    activeAnalysisTab === "readability" 
+                      ? "bg-white text-violet-700 font-bold border-b-2 border-b-violet-600" 
+                      : "text-muted-foreground hover:bg-gray-100/50"
+                  )}
+                >
+                  <div className={cn(
+                    "h-2 w-2 rounded-full",
+                    readabilityScore === 0 ? "bg-gray-300" : readabilityScore >= 75 ? "bg-green-500" : readabilityScore >= 50 ? "bg-amber-500" : "bg-red-500"
+                  )} />
+                  Readability ({readabilityScore}/100)
+                </button>
+              </div>
+
+              {/* Tab Content body */}
+              <div className="p-5 space-y-4">
+                <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wide">Analysis Results</h4>
+
+                {activeAnalysisTab === "seo" ? (
+                  /* SEO Tab Content */
+                  <div className="space-y-4">
+                    {seoChecks.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic py-6 text-center">
+                        Enter a title and write some content in the editor to start SEO analysis.
+                      </p>
+                    ) : (
+                      <>
+                        {/* Problems */}
+                        {seoChecks.filter(c => c.status === "fail").length > 0 && (
+                          <div className="space-y-2">
+                            <h5 className="text-xs font-bold text-red-600 flex items-center gap-1">
+                              Problems ({seoChecks.filter(c => c.status === "fail").length})
+                            </h5>
+                            <ul className="space-y-2.5">
+                              {seoChecks.filter(c => c.status === "fail").map(c => (
+                                <li key={c.id} className="flex items-start gap-2 text-xs text-gray-650">
+                                  <span className="h-3 w-3 rounded-full bg-red-500 shrink-0 mt-0.5" />
+                                  <span>{c.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Improvements */}
+                        {seoChecks.filter(c => c.status === "warn").length > 0 && (
+                          <div className="space-y-2">
+                            <h5 className="text-xs font-bold text-amber-600 flex items-center gap-1">
+                              Improvements ({seoChecks.filter(c => c.status === "warn").length})
+                            </h5>
+                            <ul className="space-y-2.5">
+                              {seoChecks.filter(c => c.status === "warn").map(c => (
+                                <li key={c.id} className="flex items-start gap-2 text-xs text-gray-650">
+                                  <span className="h-3 w-3 rounded-full bg-amber-500 shrink-0 mt-0.5" />
+                                  <span>{c.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Good Results */}
+                        {seoChecks.filter(c => c.status === "pass").length > 0 && (
+                          <div className="space-y-2">
+                            <h5 className="text-xs font-bold text-green-600 flex items-center gap-1">
+                              Good results ({seoChecks.filter(c => c.status === "pass").length})
+                            </h5>
+                            <ul className="space-y-2.5">
+                              {seoChecks.filter(c => c.status === "pass").map(c => (
+                                <li key={c.id} className="flex items-start gap-2 text-xs text-gray-650">
+                                  <span className="h-3 w-3 rounded-full bg-green-500 shrink-0 mt-0.5" />
+                                  <span>{c.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  /* Readability Tab Content */
+                  <div className="space-y-4">
+                    {readabilityChecks.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic py-6 text-center">
+                        Start writing content in the editor to start readability analysis.
+                      </p>
+                    ) : (
+                      <>
+                        {/* Problems */}
+                        {readabilityChecks.filter(c => c.status === "fail").length > 0 && (
+                          <div className="space-y-2">
+                            <h5 className="text-xs font-bold text-red-650 flex items-center gap-1">
+                              Problems ({readabilityChecks.filter(c => c.status === "fail").length})
+                            </h5>
+                            <ul className="space-y-2.5">
+                              {readabilityChecks.filter(c => c.status === "fail").map(c => (
+                                <li key={c.id} className="flex items-start gap-2 text-xs text-gray-650">
+                                  <span className="h-3 w-3 rounded-full bg-red-500 shrink-0 mt-0.5" />
+                                  <span>{c.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Improvements */}
+                        {readabilityChecks.filter(c => c.status === "warn").length > 0 && (
+                          <div className="space-y-2">
+                            <h5 className="text-xs font-bold text-amber-650 flex items-center gap-1">
+                              Improvements ({readabilityChecks.filter(c => c.status === "warn").length})
+                            </h5>
+                            <ul className="space-y-2.5">
+                              {readabilityChecks.filter(c => c.status === "warn").map(c => (
+                                <li key={c.id} className="flex items-start gap-2 text-xs text-gray-650">
+                                  <span className="h-3 w-3 rounded-full bg-amber-500 shrink-0 mt-0.5" />
+                                  <span>{c.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Good Results */}
+                        {readabilityChecks.filter(c => c.status === "pass").length > 0 && (
+                          <div className="space-y-2">
+                            <h5 className="text-xs font-bold text-green-650 flex items-center gap-1">
+                              Good results ({readabilityChecks.filter(c => c.status === "pass").length})
+                            </h5>
+                            <ul className="space-y-2.5">
+                              {readabilityChecks.filter(c => c.status === "pass").map(c => (
+                                <li key={c.id} className="flex items-start gap-2 text-xs text-gray-650">
+                                  <span className="h-3 w-3 rounded-full bg-green-500 shrink-0 mt-0.5" />
+                                  <span>{c.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Neutral Results */}
+                        {readabilityChecks.filter(c => c.status === "neutral").length > 0 && (
+                          <div className="space-y-2 pt-2 border-t border-gray-100">
+                            <ul className="space-y-2.5">
+                              {readabilityChecks.filter(c => c.status === "neutral").map(c => (
+                                <li key={c.id} className="flex items-center gap-2 text-xs text-gray-400 italic">
+                                  <span className="h-3 w-3 rounded-full bg-gray-300 shrink-0" />
+                                  <span>{c.message}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* ─── Section 2: Blog Details ────────────────────────────────── */}
+          <SectionCard title="Blog Details" icon={BookOpen}>
+            <div className="space-y-1.5">
+              <Label htmlFor="title">Blog Title *</Label>
+              <Input id="title" placeholder="e.g. How AI Chatbots Transform Customer Support" className="text-lg font-semibold"
+                {...register("title", { required: "Title is required" })} />
+              {errors.title && <p className="text-xs text-red-600">{errors.title.message}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="publish_date">Publish Date</Label>
+                <Input type="date" id="publish_date" {...register("publish_date")} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Reading Time</Label>
+                <div className="flex h-9 items-center rounded-md border border-input bg-secondary/20 px-3 text-sm text-muted-foreground">
+                  <Clock className="mr-2 h-3.5 w-3.5" />
+                  {formatReadingTime(readingTime)}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="status">Status</Label>
+                <select id="status" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring" {...register("status")}>
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="scheduled">Scheduled</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+            </div>
+
+            {watchStatus === "scheduled" && (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="publish_at">Publish At</Label>
+                  <Input type="datetime-local" id="publish_at" {...register("publish_at")} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="unpublish_at">Unpublish At (optional)</Label>
+                  <Input type="datetime-local" id="unpublish_at" {...register("unpublish_at")} />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label>Excerpt</Label>
+              <Textarea rows={2} placeholder="Short description shown on the blog listing page..." {...register("excerpt")} />
+            </div>
+
+            {/* Categories */}
+            <div className="space-y-2">
+              <Label>Categories</Label>
+              <div className="flex flex-wrap gap-2 min-h-[36px] rounded-md border border-input bg-background p-2">
+                {selectedCategories.map((c) => (
+                  <span key={c.id} className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-700">
+                    {c.name}
+                    <button type="button" onClick={() => setSelectedCatIds((ids) => ids.filter((i) => i !== c.id))}>
+                      <XCircle className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                <select className="flex-1 min-w-[120px] bg-transparent text-sm outline-none"
+                  onChange={(e) => { const val = Number(e.target.value); if (val && !selectedCatIds.includes(val)) setSelectedCatIds([...selectedCatIds, val]); e.target.value = ""; }}>
+                  <option value="">Add category...</option>
+                  {categories.filter((c) => !selectedCatIds.includes(c.id)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="space-y-2">
+              <Label>Tags</Label>
+              <div className="flex flex-wrap gap-2 min-h-[36px] rounded-md border border-input bg-background p-2">
+                {selectedTags.map((t) => (
+                  <span key={t.id} className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                    {t.name}
+                    <button type="button" onClick={() => setSelectedTagIds((ids) => ids.filter((i) => i !== t.id))}>
+                      <XCircle className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                <select className="flex-1 min-w-[120px] bg-transparent text-sm outline-none"
+                  onChange={(e) => { const val = Number(e.target.value); if (val && !selectedTagIds.includes(val)) setSelectedTagIds([...selectedTagIds, val]); e.target.value = ""; }}>
+                  <option value="">Add tag...</option>
+                  {tags.filter((t) => !selectedTagIds.includes(t.id)).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/*
+            // Author select field with show/hide toggle (uncomment to enable)
+            <div className="space-y-2 border-t border-border/40 pt-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="author_id" className="flex items-center gap-2">
+                  Author
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthor(!showAuthor)}
+                    className="p-1 hover:bg-gray-100 rounded text-gray-500 hover:text-gray-700"
+                    title={showAuthor ? "Author is visible on frontend" : "Author is hidden on frontend"}
+                  >
+                    {showAuthor ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </button>
+                </Label>
+              </div>
+              <select
+                id="author_id"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+                {...register("author_id")}
+              >
+                <option value="">No Author / Select Author...</option>
+                {authors.map((auth) => (
+                  <option key={auth.id} value={auth.id}>{auth.name}</option>
+                ))}
+              </select>
+            </div>
+            */}
+          </SectionCard>
+
+          {/* ─── Section 3: Header Image ────────────────────────────────── */}
+          <SectionCard title="Header Image" icon={BarChart2}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="featured_image_url">Image</Label>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" size="sm" disabled={uploadingFeatured}
+                      onClick={() => featuredFileRef.current?.click()}>
+                      {uploadingFeatured ? "Uploading…" : "⬆ Upload"}
+                    </Button>
+                    <input ref={featuredFileRef} type="file" accept="image/*" className="hidden"
+                      onChange={(e) => handleFeaturedUpload(e.target.files?.[0])} />
+                  </div>
+                  <Input id="featured_image_url" placeholder="…or paste image URL" {...register("featured_image_url")} />
+                </div>
+              </div>
+              {watchFeaturedUrl ? (
+                <div 
+                  onClick={() => setHeaderImageDialogOpen(true)}
+                  className="relative overflow-hidden rounded-lg border border-border/60 bg-secondary/20 aspect-video cursor-pointer hover:border-violet-400 hover:ring-2 hover:ring-violet-200 transition-all group"
+                  title="Click to edit image Alt text, Title tag, and Caption properties"
+                >
+                  <img src={watchFeaturedUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity">
+                    ⚙ Edit Properties (Alt, Title, Caption)
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  onClick={() => setHeaderImageDialogOpen(true)}
+                  className="flex items-center justify-center rounded-lg border-2 border-dashed border-border/60 bg-secondary/10 aspect-video text-sm text-muted-foreground cursor-pointer hover:bg-secondary/20 transition-all"
+                  title="Click to edit image Alt text, Title tag, and Caption properties"
+                >
+                  Click to edit image properties
+                </div>
+              )}
+            </div>
+
+            {/* Header Image Edit Dialog Modal — portaled to body so no transformed/overflow-hidden ancestor can clip or offset the overlay */}
+            {headerImageDialogOpen && createPortal(
+              <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 flex flex-col transform scale-100 transition-all duration-300 text-left">
+                  
+                  {/* Modal Header */}
+                  <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-violet-50 text-violet-600 rounded-lg">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 00-1.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900">
+                          Header Image Properties
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          Manage SEO Alt text, Title, and Caption attributes
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => setHeaderImageDialogOpen(false)} 
+                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6 space-y-4">
+                    {/* Image Preview thumbnail */}
+                    {watchFeaturedUrl && (
+                      <div className="w-full h-36 rounded-lg overflow-hidden bg-gray-50 border border-gray-200 flex items-center justify-center">
+                        <img src={watchFeaturedUrl} alt="Header Preview" className="h-full w-auto object-contain" />
+                      </div>
+                    )}
+
+                    {/* Alt Text Input */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Alt Text (Alternative Description)
+                      </label>
+                      <Input
+                        type="text"
+                        {...register("featured_image_alt")}
+                        placeholder="Describe the header image for SEO & accessibility..."
+                        className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-500 bg-white text-gray-800 placeholder-gray-400 transition-all font-medium"
+                      />
+                    </div>
+
+                    {/* Title Text Input */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Image Title Tag (SEO Tooltip)
+                      </label>
+                      <Input
+                        type="text"
+                        {...register("featured_image_title")}
+                        placeholder="Title attribute for hover tooltip display..."
+                        className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-500 bg-white text-gray-800 placeholder-gray-400 transition-all font-medium"
+                      />
+                    </div>
+
+                    {/* Caption Input */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Caption
+                      </label>
+                      <Input
+                        type="text"
+                        {...register("featured_image_caption")}
+                        placeholder="Enter image caption..."
+                        className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-500 bg-white text-gray-800 placeholder-gray-400 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setHeaderImageDialogOpen(false)}
+                      className="px-5 py-2.5 bg-violet-600 hover:bg-violet-750 text-white text-sm font-bold rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer animate-in"
+                    >
+                      Done
+                    </button>
+                  </div>
+
+                </div>
+              </div>,
+              document.body
+            )}
+          </SectionCard>
+
+          {/* ─── Section 5: Content ─────────────────────────────────────── */}
+          <SectionCard title="Blog Content" icon={BookOpen}>
+            <Controller
+              name="content_html"
+              control={control}
+              render={({ field }) => (
+                <RichTextEditor
+                  ref={editorRef}
+                  content={field.value}
+                  onChange={field.onChange}
+                  onScanState={setScanState}
+                  placeholder="Start writing your blog post here..."
+                />
+              )}
+            />
+            <p className="text-xs text-muted-foreground">{calculateReadingTime(watchContent) * 200}± words · {formatReadingTime(readingTime)}</p>
+          </SectionCard>
+
+          <SectionCard title={`FAQ (${faqs.length})`} icon={HelpCircle} defaultOpen={false}>
+            <FAQEditor faqs={faqs} onChange={setFaqs} />
+          </SectionCard>
+
+          {/* ─── Section 7: Related Blogs ────────────────────────────────── */}
+          <SectionCard title="Related Blogs Carousel" icon={Link2} defaultOpen={false} overflowHidden={false}>
+            {/* Selected tags */}
+            <div className="flex flex-wrap gap-2 min-h-[36px] mb-3">
+              {relatedPostIds.map((pid) => {
+                const post = allPosts.find((p) => p.id === pid);
+                return post ? (
+                  <span key={pid} className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700 border border-violet-200">
+                    {post.title.length > 35 ? post.title.slice(0, 35) + "…" : post.title}
+                    <button type="button" onClick={() => setRelatedPostIds((ids) => ids.filter((i) => i !== pid))} className="ml-1 hover:text-red-500 transition-colors">
+                      <XCircle className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ) : null;
+              })}
+              {relatedPostIds.length === 0 && (
+                <span className="text-xs text-muted-foreground italic">No related blogs selected yet.</span>
+              )}
+            </div>
+
+            {/* Searchable Popover Dropdown (Matches user reference picture exactly) */}
+            <div ref={dropRef} className="relative w-full">
+              <label className="block text-[13.5px] font-semibold text-gray-700 mb-1.5">
+                Select related blogs to link:
+              </label>
+              
+              {/* Dropdown trigger */}
+              <button
+                type="button"
+                onClick={() => setDropOpen(!dropOpen)}
+                className={cn(
+                  "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200 bg-white",
+                  dropOpen 
+                    ? "border-violet-500 ring-2 ring-violet-100 shadow-sm" 
+                    : "border-gray-200 hover:border-violet-300"
+                )}
+                style={{ height: "46px" }}
+              >
+                <span className="text-gray-400 text-[14.5px]">
+                  Select a related blog...
+                </span>
+                {dropOpen ? (
+                  <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                )}
+              </button>
+
+              {/* Dropdown menu containing search input & results list */}
+              {dropOpen && (
+                <div className="absolute top-[100%] left-0 right-0 z-50 mt-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 slide-in-from-top-2 duration-200">
+                  {/* Search box inside the dropdown menu */}
+                  <div className="relative mb-2">
+                    <input
+                      type="text"
+                      className="w-full rounded-xl border border-violet-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                      placeholder="Search blogs..."
+                      value={searchBlog}
+                      onChange={(e) => setSearchBlog(e.target.value)}
+                      autoFocus
+                    />
+                    {searchBlog && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchBlog("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Matching blogs list */}
+                  <div className="max-h-[200px] overflow-y-auto pr-1 space-y-0.5 custom-scrollbar">
+                    {(() => {
+                      const filtered = availablePosts
+                        .filter((p) => !relatedPostIds.includes(p.id))
+                        .filter((p) => p.title.toLowerCase().includes(searchBlog.toLowerCase()));
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="py-8 text-center text-sm text-gray-400 italic">
+                            {searchBlog ? `No blogs match "${searchBlog}"` : "All available blogs selected"}
+                          </div>
+                        );
+                      }
+
+                      return filtered.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            setRelatedPostIds((ids) => [...ids, p.id]);
+                            setSearchBlog("");
+                            setDropOpen(false);
+                          }}
+                          className="w-full text-left rounded-lg px-3.5 py-2.5 text-[14.5px] text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors font-normal duration-150"
+                        >
+                          {p.title}
+                        </button>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
+          </SectionCard>
+
+          {/* Spacer to give the page scroll room for the dropdown */}
+          <div className="h-[240px]" />
+
+          {/* ─── Publish Bar (full-width, from sidebar edge to right) ─────── */}
+          <div className="fixed bottom-0 left-0 right-0 lg:left-64 z-50 border-t border-border/60 bg-white px-4 py-3 md:px-6 md:py-3.5 shadow-[0_-2px_16px_rgba(0,0,0,0.08)]">
+            {/* Mobile layout (visible < md) */}
+            <div className="flex md:hidden flex-col w-full gap-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={() => editorRef.current?.scanLinks()} className="h-8 text-[11px] px-2">
+                    🔍 Scan
+                  </Button>
+                  <span className={cn(
+                    "text-[10px] font-semibold",
+                    scanHint.tone === "amber" && "text-amber-600",
+                    scanHint.tone === "green" && "text-green-600",
+                    scanHint.tone === "muted" && "font-normal text-muted-foreground",
+                  )}>
+                    {scanHint.text}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {isEdit && (
+                    <Button type="button" variant="ghost" size="sm" className="text-red-600 hover:bg-red-50 h-8 text-[11px] px-2" onClick={handleSoftDelete}>
+                      <Trash2 className="h-3.5 w-3.5 mr-0.5" /> Trash
+                    </Button>
+                  )}
+                  <Button type="button" variant="outline" size="sm" onClick={() => navigate("/admin/blog")} disabled={saving} className="h-8 text-[11px] px-2">Cancel</Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setShowPreview(true)} className="border-violet-300 text-violet-700 hover:bg-violet-50 h-8 text-[11px] px-2">
+                    <Eye className="h-3.5 w-3.5 mr-0.5" /> Preview
+                  </Button>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" disabled={saving}
+                  onClick={handleSubmit((v) => onSubmit(isEdit ? v : { ...v, status: "draft" }), onInvalid)}
+                  className="flex-1 text-xs py-2 h-9"
+                >
+                  <Save className="h-3.5 w-3.5 mr-1" />
+                  {saving ? "Saving…" : isEdit ? "Save" : "Save Draft"}
+                </Button>
+                <Button type="button" disabled={saving || publishBlocked}
+                  title={publishBlocked ? scanHint.text : undefined}
+                  onClick={handleSubmit((v) => onSubmit({ ...v, status: "published" }), onInvalid)}
+                  className="bg-green-600 hover:bg-green-700 flex-1 text-xs py-2 h-9 text-white disabled:opacity-50"
+                >
+                  <Eye className="h-3.5 w-3.5 mr-1" />
+                  {watchStatus === "published" ? "Update Live" : "Publish"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Desktop layout (visible >= md) */}
+            <div className="hidden md:flex items-center justify-between gap-3 w-full">
+              <div className="flex items-center gap-3">
+                <Button type="button" variant="outline" onClick={() => editorRef.current?.scanLinks()}
+                  className="text-xs md:text-sm px-2.5 py-1.5 md:px-4 md:py-2">
+                  🔍 Scan Links
+                </Button>
+                <span className={cn(
+                  "text-xs font-semibold",
+                  scanHint.tone === "amber" && "text-amber-600",
+                  scanHint.tone === "green" && "text-green-600",
+                  scanHint.tone === "muted" && "font-normal text-muted-foreground hidden lg:inline",
+                )}>
+                  {scanHint.text}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {isEdit && (
+                  <Button type="button" variant="ghost" className="text-red-600 hover:bg-red-50 text-xs md:text-sm px-2.5 py-1.5 md:px-4 md:py-2" onClick={handleSoftDelete}>
+                    <Trash2 className="h-4 w-4 mr-1" /> Move to Trash
+                  </Button>
+                )}
+                <Button type="button" variant="outline" onClick={() => navigate("/admin/blog")} disabled={saving} className="text-xs md:text-sm px-2.5 py-1.5 md:px-4 md:py-2">Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => setShowPreview(true)} className="border-violet-300 text-violet-700 hover:bg-violet-50 text-xs md:text-sm px-2.5 py-1.5 md:px-4 md:py-2">
+                  <Eye className="h-4 w-4 mr-1.5" /> Preview
+                </Button>
+                <Button type="button" variant="outline" disabled={saving}
+                  onClick={handleSubmit((v) => onSubmit(isEdit ? v : { ...v, status: "draft" }), onInvalid)}
+                  className="text-xs md:text-sm px-2.5 py-1.5 md:px-4 md:py-2"
+                >
+                  <Save className="h-4 w-4 mr-1.5" />
+                  {saving ? "Saving…" : isEdit ? "Save" : "Save as Draft"}
+                </Button>
+                <Button type="button" disabled={saving || publishBlocked}
+                  title={publishBlocked ? scanHint.text : undefined}
+                  onClick={handleSubmit((v) => onSubmit({ ...v, status: "published" }), onInvalid)}
+                  className="bg-green-600 hover:bg-green-700 text-xs md:text-sm px-2.5 py-1.5 md:px-4 md:py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Eye className="h-4 w-4 mr-1.5" />
+                  {watchStatus === "published" ? "Update & Keep Live" : "Publish"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        {/* Revision History Panel */}
+        {showHistory && (
+          <div className="fixed inset-0 z-50 flex">
+            <div className="flex-1 bg-black/40" onClick={() => setShowHistory(false)} />
+            <div className="w-80 bg-white border-l border-border/60 flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
+                <h3 className="font-semibold text-sm">Revision History</h3>
+                <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>✕</Button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {revisions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">No revisions yet</p>
+                ) : revisions.map((rev) => (
+                  <div key={rev.id} className="rounded-lg border border-border/60 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-violet-700">Version {rev.version_number}</span>
+                      <span className="text-xs text-muted-foreground">{new Date(rev.created_at).toLocaleDateString()}</span>
+                    </div>
+                    {rev.updated_by && <p className="text-xs text-muted-foreground">{rev.updated_by}</p>}
+                    <Button type="button" size="sm" variant="outline" className="w-full text-xs"
+                      onClick={() => {
+                        // The full post JSON lives in rev.snapshot; the top-level columns
+                        // only cover a few fields (title etc. are ONLY in the snapshot).
+                        const snap = (rev.snapshot ?? {}) as Record<string, any>;
+                        const pick = (key: string, fallback: any = "") =>
+                          snap[key] !== undefined && snap[key] !== null ? snap[key] : fallback;
+
+                        setValue("title", pick("title"), { shouldDirty: true });
+                        setValue("content_html", pick("content_html", rev.content_html), { shouldDirty: true });
+                        setValue("seo_title", pick("seo_title", rev.seo_title), { shouldDirty: true });
+                        setValue("meta_description", pick("meta_description", rev.meta_description), { shouldDirty: true });
+                        setValue("slug", pick("slug", rev.slug), { shouldDirty: true });
+                        setValue("canonical_url", pick("canonical_url", rev.canonical_url), { shouldDirty: true });
+                        setValue("focus_keyphrase", pick("focus_keyphrase"), { shouldDirty: true });
+                        setValue("excerpt", pick("excerpt"), { shouldDirty: true });
+                        setValue("og_title", pick("og_title"), { shouldDirty: true });
+                        setValue("og_description", pick("og_description"), { shouldDirty: true });
+                        setValue("twitter_title", pick("twitter_title"), { shouldDirty: true });
+                        setValue("twitter_description", pick("twitter_description"), { shouldDirty: true });
+                        setValue("faq_placement", pick("faq_placement", "last"), { shouldDirty: true });
+
+                        // Title is locked (read-only) by default on edit — unlock so the
+                        // restored title is visible/editable.
+                        setTitleLocked(false);
+                        setShowHistory(false);
+                        toast({ title: `Restored Version ${rev.version_number} — click Save or Publish to keep it` });
+                      }}>
+                      <RotateCcw className="h-3 w-3 mr-1" /> Restore
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Live Preview Modal Overlay */}
+        {showPreview && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 md:p-8 animate-in fade-in-0 duration-200">
+            <div className="w-full max-w-6xl h-[92vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-border/40">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border/60 bg-gray-50/50 shrink-0">
+                <div className="flex items-center gap-2">
+                  <Eye className="h-5 w-5 text-violet-600" />
+                  <span className="font-bold text-gray-800 text-base">Blog Post Live Preview</span>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setShowPreview(false)} className="rounded-full w-8 h-8 p-0">✕</Button>
+              </div>
+
+              {/* Scrollable Blog Page Content Area */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#fafafd] wp-post-preview-container">
+                {/* CSS matches the frontend BlogPost.tsx styling */}
+                <style>{`
+                  .wp-post-preview-container {
+                    font-family: 'Inter', sans-serif;
+                    color: #1f2937;
+                  }
+                  .wp-post-hero {
+                    background: #fbf7fe;
+                    min-height: 500px;
+                    padding: 84px 24px;
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    box-sizing: border-box;
+                  }
+                  .wp-post-hero .by-line {
+                    display: inline-block;
+                    background: #eddffd;
+                    color: #7c3aed;
+                    font-size: 11.5px;
+                    font-weight: 600;
+                    padding: 3px 12px;
+                    border-radius: 999px;
+                    letter-spacing: 0.02em;
+                    margin-bottom: 12px;
+                  }
+                  .wp-post-hero h1 {
+                    font-size: clamp(28px, 6vw, 52px);
+                    font-weight: 700;
+                    color: #a855f7;
+                    max-width: 960px;
+                    margin: 10px auto 0;
+                    line-height: 1.2;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                  }
+                  .wp-post-hero p {
+                    color: #6b7280;
+                    font-size: 16px;
+                    margin: 16px auto 0;
+                    max-width: 600px;
+                    line-height: 1.6;
+                  }
+                  .wp-post-body {
+                    max-width: 1140px;
+                    margin: 0 auto;
+                    padding: 40px 24px 80px;
+                    display: flex;
+                    gap: 40px;
+                    align-items: flex-start;
+                    width: 100%;
+                    box-sizing: border-box;
+                  }
+                  .wp-post-area {
+                    flex: 1 1 0;
+                    min-width: 0;
+                    width: 100%;
+                    box-sizing: border-box;
+                  }
+                  .wp-post-content-box {
+                    background: transparent;
+                    padding: 0;
+                    margin-bottom: 40px;
+                  }
+                  .wp-post-hero-img {
+                    width: 100%;
+                    border-radius: 16px;
+                    display: block;
+                    margin-bottom: 24px;
+                    overflow: hidden;
+                    border: 1px solid #eae6f8;
+                    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.04);
+                  }
+                  .wp-post-hero-img img { width: 100%; height: auto; display: block; }
+                  
+                  .wp-post-content { 
+                    font-size: 16.5px; 
+                    line-height: 1.75; 
+                    color: #4b5563; 
+                    width: 100%;
+                  }
+                  .wp-post-content h1 { font-size: 28px; font-weight: 800; color: #111827; margin: 24px 0 12px; }
+                  .wp-post-content h2 { font-size: 22px; font-weight: 700; color: #111827; margin: 24px 0 12px; }
+                  .wp-post-content h3 { font-size: 18px; font-weight: 700; color: #111827; margin: 20px 0 10px; }
+                  .wp-post-content p { margin: 0 0 12px; }
+                  .wp-post-content ul { list-style-type: disc !important; padding-left: 20px; margin: 0 0 12px; }
+                  .wp-post-content ol { list-style-type: decimal !important; padding-left: 20px; margin: 0 0 12px; }
+                  .wp-post-content li { margin-bottom: 4px; }
+                  .wp-post-content strong { color: #111827; font-weight: 700; }
+                  .wp-post-content em { font-style: italic; }
+                  .wp-post-content a { color: #7c3aed; font-weight: 700; text-decoration: underline; }
+                  .wp-post-content blockquote {
+                    border-left: 4px solid #7c3aed;
+                    margin: 16px 0;
+                    padding: 12px 18px;
+                    background: #f7f5fa;
+                    border-radius: 0 8px 8px 0;
+                    font-style: italic;
+                    color: #4b5563;
+                    font-size: 16px;
+                  }
+                  .wp-post-content img { max-width: 100%; height: auto; border-radius: 12px; margin: 16px 0; display: block; object-fit: contain; }
+                  .wp-post-content .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 20px 0; border-radius: 12px; background: #000; }
+                  .wp-post-content .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 12px; }
+                  .wp-post-content .rte-video { max-width: 100%; width: 100%; border-radius: 12px; margin: 20px 0; display: block; background: #000; }
+
+                  .wp-post-content table {
+                    width: 100%;
+                    table-layout: fixed;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                    margin: 24px 0;
+                    border: 1px solid #94a3b8;
+                    border-radius: 0px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+                  }
+                  .wp-post-content th, .wp-post-content td {
+                    border-bottom: 1px solid #94a3b8;
+                    border-right: 1px solid #94a3b8;
+                    padding: 18px 20px;
+                    font-size: 14.5px;
+                    line-height: 1.5;
+                    text-align: center;
+                    vertical-align: middle;
+                    background: #ffffff;
+                    color: #4b5563;
+                    word-break: break-word;
+                    overflow-wrap: anywhere;
+                  }
+                  .wp-post-content th:last-child, .wp-post-content td:last-child { border-right: none; }
+                  .wp-post-content tr:last-child th, .wp-post-content tr:last-child td { border-bottom: none; }
+                  .wp-post-content th { background: #ffffff; font-weight: 700; color: #1f2937; }
+                  .wp-post-content th:first-child, .wp-post-content td:first-child { text-align: left; font-weight: 700; color: #1f2937; }
+
+                  .wp-post-content .rte-callout-box { border-left: 4px solid #7c3aed; background: #F8F5FF; padding: 14px 20px; border-radius: 0 10px 10px 0; margin: 24px 0; font-size: 15px; color: #374151; line-height: 1.7; }
+                  .wp-post-content .rte-callout-box p { margin: 0; color: inherit; font-size: inherit; }
+                  .wp-post-content .rte-callout-box p:not(:last-child) { margin-bottom: 8px; }
+                  
+                  .wp-post-content .rte-cta-box { border: 2px dashed #7c3aed; background: #FAF5FF; padding: 24px; border-radius: 12px; margin: 28px 0; text-align: center; }
+                  .wp-post-content .rte-cta-box h3 { margin-top: 0; font-size: 20px; font-weight: 800; color: #7c3aed; margin-bottom: 12px; }
+                  .wp-post-content .rte-cta-box p { color: #6B7280; font-size: 14.5px; margin-bottom: 16px; }
+                  .wp-post-content .rte-cta-box a { display: inline-flex; align-items: center; justify-content: center; padding: 10px 22px; background: #7c3aed; color: #ffffff !important; font-weight: bold; border-radius: 8px; text-decoration: none !important; }
+
+                  .wp-sidebar { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; }
+                  .wp-sidebar-card { background: #ffffff; border-radius: 16px; border: 1px solid #eae6f8; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.03); padding: 20px; }
+                  .wp-sidebar-section-label { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 700; color: #1f2937; margin-bottom: 12px; }
+                  .wp-sidebar-section-label svg { width: 15px; height: 15px; color: #7c3aed; stroke: #7c3aed; stroke-width: 2.5; fill: none; }
+                  .wp-search-wrap { position: relative; }
+                  .wp-search-wrap input { width: 100%; padding: 8px 12px 8px 34px; border: 1px solid #dcdfe6; border-radius: 8px; font-size: 13.5px; color: #606266; background: #ffffff; outline: none; }
+                  .wp-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: #909399; fill: none; stroke: currentColor; stroke-width: 2.5; }
+                  .wp-recent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+                  .wp-recent-item a { display: block; font-size: 14px; font-weight: 500; color: #595e68; text-decoration: none !important; }
+                  .wp-recent-item a:hover { color: #7c3aed; }
+
+                  /* Related Pages Carousel Preview */
+                  .wp-related-pages-section {
+                    margin-top: 40px;
+                    margin-bottom: 40px;
+                    width: 100%;
+                  }
+                  .carousel-container-outer {
+                    position: relative;
+                    width: 100%;
+                    height: 300px;
+                    overflow: visible;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    background: transparent;
+                    box-shadow: none;
+                    margin-top: 20px;
+                    margin-bottom: 40px;
+                  }
+                  .carousel-bg-blur {
+                    position: absolute;
+                    top: -10px;
+                    left: 10%;
+                    right: 10%;
+                    bottom: -10px;
+                    background-size: cover;
+                    background-position: center;
+                    filter: blur(60px);
+                    opacity: 0.25;
+                    transition: background-image 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+                    z-index: 0;
+                    pointer-events: none;
+                    border-radius: 40px;
+                  }
+                  .carousel-bg-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: transparent;
+                    z-index: 1;
+                    pointer-events: none;
+                  }
+                  .carousel-slider-wrapper {
+                    position: relative;
+                    width: 100%;
+                    height: 250px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 2;
+                  }
+                  .carousel-slide {
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    width: 380px;
+                    height: 220px;
+                    border-radius: 24px;
+                    overflow: hidden;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+                    cursor: pointer;
+                    background: #ffffff;
+                    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), 
+                                opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+                                box-shadow 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+                  }
+                  .carousel-slide-link {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    text-decoration: none !important;
+                  }
+                  .carousel-slide.active {
+                    transform: translate(-50%, -50%) scale(1.05);
+                    z-index: 10;
+                    opacity: 1;
+                    pointer-events: auto;
+                    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+                  }
+                  .carousel-slide.left {
+                    transform: translate(-145%, -50%) scale(0.85);
+                    z-index: 5;
+                    opacity: 0.75;
+                    pointer-events: auto;
+                  }
+                  .carousel-slide.right {
+                    transform: translate(45%, -50%) scale(0.85);
+                    z-index: 5;
+                    opacity: 0.75;
+                    pointer-events: auto;
+                  }
+                  .carousel-slide.hidden {
+                    transform: translate(-50%, -50%) scale(0.65);
+                    z-index: 1;
+                    opacity: 0;
+                    pointer-events: none;
+                  }
+                  .carousel-slide-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                    transition: transform 0.4s ease;
+                  }
+                  .carousel-slide:hover .carousel-slide-img {
+                    transform: scale(1.03);
+                  }
+                  .carousel-slide-gradient {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: linear-gradient(135deg, #7c3aed 0%, #d946ef 100%);
+                  }
+                  .carousel-slide-overlay {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    padding: 12px;
+                    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-end;
+                    height: 45%;
+                  }
+                  .carousel-slide-title {
+                    color: #ffffff;
+                    font-size: 11px;
+                    font-weight: 600;
+                    line-height: 1.4;
+                    letter-spacing: 0.03em;
+                    text-align: center;
+                    text-transform: uppercase;
+                    max-width: 95%;
+                    opacity: 0.95;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+                    white-space: normal;
+                    word-wrap: break-word;
+                    display: block;
+                  }
+                  .carousel-dots-container {
+                    display: flex;
+                    justify-content: center;
+                    gap: 8px;
+                    z-index: 10;
+                    position: absolute;
+                    bottom: -25px;
+                  }
+                  .carousel-dot-btn {
+                    width: 12px;
+                    height: 4px;
+                    border-radius: 2px;
+                    background: rgba(0, 0, 0, 0.2);
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    padding: 0;
+                  }
+                  .carousel-dot-btn.active {
+                    background: #7c3aed;
+                    width: 24px;
+                  }
+                  .carousel-dot-btn:hover {
+                    background: rgba(0, 0, 0, 0.4);
+                  }
+
+                    @media (max-width: 768px) {
+                      .wp-post-hero { min-height: 360px; padding: 60px 20px; }
+                      .wp-post-hero h1 { font-size: clamp(24px, 5vw, 36px) !important; }
+                      .wp-post-hero p { font-size: 14px; margin-top: 12px; }
+                    }
+                    @media (max-width: 1024px) {
+                      .wp-post-body { flex-direction: column; gap: 36px; }
+                      .wp-sidebar { width: 100%; }
+                    }
+                  `}</style>
+  
+                  {/* Hero Header */}
+                  <section className="wp-post-hero">
+                    <h1>{watchTitle || "Untitled Post"}</h1>
+                  </section>
+
+                {/* Main Content & Sidebar Grid */}
+                <div className="wp-post-body">
+                  <main className="wp-post-area">
+                    <div className="wp-post-content-box">
+                      {/* Featured Hero Image */}
+                      {watchFeaturedUrl && (
+                        <div className="wp-post-hero-img">
+                          <img src={watchFeaturedUrl} alt={watchTitle} />
+                        </div>
+                      )}
+                      
+                      {/* Blog Rich Text Content */}
+                      <div 
+                        className="wp-post-content"
+                        dangerouslySetInnerHTML={{ __html: watchContent }}
+                      />
+                    </div>
+
+                    {/* FAQ Accordion Block inside the Content Column */}
+                    {faqs.length > 0 && (
+                      <div className="pt-8 border-t border-gray-200/80 space-y-6 wp-post-content text-left">
+                        <h2 className="font-bold text-gray-900" style={{ fontSize: "24px", color: "#111827", margin: "24px 0 12px", lineHeight: "1.3", fontWeight: 700 }}>Frequently Asked Questions</h2>
+                        <div className="space-y-6">
+                          {faqs.map((faq, idx) => (
+                            <div key={idx} className="space-y-2">
+                              <h3 
+                                className="font-bold text-gray-900 flex gap-1"
+                                style={{
+                                  fontSize: "16.5px",
+                                  lineHeight: "1.75",
+                                  color: "#1f2937",
+                                  fontWeight: 700
+                                }}
+                              >
+                                <span>Q:&nbsp;</span>
+                                <span dangerouslySetInnerHTML={{ __html: faq.question }} />
+                              </h3>
+                              <div 
+                                className="text-gray-650 leading-relaxed font-normal"
+                                style={{
+                                  fontSize: "16.5px",
+                                  lineHeight: "1.75",
+                                  color: "#4b5563"
+                                }}
+                                dangerouslySetInnerHTML={{ __html: faq.answer }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+
+                  </main>
+
+                  {/* Mock Page Sidebar matching production styling */}
+                  <aside className="wp-sidebar">
+                    {/* Search Mock */}
+                    <div className="wp-sidebar-card">
+                      <div className="wp-sidebar-section-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="11" cy="11" r="8"></circle>
+                          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Search
+                      </div>
+                      <div className="wp-search-wrap">
+                        <svg className="wp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="11" cy="11" r="8"></circle>
+                          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" readOnly placeholder="Search articles..." />
+                      </div>
+                    </div>
+
+                    {/* Recent Posts Mock */}
+                    <div className="wp-sidebar-card">
+                      <div className="wp-sidebar-section-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        Recent Posts
+                      </div>
+                      <ul className="wp-recent-list">
+                        <li className="wp-recent-item"><a href="#" onClick={(e) => e.preventDefault()}>Agentic AI for E-commerce & D2C</a></li>
+                        <li className="wp-recent-item"><a href="#" onClick={(e) => e.preventDefault()}>How voice agents scale contact centers</a></li>
+                        <li className="wp-recent-item"><a href="#" onClick={(e) => e.preventDefault()}>Omnichannel integration case study</a></li>
+                      </ul>
+                    </div>
+                  </aside>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-border/60 bg-gray-50 flex justify-end gap-3 shrink-0">
+                <Button type="button" onClick={() => setShowPreview(false)}>Close Preview</Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </AdminShell>
+  );
+};
+
+export default AdminBlogForm;

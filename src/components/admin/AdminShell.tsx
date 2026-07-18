@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
-import { BarChart3, BookOpen, CreditCard, LogOut } from "lucide-react";
+import { BarChart3, BookOpen, CreditCard, LogOut, FileText, Trash2, Hash, ArrowLeftRight, Activity, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminShellProps {
@@ -10,8 +10,18 @@ interface AdminShellProps {
 }
 
 const navItems = [
-  { label: "Case Studies", href: "/admin", icon: BookOpen, end: true },
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard, end: true },
+  { label: "Case Studies", href: "/admin/case-studies", icon: BookOpen, end: false },
   { label: "Pricing", href: "/admin/pricing", icon: CreditCard, end: false },
+];
+
+const blogSubItems = [
+  { label: "All Posts", href: "/admin/blog", icon: FileText, end: true },
+  { label: "New Post", href: "/admin/blog/new", icon: FileText, end: true },
+  { label: "Trash", href: "/admin/blog/trash", icon: Trash2, end: true },
+  { label: "Categories", href: "/admin/blog/categories", icon: Hash, end: true },
+  { label: "Redirects", href: "/admin/redirects", icon: ArrowLeftRight, end: true },
+  { label: "Activity", href: "/admin/activity", icon: Activity, end: true },
 ];
 
 const AdminShell = ({ children }: AdminShellProps) => {
@@ -46,6 +56,23 @@ const AdminShell = ({ children }: AdminShellProps) => {
               {item.label}
             </NavLink>
           ))}
+          <div className="pt-2 lg:pt-3">
+            <p className="hidden px-4 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:block">Blog</p>
+            {blogSubItems.map((item) => (
+              <NavLink
+                key={item.href}
+                to={item.href}
+                end={item.end}
+                className={({ isActive }) => cn(
+                  "flex shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
+                  isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
         </nav>
       </aside>
       <div className="flex min-h-screen flex-1 flex-col lg:pl-64">

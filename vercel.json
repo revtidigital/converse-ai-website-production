@@ -1,5 +1,34 @@
 {
+  "functions": {
+    "api/serve-blog.ts": {
+      "includeFiles": "dist/index.html"
+    }
+  },
   "routes": [
+
+  {
+      "src": "/storage/(.*)",
+      "dest": "https://njtfddsnsxlxlimuvhfa.supabase.co/storage/$1"
+    },
+    {
+      "src": "/wp-content/uploads/(.*)",
+      "dest": "https://njtfddsnsxlxlimuvhfa.supabase.co/storage/v1/object/public/blog-images/wp-content/$1"
+    },
+    {
+      "src": "/(?!(api|assets|favicon|logo|sitemap|robots\\.txt|wp-content|faq).*).*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(blog\\.theconverseai\\.com|localhost:5173)"
+        }
+      ],
+      "dest": "/api/serve-blog"
+    },
+
+    {
+      "src": "/sitemap-blogs.xml",
+      "dest": "/api/sitemap-blogs"
+    },
     { "handle": "filesystem" },
 
     {
