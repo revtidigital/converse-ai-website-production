@@ -116,9 +116,12 @@ export default function Index() {
           "logo": "https://theconverseai.com/logo.png",
           "foundingDate": "2021",
           "description": "ConverseAI builds custom AI agents — voice, WhatsApp, and agentic workflows — and runs them in production for mid-market and SMB teams. A product by Revti Digital.",
-          "contactPoint": { "@type": "ContactPoint", "email": "contact@theconverseai.com", "contactType": "customer service", "availableLanguage": ["English", "Hindi"] },
+          "email": "contact@theconverseai.com",
+          "telephone": "+91-9982323333",
+          "contactPoint": { "@type": "ContactPoint", "email": "contact@theconverseai.com", "telephone": "+91-9982323333", "contactType": "customer service", "availableLanguage": ["English", "Hindi"] },
           "address": { "@type": "PostalAddress", "addressLocality": "Jaipur", "addressRegion": "Rajasthan", "addressCountry": "IN" },
           "sameAs": ["https://linkedin.com/company/theconverseai", "https://youtube.com/@theconverseai", "https://instagram.com/theconverseai/", "https://facebook.com/61564130560658/"],
+          "parentOrganization": { "@type": "Organization", "name": "Revti Digital" },
           "numberOfEmployees": { "@type": "QuantitativeValue", "minValue": 5 }
         })}</script>
         <script type="application/ld+json">{JSON.stringify({
@@ -169,11 +172,12 @@ export default function Index() {
                   <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
                   Conversational AI + Agentic Systems
                 </span>
-                <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                  Human Conversations.<br />
-                  <span className="gradient-text">Agentic Intelligence.</span><br />
-                  Zero Overhead.
+                <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">
+                  AI Agents <span className="gradient-text">Built and Run</span> for Your Business
                 </h1>
+                <p className="text-xl sm:text-2xl font-semibold text-foreground mb-6">
+                  Human Conversations. Agentic Intelligence. Zero Overhead.
+                </p>
                 <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
                   From WhatsApp automation to custom AI voice agents — we build AI systems that engage your customers and run your workflows. You focus on growth; we run the agents.
                 </p>
