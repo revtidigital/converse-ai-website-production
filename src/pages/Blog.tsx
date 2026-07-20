@@ -69,7 +69,7 @@ const Blog = () => {
         <link rel="canonical" href="https://blog.theconverseai.com/" />
         <meta property="og:title" content="AI Agent & Automation Blog | ConverseAI" />
         <meta property="og:description" content="Guides on agentic AI, WhatsApp automation, and AI strategy for mid-market and SMB teams." />
-        <meta property="og:url" content="https://theconverseai.com/blog" />
+        <meta property="og:url" content="https://blog.theconverseai.com/" />
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content="AI Agent & Automation Blog | ConverseAI" />
         <meta name="twitter:description" content="Guides on agentic AI, WhatsApp automation, and AI strategy for mid-market and SMB teams." />
