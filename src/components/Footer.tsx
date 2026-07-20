@@ -42,6 +42,33 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
     { icon: linkedinIcon, href: "https://www.linkedin.com/company/theconverseai", label: "LinkedIn", title: "LinkedIn" },
   ];
 
+  // On the blog subdomain, internal links must point at the MAIN site (one Vercel
+  // project serves both domains, so a bare "/chatbot" would resolve to the blog
+  // host). Render an absolute anchor there; keep SPA <Link> on the main site.
+  const isBlogHost = typeof window !== "undefined" && /(^|\.)blog\./.test(window.location.hostname);
+  const SmartLink = ({
+    to,
+    className,
+    title,
+    "aria-label": ariaLabel,
+    children,
+  }: {
+    to: string;
+    className?: string;
+    title?: string;
+    "aria-label"?: string;
+    children: React.ReactNode;
+  }) =>
+    isBlogHost && to.startsWith("/") ? (
+      <a href={`https://theconverseai.com${to}`} className={className} title={title} aria-label={ariaLabel}>
+        {children}
+      </a>
+    ) : (
+      <Link to={to} className={className} title={title} aria-label={ariaLabel}>
+        {children}
+      </Link>
+    );
+
   return (
     <footer ref={ref} role="contentinfo" className="bg-footer text-primary-foreground">
       {/* Top gradient line */}
@@ -51,14 +78,14 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-12">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link 
-                  to="/" 
-                  className="inline-flex items-center mb-5" 
+            <SmartLink
+                  to="/"
+                  className="inline-flex items-center mb-5"
                   aria-label="ConverseAI - Go to homepage"
                   title="Go to ConverseAI Homepage"
                 >
-              <img 
-                src={logoIcon} 
+              <img
+                src={logoIcon}
                 alt="ConverseAI Logo"
                 title="ConverseAI AI Customer Support Platform"
                 className="h-12 w-auto"
@@ -67,7 +94,7 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
                 loading="lazy"
                 decoding="async"
               />
-            </Link>
+            </SmartLink>
             <p className="text-sm font-semibold text-primary-foreground leading-relaxed mb-2 max-w-xs">
               Your AI Workforce. Built on Agentic Systems.
             </p>
@@ -100,13 +127,13 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
             <ul className="space-y-2">
               {footerLinks.Products.map((link) => (
                 <li key={link.label}>
-                  <Link
+                  <SmartLink
                     to={link.href}
                     title={`Go to ${link.label}`}
                     className="text-sm text-footer-text hover:text-primary inline-block transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-footer rounded"
                   >
                     {link.label}
-                  </Link>
+                  </SmartLink>
                 </li>
               ))}
             </ul>
@@ -118,13 +145,13 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
             <ul className="space-y-2">
               {footerLinks["Agentic AI"].map((link) => (
                 <li key={link.label}>
-                  <Link
+                  <SmartLink
                     to={link.href}
                     title={`Go to ${link.label}`}
                     className="text-sm text-footer-text hover:text-primary inline-block transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-footer rounded"
                   >
                     {link.label}
-                  </Link>
+                  </SmartLink>
                 </li>
               ))}
             </ul>
@@ -136,13 +163,13 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
             <ul className="space-y-2">
               {footerLinks.Company.map((link) => (
                 <li key={link.label}>
-                  <Link
+                  <SmartLink
                     to={link.href}
                     title={`Go to ${link.label}`}
                     className="text-sm text-footer-text hover:text-primary inline-block transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-footer rounded"
                   >
                     {link.label}
-                  </Link>
+                  </SmartLink>
                 </li>
               ))}
             </ul>

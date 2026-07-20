@@ -222,6 +222,14 @@ const Header = () => {
 
   const navigate = useNavigate();
 
+  // On the blog subdomain, "Home"/logo must jump to the MAIN site, not the blog
+  // listing that lives at "/". (One Vercel project serves both domains.)
+  const isBlogHost = typeof window !== "undefined" && /(^|\.)blog\./.test(window.location.hostname);
+  const homeHref = isBlogHost ? "https://theconverseai.com/" : "/";
+  const resolvedNavLinks = navLinks.map((l) =>
+    l.label === "Home" ? { ...l, href: homeHref, isRoute: !isBlogHost } : l
+  );
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
@@ -242,6 +250,8 @@ const Header = () => {
     link: { href: string; isRoute: boolean; hasDropdown?: string; isExternal?: boolean }
   ) => {
     if (link.hasDropdown && !link.isRoute) { e.preventDefault(); return; }
+    // Absolute URLs (e.g. Home → main site from the blog domain) navigate natively.
+    if (/^https?:\/\//.test(link.href)) { setIsMobileMenuOpen(false); return; }
     if (link.isExternal) { setIsMobileMenuOpen(false); return; }
     // Let browser handle Ctrl/Cmd/middle-click natively (open in new tab)
     if (e.ctrlKey || e.metaKey || e.button === 1) { return; }
@@ -273,28 +283,33 @@ const Header = () => {
       <div className="container-tight relative">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link 
-             to="/" 
-              className="flex items-center group shrink-0" 
-              aria-label="ConverseAI - Go to homepage"
-              title="Go to ConverseAI Homepage"
-             >
-            <img
-              src={logo}
-              alt="ConverseAI Logo"
-              title="ConverseAI AI Customer Support Platform"
-              className="h-8 md:h-10 w-auto"
-              width="120"
-              height="40"
-              fetchpriority="high"
-              decoding="sync"
-              loading="eager"
-            />
-          </Link>
+          {(() => {
+            const logoImg = (
+              <img
+                src={logo}
+                alt="ConverseAI Logo"
+                title="ConverseAI AI Customer Support Platform"
+                className="h-8 md:h-10 w-auto"
+                width="120"
+                height="40"
+                fetchpriority="high"
+                decoding="sync"
+                loading="eager"
+              />
+            );
+            const logoProps = {
+              className: "flex items-center group shrink-0",
+              "aria-label": "ConverseAI - Go to homepage",
+              title: "Go to ConverseAI Homepage",
+            };
+            return isBlogHost
+              ? <a href={homeHref} {...logoProps}>{logoImg}</a>
+              : <Link to="/" {...logoProps}>{logoImg}</Link>;
+          })()}
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation" style={{ position: "static" }}>
-            {navLinks.map((link) => (
+            {resolvedNavLinks.map((link) => (
               <div
                 key={link.label}
                 className={cn(
@@ -443,14 +458,25 @@ const Header = () => {
             <nav className="px-0 py-0 flex flex-col gap-0.5" aria-label="Mobile navigation">
 
               {/* ── Home ── */}
-              <Link
-               to="/"
-                title="Go to Home"
-                 onClick={() => setIsMobileMenuOpen(false)}
-                 className="px-[42px] py-2.5 text-[14px] font-semibold text-foreground hover:bg-secondary rounded-lg transition-colors block"
-                   >
-                Home
-              </Link>
+              {isBlogHost ? (
+                <a
+                  href={homeHref}
+                  title="Go to Home"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-[42px] py-2.5 text-[14px] font-semibold text-foreground hover:bg-secondary rounded-lg transition-colors block"
+                >
+                  Home
+                </a>
+              ) : (
+                <Link
+                 to="/"
+                  title="Go to Home"
+                   onClick={() => setIsMobileMenuOpen(false)}
+                   className="px-[42px] py-2.5 text-[14px] font-semibold text-foreground hover:bg-secondary rounded-lg transition-colors block"
+                     >
+                  Home
+                </Link>
+              )}
 
               {/* ── Features (2-level accordion) ── */}
               <div>
