@@ -190,24 +190,23 @@ const LeafItem = ({
   href: string;
   depth?: number;
   onClose: () => void;
-}) => (
-  <Link
-    to={href}
-    onClick={onClose}
-    title={label}
-    className={cn(
-      "block py-2 rounded-lg transition-colors",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+}) => {
+  const className = cn(
+    "block py-2 rounded-lg transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 
-      depth === 2
-        ? "pl-[58px] pr-[42px] text-[14px] font-normal text-muted-foreground hover:text-primary hover:bg-primary/5"
+    depth === 2
+      ? "pl-[58px] pr-[42px] text-[14px] font-normal text-muted-foreground hover:text-primary hover:bg-primary/5"
 
-        : "pl-[50px] pr-[42px] text-[14px] font-semibold text-muted-foreground hover:text-primary hover:bg-primary/5"
-    )}
-  >
-    {label}
-  </Link>
-);
+      : "pl-[50px] pr-[42px] text-[14px] font-semibold text-muted-foreground hover:text-primary hover:bg-primary/5"
+  );
+  // On the blog host href is an absolute main-site URL — must be a real <a>.
+  return /^https?:\/\//.test(href) ? (
+    <a href={href} onClick={onClose} title={label} className={className}>{label}</a>
+  ) : (
+    <Link to={href} onClick={onClose} title={label} className={className}>{label}</Link>
+  );
+};
 // ─── Main Header ────────────────────────────────────────────────────────────────
 
 const Header = () => {
@@ -222,13 +221,26 @@ const Header = () => {
 
   const navigate = useNavigate();
 
-  // On the blog subdomain, "Home"/logo must jump to the MAIN site, not the blog
-  // listing that lives at "/". (One Vercel project serves both domains.)
+  // One Vercel project serves BOTH theconverseai.com and blog.theconverseai.com.
+  // On the blog host every internal link must point at the MAIN site (a bare
+  // "/services" would otherwise resolve to the blog host); only "/" is the blog
+  // index. absolutize() rewrites internal paths to the main site on the blog host.
   const isBlogHost = typeof window !== "undefined" && /(^|\.)blog\./.test(window.location.hostname);
+  const absolutize = (href: string) =>
+    isBlogHost && href.startsWith("/") ? `https://theconverseai.com${href}` : href;
   const homeHref = isBlogHost ? "https://theconverseai.com/" : "/";
   const resolvedNavLinks = navLinks.map((l) =>
-    l.label === "Home" ? { ...l, href: homeHref, isRoute: !isBlogHost } : l
+    l.href.startsWith("/") ? { ...l, href: absolutize(l.href) } : l
   );
+  // Dropdown item link: an absolute <a> on the blog host, SPA <Link> on the main site.
+  const SmartLink = ({
+    to,
+    children,
+    ...rest
+  }: { to: string; children: React.ReactNode } & Record<string, unknown>) =>
+    isBlogHost && to.startsWith("/")
+      ? <a href={`https://theconverseai.com${to}`} {...rest}>{children}</a>
+      : <Link to={to} {...(rest as Record<string, unknown>)}>{children}</Link>;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -249,9 +261,10 @@ const Header = () => {
     e: React.MouseEvent<HTMLAnchorElement>,
     link: { href: string; isRoute: boolean; hasDropdown?: string; isExternal?: boolean }
   ) => {
-    if (link.hasDropdown && !link.isRoute) { e.preventDefault(); return; }
-    // Absolute URLs (e.g. Home → main site from the blog domain) navigate natively.
+    // Absolute URLs (blog host → main site, or the external Blog link) navigate
+    // natively — checked first so a dropdown parent like "Agentic AI" still works.
     if (/^https?:\/\//.test(link.href)) { setIsMobileMenuOpen(false); return; }
+    if (link.hasDropdown && !link.isRoute) { e.preventDefault(); return; }
     if (link.isExternal) { setIsMobileMenuOpen(false); return; }
     // Let browser handle Ctrl/Cmd/middle-click natively (open in new tab)
     if (e.ctrlKey || e.metaKey || e.button === 1) { return; }
@@ -348,7 +361,7 @@ const Header = () => {
                             <ul className="space-y-1" role="group" aria-label={column.title}>
                               {column.items.map((item) => (
                                 <li key={item.label} role="none">
-                                  <Link
+                                  <SmartLink
                                     to={item.href}
                                     onClick={() => setActiveDropdown(null)}
                                     title={`Open ${item.label}`}
@@ -356,7 +369,7 @@ const Header = () => {
                                     role="menuitem"
                                   >
                                     {item.label}
-                                  </Link>
+                                  </SmartLink>
                                 </li>
                               ))}
                             </ul>
@@ -374,7 +387,7 @@ const Header = () => {
                       <ul className="space-y-1">
                         {productsMenu.map((item) => (
                           <li key={item.label} role="none">
-                            <Link
+                            <SmartLink
                               to={item.href}
                               onClick={() => setActiveDropdown(null)}
                               title={`Open ${item.label}`}
@@ -382,7 +395,7 @@ const Header = () => {
                               role="menuitem"
                             >
                               {item.label}
-                            </Link>
+                            </SmartLink>
                           </li>
                         ))}
                       </ul>
@@ -397,7 +410,7 @@ const Header = () => {
                       <ul className="space-y-1">
                         {servicesMenu.map((item) => (
                           <li key={item.label} role="none">
-                            <Link
+                            <SmartLink
                               to={item.href}
                               onClick={() => setActiveDropdown(null)}
                               title={`Open ${item.label}`}
@@ -405,7 +418,7 @@ const Header = () => {
                               role="menuitem"
                             >
                               {item.label}
-                            </Link>
+                            </SmartLink>
                           </li>
                         ))}
                       </ul>
@@ -502,7 +515,7 @@ const Header = () => {
                               <LeafItem
                                 key={item.label}
                                 label={item.label}
-                                href={item.href}
+                                href={absolutize(item.href)}
                                 depth={2}
                                 onClose={handleMobileClose}
                               />
@@ -529,7 +542,7 @@ const Header = () => {
                       <LeafItem
                         key={item.label}
                         label={item.label}
-                        href={item.href}
+                        href={absolutize(item.href)}
                         depth={1}
                         onClose={handleMobileClose}
                       />
@@ -552,7 +565,7 @@ const Header = () => {
                       <LeafItem
                         key={item.label}
                         label={item.label}
-                        href={item.href}
+                        href={absolutize(item.href)}
                         depth={1}
                         onClose={handleMobileClose}
                       />
@@ -562,14 +575,14 @@ const Header = () => {
               </div>
 
               {/* ── Case Studies ── */}
-              <Link
+              <SmartLink
                 to="/case-studies"
                 onClick={() => setIsMobileMenuOpen(false)}
                 title="Read ConverseAI customer case studies"
                 className="px-[42px] py-2.5 text-[14px] font-semibold text-foreground hover:bg-secondary rounded-lg transition-colors block"
               >
                 Case Studies
-              </Link>
+              </SmartLink>
 
               {/* ── Blog (external) ── */}
               <a
