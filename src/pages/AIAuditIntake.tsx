@@ -9,7 +9,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { submitContactForm } from "@/lib/submitContactForm";
 import { usePartialLeadCapture } from "@/lib/usePartialLeadCapture";
-import { generateAuditReportPdf, uint8ToBase64, downloadPdf, type AuditInput } from "@/lib/auditReport";
+// Runtime helpers are dynamically imported at PDF-generation time so pdf-lib is
+// code-split out of the main bundle (this is a public page). Type is erased at build.
+import type { AuditInput } from "@/lib/auditReport";
 import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
 
 const industries = [
@@ -177,6 +179,7 @@ const AIAuditIntake = () => {
     // Build the branded PDF report. Never block lead capture if this fails.
     const extraFields: Record<string, string> = {};
     try {
+      const { generateAuditReportPdf, uint8ToBase64, downloadPdf } = await import("@/lib/auditReport");
       const bytes = await generateAuditReportPdf(auditInput);
       const filename = `AI-Readiness-Report-${company.trim().replace(/[^a-z0-9]+/gi, "-") || "ConverseAI"}.pdf`;
       downloadPdf(bytes, filename); // instant copy for the visitor

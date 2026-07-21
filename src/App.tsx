@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode, type ComponentType } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode, type ComponentType } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -61,18 +61,20 @@ import CaseStudies from "./pages/CaseStudies";
 import CaseStudyDetail from "./pages/CaseStudyDetail";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminCaseStudies from "./pages/admin/AdminCaseStudies";
-import AdminCaseStudyForm from "./pages/admin/AdminCaseStudyForm";
-import AdminPricing from "./pages/admin/AdminPricing";
-import AdminPricingForm from "./pages/admin/AdminPricingForm";
-import AdminBlog from "./pages/admin/AdminBlog";
-import AdminBlogForm from "./pages/admin/AdminBlogForm";
-import AdminBlogTrash from "./pages/admin/AdminBlogTrash";
-import AdminBlogCategories from "./pages/admin/AdminBlogCategories";
-import AdminRedirects from "./pages/admin/AdminRedirects";
-import AdminActivityLog from "./pages/admin/AdminActivityLog";
+// Admin pages are lazy-loaded so their heavy deps (TipTap editor, etc.) are
+// code-split out of the public bundle — a blog/site visitor never downloads them.
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminCaseStudies = lazy(() => import("./pages/admin/AdminCaseStudies"));
+const AdminCaseStudyForm = lazy(() => import("./pages/admin/AdminCaseStudyForm"));
+const AdminPricing = lazy(() => import("./pages/admin/AdminPricing"));
+const AdminPricingForm = lazy(() => import("./pages/admin/AdminPricingForm"));
+const AdminBlog = lazy(() => import("./pages/admin/AdminBlog"));
+const AdminBlogForm = lazy(() => import("./pages/admin/AdminBlogForm"));
+const AdminBlogTrash = lazy(() => import("./pages/admin/AdminBlogTrash"));
+const AdminBlogCategories = lazy(() => import("./pages/admin/AdminBlogCategories"));
+const AdminRedirects = lazy(() => import("./pages/admin/AdminRedirects"));
+const AdminActivityLog = lazy(() => import("./pages/admin/AdminActivityLog"));
 
 type RouterComponent = ComponentType<{ children: ReactNode }>;
 
@@ -164,6 +166,7 @@ const AnimatedRoutes = () => {
   
   return (
     <AnimatePresence mode="wait">
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
       <Routes location={location} key={location.pathname}>
         {PUBLIC_STATIC_ROUTES.map((path) => {
           // "/" (blog index), "/blog" and "/blog-2" are legitimately reachable on
@@ -308,6 +311,7 @@ const AnimatedRoutes = () => {
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 };
