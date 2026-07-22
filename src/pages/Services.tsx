@@ -180,16 +180,47 @@ const Services = () => {
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "ProfessionalService",
-        "@id": "https://theconverseai.com/#professionalservice",
-        name: "ConverseAI",
-        url: "https://theconverseai.com/services",
-        description:
-          "End-to-end AI services: strategy audits, agent development, voice bots, integrations, and knowledge AI. Fixed-fee, shipped in weeks.",
-        serviceType: "AI services for business",
-        areaServed: ["India", "United States"],
-      },
+      // {
+      //   "@type": "ProfessionalService",
+      //   "@id": "https://theconverseai.com/#professionalservice",
+      //   name: "ConverseAI",
+      //   url: "https://theconverseai.com/services",
+      //   description:
+      //     "End-to-end AI services: strategy audits, agent development, voice bots, integrations, and knowledge AI. Fixed-fee, shipped in weeks.",
+      //   serviceType: "AI services for business",
+      //   areaServed: ["India", "United States"],
+      // },
+
+{
+  "@type": "ProfessionalService",
+  "@id": "https://theconverseai.com/#professionalservice",
+  name: "ConverseAI",
+  url: "https://theconverseai.com/services",
+  description:
+    "End-to-end AI services: strategy audits, agent development, voice bots, integrations, and knowledge AI. Fixed-fee, shipped in weeks.",
+
+  areaServed: [
+    {
+      "@type": "Country",
+      name: "India",
+    },
+    {
+      "@type": "Country",
+      name: "United States",
+    },
+  ],
+
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "F-21, Madhuvan Colony, Barkat Nagar, Tonk Phatak",
+    addressLocality: "Jaipur",
+    addressRegion: "Rajasthan",
+    postalCode: "302015",
+    addressCountry: "IN",
+  },
+},
+
+
       {
         "@type": "ItemList",
         name: "ConverseAI AI Services",
