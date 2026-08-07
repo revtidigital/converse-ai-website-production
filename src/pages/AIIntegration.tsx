@@ -140,7 +140,7 @@ const faqs = [
   {
     question: "How do you handle data security and residency?",
     answer:
-      "Deployments in your cloud (AWS/Azure/GCP), VPC or on-prem where required. DPDP, GDPR, HIPAA, SOC 2 compliance as applicable.",
+      "Deployments in your cloud (AWS/Azure/GCP), VPC or on-prem where required. DPDP, GDPR, CCPA, HIPAA, SOC 2 compliance as applicable.",
   },
   {
     question: "Which AI models do you integrate — can we use our Azure/AWS credits?",

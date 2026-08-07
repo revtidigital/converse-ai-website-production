@@ -171,7 +171,7 @@ const faqs = [
       "Our ROI-First Audit framework — use-case scoring on business impact × technical feasibility × time-to-value × risk. Built from shipping 40+ AI projects. Frameworks are a starting point — your business context is the real input.",
   },
   {
-    question: "How do you handle compliance (DPDP, GDPR, SOC 2, HIPAA)?",
+    question: "How do you handle compliance (DPDP, GDPR, CCPA, SOC 2, HIPAA)?",
     answer:
       "Flagged as part of the readiness assessment. We note compliance exposure per use case so your legal/InfoSec team can sign off before the build.",
   },

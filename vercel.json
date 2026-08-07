@@ -37,6 +37,37 @@
     },
 
     {
+      "src": "/compare/sierra-ai",
+      "status": 301,
+      "headers": { "Location": "https://blog.theconverseai.com/sierra-ai-alternative-what-to-consider-if-you-dont-have-an-enterprise-ai-team" }
+    },
+    {
+      "src": "/compare/decagon-ai",
+      "status": 301,
+      "headers": { "Location": "https://blog.theconverseai.com/decagon-ai-alternative-managed-ai-customer-support-without-the-platform-overhead" }
+    },
+    {
+      "src": "/compare/wati-aisensy",
+      "status": 301,
+      "headers": { "Location": "https://blog.theconverseai.com/wati-aisensy-interakt-or-converseai-an-honest-2026-comparison-for-mid-market" }
+    },
+    {
+      "src": "/compare/retell-ai",
+      "status": 301,
+      "headers": { "Location": "https://blog.theconverseai.com/retell-ai-vs-vapi-vs-bland-ai-which-voice-ai-platform-should-you-use" }
+    },
+    {
+      "src": "/compare/vapi-ai",
+      "status": 301,
+      "headers": { "Location": "https://blog.theconverseai.com/retell-ai-vs-vapi-vs-bland-ai-which-voice-ai-platform-should-you-use" }
+    },
+    {
+      "src": "/compare/bland-ai",
+      "status": 301,
+      "headers": { "Location": "https://blog.theconverseai.com/retell-ai-vs-vapi-vs-bland-ai-which-voice-ai-platform-should-you-use" }
+    },
+
+    {
       "src": "/faq",
       "status": 410
     },

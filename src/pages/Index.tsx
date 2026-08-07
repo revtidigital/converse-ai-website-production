@@ -311,7 +311,7 @@ export default function Index() {
               >
                 {[
                   { icon: Zap, title: 'Context-Aware AI', text: 'Our chatbot understands intent, context, and sentiment — not just keywords.' },
-                  { icon: Shield, title: 'Enterprise Security', text: 'GDPR-compliant by default, with solutions engineered to meet the specific compliance needs of each engagement.' },
+                  { icon: Shield, title: 'Enterprise Security', text: 'GDPR- and CCPA-compliant by default, with solutions engineered to meet the specific compliance needs of each engagement (e.g. DPDP India).' },
                   { icon: Globe, title: 'Multi-Language', text: 'Real-time translation across 100+ languages. Serve global customers natively.' },
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4">
