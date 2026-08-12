@@ -53,3 +53,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://theconverseai.com/sitemap.xml
+Sitemap: https://blog.theconverseai.com/sitemap-blogs.xml
