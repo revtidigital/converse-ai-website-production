@@ -468,6 +468,8 @@ const AIVoiceAgents = () => {
                     <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
                       AI voice agents for business — inbound support, outbound qualification, appointment booking, collections.
                     </h2>
+                    {false && (
+                    <>
                     <p className="text-lg text-muted-foreground mb-8">
                       Drop your number. We'll call your phone in 60 seconds with a live AI voice agent built for your use case.
                       Natural voice. Sub-800ms latency. 20+ languages including Hindi, English, and regional Indian languages.
@@ -486,6 +488,8 @@ const AIVoiceAgents = () => {
                         </Button>
                       </div>
                     </div>
+                    </>
+                    )}
                     <a href="#sample-calls" className="mt-4 text-primary font-semibold inline-flex items-center gap-2 hover:underline text-sm">
                       Listen to sample calls ↓
                     </a>
