@@ -39,6 +39,7 @@ const sampleCalls = [
     title: "Tamil — Loan collections (early bucket, DLT-compliant)",
     description: "Gentle reminder call with compliant language and payment-link follow-up.",
     lang: "ta-IN",
+    audioSrc: "/audio/tamil-collections.mp3",
     script:
       "வணக்கம், நான் FinCare-ஐ சார்ந்த Priya பேசுகிறேன். நான் உங்களிடம் ஒரு முக்கியமான விஷயம் பற்றி பேச விரும்புகிறேன். உங்கள் loan account-ல் இந்த மாதத்தின் EMI payment இன்னும் pending-ஆக இருக்கிறது. தொகை 4,500 ரூபாய். நீங்கள் இன்று அல்லது நாளை payment செய்ய முடியுமா? நாங்கள் UPI, net banking அல்லது payment link மூலம் ஏற்றுக்கொள்கிறோம். உங்கள் registered mobile-க்கு payment link அனுப்பட்டுமா? நன்றி. Link-ஐ 24 மணி நேரத்திற்குள் use செய்யுங்கள். வேறு ஏதாவது உதவி வேண்டுமா?",
     transcript:
