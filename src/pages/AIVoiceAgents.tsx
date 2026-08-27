@@ -51,6 +51,7 @@ const sampleCalls = [
     title: "Hinglish — D2C order status and escalation",
     description: "Natural code-switching for order tracking, ETA updates, and quick resolution.",
     lang: "en-IN",
+    audioSrc: "/audio/hinglish-d2c.mp3",
     script:
       "Hello! Main ShopEase ki taraf se Riya bol rahi hoon. Aapne hamare helpline pe call kiya tha regarding your order. Order number DO-7742 ke baare mein pooch rahi hain aap? Let me check that for you. Okay, so aapka order kal, yaani Wednesday ko 10 AM se 2 PM ke beech deliver hoga. Delivery partner ka naam Rakesh hai, aur unka number aapke registered mobile pe message ho jayega. Koi aur problem hai? Return ya exchange chahiye toh I can raise a request right now. Great. Is there anything else I can help you with? Have a nice day!",
     transcript:
