@@ -63,6 +63,7 @@ const sampleCalls = [
     title: "Spanish — Real estate viewing booking",
     description: "Qualifies intent, budget, and schedules a property viewing in Spanish.",
     lang: "es-ES",
+    audioSrc: "/audio/spanish-real-estate.mp3",
     script:
       "Hola, buenos días. Soy Sofía, agente virtual de PropertyFinder. Gracias por su interés en nuestras propiedades. ¿Busca para compra o para alquiler? Perfecto. ¿Tiene alguna zona en mente, o está abierto a opciones en distintos barrios? ¿Y cuál sería su presupuesto aproximado? Entendido. Tengo tres propiedades que encajan perfectamente con lo que busca. ¿Le gustaría agendar una visita este fin de semana? Tenemos disponibilidad el sábado a las 11 de la mañana o el domingo a las 5 de la tarde. ¿Cuál le viene mejor? Perfecto, queda confirmada la visita del sábado. Le enviaré los detalles por WhatsApp. ¡Hasta pronto!",
     transcript:
