@@ -15,6 +15,7 @@ const sampleCalls = [
     title: "English — SDR qualifying an inbound lead for a B2B SaaS",
     description: "Qualification, budget fit, and next-step booking for a SaaS demo.",
     lang: "en-US",
+    audioSrc: "/audio/english-sdr.mp3",
     script:
       "Hi there, this is Aria from ConverseAI. I can see you recently filled out our contact form — thanks for reaching out! I just have a couple of quick questions so I can point you to the right team. Are you looking to automate customer support conversations, or is the priority more on the sales side? Great. And roughly how many support or sales interactions does your team handle per month? Perfect — that puts you right in our sweet spot. I'd love to set up a 20-minute demo with one of our solutions engineers. Do you have availability Thursday at 2 PM, or would Friday morning work better for you? Fantastic. I'll send a calendar invite to the email on file. Looking forward to showing you what we can do. Have a great rest of your day!",
     transcript:
@@ -329,11 +330,23 @@ const faqs = [
   },
 ];
 
-const VoicePlayer = ({ script, lang }: { script: string; lang: string }) => {
+const VoicePlayer = ({ script, lang, audioSrc }: { script: string; lang: string; audioSrc?: string }) => {
   const [playing, setPlaying] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const play = useCallback(() => {
+    if (audioSrc) {
+      if (!audioRef.current) {
+        audioRef.current = new Audio(audioSrc);
+        audioRef.current.onended = () => setPlaying(false);
+        audioRef.current.onerror = () => setPlaying(false);
+      }
+      setPlaying(true);
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+      return;
+    }
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(script);
@@ -345,12 +358,16 @@ const VoicePlayer = ({ script, lang }: { script: string; lang: string }) => {
     utteranceRef.current = utterance;
     setPlaying(true);
     window.speechSynthesis.speak(utterance);
-  }, [script, lang]);
+  }, [script, lang, audioSrc]);
 
   const stop = useCallback(() => {
-    window.speechSynthesis.cancel();
+    if (audioSrc && audioRef.current) {
+      audioRef.current.pause();
+    } else {
+      window.speechSynthesis.cancel();
+    }
     setPlaying(false);
-  }, []);
+  }, [audioSrc]);
 
   return (
     <button
@@ -575,7 +592,7 @@ const AIVoiceAgents = () => {
                       <h3 className="text-lg font-semibold mb-2">{sample.title}</h3>
                       <p className="text-muted-foreground mb-4">{sample.description}</p>
                       <div className="mb-4">
-                        <VoicePlayer script={sample.script} lang={sample.lang} />
+                        <VoicePlayer script={sample.script} lang={sample.lang} audioSrc={sample.audioSrc} />
                       </div>
                       <Accordion type="single" collapsible>
                         <AccordionItem value={`${sample.id}-transcript`}>
