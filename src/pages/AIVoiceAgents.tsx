@@ -27,9 +27,9 @@ const sampleCalls = [
     title: "Hindi — Appointment booking for a clinic",
     description: "Collects symptoms, suggests slots, and confirms appointment details in Hindi.",
     lang: "hi-IN",
-    audioSrc: "/audio/hindi-appointment.mp3",
+    audioSrc: "/audio/Hindi (2).mp3",
     script:
-      "नमस्ते, मैं HealthCare Clinic की तरफ से बोल रही हूं। क्या मैं आपसे दो मिनट बात कर सकती हूं? आपने हमारी वेबसाइट पर appointment request भेजी थी। आप किस doctor से मिलना चाहते हैं? General physician के लिए हमारे पास गुरुवार दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का slot available है। कौन सा आपके लिए सुविधाजनक रहेगा? बहुत अच्छा। मैं गुरुवार 3 बजे आपका appointment confirm कर देती हूं। आपका नाम और date of birth confirm कर सकती हूं? धन्यवाद। आपके registered number पर confirmation SMS आ जाएगा। कोई और सहायता चाहिए?",
+      "नमस्ते, मैं Converse AI की तरफ से HealthCare Clinic के लिए बोल रही हूं। क्या मैं आपसे दो मिनट बात कर सकती हूं? आपने हमारी वेबसाइट पर appointment request भेजी थी। आप किस doctor से मिलना चाहते हैं? General Physician के लिए हमारे पास गुरुवार दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का slot available है। कौन सा आपके लिए सुविधाजनक रहेगा? बहुत अच्छा। मैं गुरुवार 3 बजे आपका appointment confirm कर देती हूं। आपका नाम और date of birth confirm कर सकती हूं? धन्यवाद। आपके registered number पर Converse AI के माध्यम से appointment confirmation SMS आ जाएगा। कोई और सहायता चाहिए?",
     transcript:
       "Agent greets in Hindi, confirms appointment request, asks for doctor preference, offers two available slots, collects confirmation details, and sends SMS confirmation. Polite and efficient tone.",
     languageSchema: "hi",
@@ -51,9 +51,9 @@ const sampleCalls = [
     title: "Hinglish — D2C order status and escalation",
     description: "Natural code-switching for order tracking, ETA updates, and quick resolution.",
     lang: "en-IN",
-    audioSrc: "/audio/hinglish-d2c.mp3",
+    audioSrc: "/audio/Hinglish (2).mp3",
     script:
-      "Hello! Main ShopEase ki taraf se Riya bol rahi hoon. Aapne hamare helpline pe call kiya tha regarding your order. Order number DO-7742 ke baare mein pooch rahi hain aap? Let me check that for you. Okay, so aapka order kal, yaani Wednesday ko 10 AM se 2 PM ke beech deliver hoga. Delivery partner ka naam Rakesh hai, aur unka number aapke registered mobile pe message ho jayega. Koi aur problem hai? Return ya exchange chahiye toh I can raise a request right now. Great. Is there anything else I can help you with? Have a nice day!",
+      "Hello! Main Converse AI ki taraf se ShopEase ke liye Shubh bol raha hoon. Aapne hamare helpline pe call kiya tha regarding your order. Order number DO-7742 ke baare mein pooch rahi hain aap? Let me check that for you. Okay, so aapka order kal, yaani Wednesday ko 10 AM se 2 PM ke beech deliver hoga. Delivery partner ka naam Rakesh hai, aur unka number aapke registered mobile pe Converse AI ke through message ho jayega. Koi aur problem hai? Return ya exchange chahiye toh Converse AI aapke liye request raise kar sakta hai right now. Great. Is there anything else I can help you with? Have a nice day!",
     transcript:
       "Agent seamlessly switches between Hindi and English, confirms order details, shares ETA, offers escalation options. Natural Hinglish tone matching how urban Indian customers actually speak.",
     languageSchema: "en-IN",
