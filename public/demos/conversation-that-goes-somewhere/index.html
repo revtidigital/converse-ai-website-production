@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.google.com/recaptcha/api.js?render=6Ld6E40sAAAAAAayjrv2wh-ZInD0yK12mVNWlmpH"></script>
 <style>
 :root{
   --background:0 0% 100%;--foreground:260 20% 10%;
@@ -207,9 +208,6 @@ details[open] summary:after{content:"–"}
     <a href="#top" class="brand">
       <img src="converseai-logo.png" alt="ConverseAI"/>
     </a>
-    <nav class="navlinks" id="desktopNav">
-      <a href="#top">Overview</a><a href="#objectives">Objective</a><a href="#personas">Personas</a><a href="#journey">Journey</a><a href="#runshow">Run-of-Show</a><a href="#scripts">Scripts</a><a href="#why">Why ConverseAI</a><a href="#roi">ROI</a><a href="#nextsteps">Next Steps</a>
-    </nav>
     <div class="mobile-select">
       <select id="jump">
         <option value="#top">Overview</option><option value="#objectives">Demo Objective</option><option value="#overview">Use Case Overview</option><option value="#personas">Personas</option><option value="#journey">Journey Flow</option><option value="#runshow">Run-of-Show</option><option value="#scripts">Scripts</option><option value="#objections">Objections</option><option value="#why">Why ConverseAI</option><option value="#discovery">Discovery</option><option value="#roi">ROI</option><option value="#metrics">Metrics</option><option value="#nextsteps">Next Steps</option>
@@ -517,11 +515,23 @@ details[open] summary:after{content:"–"}
   document.getElementById('closeDemoThanks').addEventListener('click', closeModal);
   modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
 
+  function getCaptchaToken(){
+    return new Promise(function(resolve){
+      if (!window.grecaptcha) { resolve(''); return; }
+      window.grecaptcha.ready(function(){
+        window.grecaptcha.execute('6Ld6E40sAAAAAAayjrv2wh-ZInD0yK12mVNWlmpH', { action: 'contact_form' })
+          .then(resolve)
+          .catch(function(){ resolve(''); });
+      });
+    });
+  }
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
+    getCaptchaToken().then(function(token){
     var params = new URLSearchParams();
     params.append('fullName', document.getElementById('df-name').value.trim());
     params.append('email', document.getElementById('df-email').value.trim());
@@ -531,13 +541,13 @@ details[open] summary:after{content:"–"}
     params.append('subject', 'Play1 Voice AI Demo Page');
     params.append('message', document.getElementById('df-message').value.trim() || 'N/A');
     params.append('form_source', 'Play1 Voice AI Demo Page');
-    params.append('captcha_token', '');
-    params.append('utm_source', 'Direct');
-    params.append('utm_medium', 'N/A');
-    params.append('utm_campaign', 'N/A');
-    params.append('utm_term', 'N/A');
-    params.append('utm_content', 'N/A');
-    params.append('utm_id', 'N/A');
+    params.append('captcha_token', token || '');
+    params.append('utm_source', localStorage.getItem('utm_source') || 'Direct');
+    params.append('utm_medium', localStorage.getItem('utm_medium') || 'N/A');
+    params.append('utm_campaign', localStorage.getItem('utm_campaign') || 'N/A');
+    params.append('utm_term', localStorage.getItem('utm_term') || 'N/A');
+    params.append('utm_content', localStorage.getItem('utm_content') || 'N/A');
+    params.append('utm_id', localStorage.getItem('utm_id') || 'N/A');
     params.append('page_url', window.location.href);
     params.append('device_info', navigator.userAgent.substring(0,200));
 
@@ -555,6 +565,7 @@ details[open] summary:after{content:"–"}
     }).finally(function(){
       submitBtn.disabled = false;
       submitBtn.textContent = 'Request Demo';
+    });
     });
   });
 })();
