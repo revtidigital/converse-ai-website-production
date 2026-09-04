@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=ai-legible&utm_source=comment&utm_medium=referral&utm_id=490ee640-e924-4794-81db-5c9997a397a9
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+<meta name="hosting-provider" content="Netlify">
+<meta name="netlify-deploy" content="https://netlify.new/?utm_campaign=ai-legible&amp;utm_source=meta&amp;utm_medium=referral&amp;utm_id=490ee640-e924-4794-81db-5c9997a397a9">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ConverseAI Voice AI Lead Nurturing Demo Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:0 0% 100%;--foreground:260 20% 10%;
+  --card:0 0% 100%;--muted:260 10% 45%;--muted-bg:260 20% 96%;
+  --primary:262 83% 58%;--primary-dark:262 83% 45%;
+  --secondary:270 50% 96%;
+  --accent:168 84% 40%;--mint:168 84% 42%;
+  --border:260 20% 90%;
+  --violet:280 87% 65%;--pink:330 75% 60%;
+  --footer-bg:225 25% 14%;--footer-text:220 10% 65%;
+  --radius:0.9rem;
+  --shadow-soft:0 4px 20px -4px hsl(var(--primary) / .15);
+  --shadow-glow:0 8px 40px -8px hsl(var(--primary) / .35);
+  --shadow-card:0 4px 24px -4px hsl(260 20% 20% / .08);
+  --gradient-primary:linear-gradient(135deg,hsl(262 83% 58%) 0%,hsl(280 87% 65%) 50%,hsl(310 70% 60%) 100%);
+  --gradient-hero:linear-gradient(180deg,hsl(260 50% 98%) 0%,hsl(0 0% 100%) 100%);
+  --gradient-cta:linear-gradient(135deg,hsl(262 83% 55%) 0%,hsl(290 80% 55%) 100%);
+  --nav-h:76px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 14px)}
+body{margin:0;font-family:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;color:hsl(var(--foreground));background:hsl(var(--background));line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+.container{max-width:1240px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4{font-weight:800;letter-spacing:-.03em;margin:0}
+p{color:hsl(var(--muted));margin:0 0 14px}
+
+/* ---------- Navbar ---------- */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(18px);border-bottom:1px solid hsl(var(--border));transition:box-shadow .3s}
+.navbar.scrolled{box-shadow:var(--shadow-soft)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px;letter-spacing:-.02em}
+.brand img{height:30px;width:auto}
+.navlinks{display:flex;align-items:center;gap:6px}
+.navlinks a{font-size:14px;font-weight:600;color:hsl(var(--muted));padding:9px 14px;border-radius:10px;transition:.2s}
+.navlinks a:hover,.navlinks a.active{color:hsl(var(--primary));background:hsl(var(--primary)/.08)}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.mobile-select{display:none}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:700;font-size:14px;border:2px solid transparent;transition:all .25s ease;cursor:pointer;white-space:nowrap}
+.btn-primary{color:#fff;background-image:var(--gradient-cta);box-shadow:var(--shadow-glow)}
+.btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 16px 50px -10px hsl(var(--primary)/.6)}
+.btn-outline{border-color:hsl(var(--primary)/.35);color:hsl(var(--foreground));background:rgba(255,255,255,.7)}
+.btn-outline:hover{border-color:hsl(var(--primary));background:hsl(var(--primary));color:#fff;transform:translateY(-2px) scale(1.02);box-shadow:var(--shadow-glow)}
+.btn-sm{padding:9px 16px;font-size:13px;border-radius:10px}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;padding:calc(var(--nav-h) + 64px) 0 60px;background:var(--gradient-hero)}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none}
+.blob-1{width:420px;height:420px;top:-60px;left:-80px;background:hsl(var(--primary)/.16)}
+.blob-2{width:360px;height:360px;top:100px;right:-60px;background:hsl(var(--violet)/.14)}
+.hero-inner{position:relative;z-index:2;text-align:center;max-width:900px;margin:0 auto}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;background:hsl(var(--primary)/.1);color:hsl(var(--primary-dark));font-size:13px;font-weight:700;margin-bottom:22px}
+.dot-live{width:8px;height:8px;border-radius:99px;background:hsl(var(--mint));box-shadow:0 0 0 0 hsl(var(--mint)/.5);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px hsl(var(--mint)/0)}}
+.hero h1{font-size:clamp(34px,5.4vw,60px);line-height:1.06;margin-bottom:20px}
+.gradient-text{background-image:var(--gradient-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:clamp(16px,1.8vw,19px);max-width:680px;margin:0 auto 30px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:40px}
+.hero-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:40px}
+.hero-stats .stat{text-align:center}
+.hero-stats .stat b{display:block;font-size:26px;background-image:var(--gradient-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-stats .stat span{font-size:12.5px;color:hsl(var(--muted));font-weight:600}
+
+/* ---------- Ticker ---------- */
+.ticker{border-top:1px solid hsl(var(--border));border-bottom:1px solid hsl(var(--border));background:#fff;overflow:hidden}
+.track{display:flex;width:max-content;animation:ticker 34s linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+.ti{padding:14px 26px;white-space:nowrap;font-weight:700;font-size:13.5px;color:hsl(var(--foreground));border-right:1px solid hsl(var(--border))}
+.ti span{background-image:var(--gradient-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes ticker{to{transform:translateX(-50%)}}
+
+/* ---------- Sections / Glass cards ---------- */
+main{background:hsl(var(--muted-bg)/.5)}
+section{padding:64px 0;border-bottom:1px solid hsl(var(--border))}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:hsl(var(--primary));margin-bottom:10px}
+.eyebrow:before{content:"";width:22px;height:3px;border-radius:99px;background-image:var(--gradient-primary)}
+h2.h{font-size:clamp(26px,3vw,36px);margin-bottom:14px}
+p.lead{font-size:17px;color:hsl(var(--muted));max-width:820px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}
+.card{background:rgba(255,255,255,.85);backdrop-filter:blur(14px);border:1px solid hsl(var(--border));border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-card);transition:.3s}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-glow);border-color:hsl(var(--primary)/.25)}
+.icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-weight:900;margin-bottom:14px;background:hsl(var(--primary)/.1);color:hsl(var(--primary-dark))}
+.card h3{font-size:18px;margin-bottom:8px}
+.callout{position:relative;padding:22px 24px 22px 28px;border-radius:var(--radius);background:linear-gradient(135deg,hsl(var(--primary)/.08),hsl(var(--mint)/.08));border:1px solid hsl(var(--primary)/.2);margin:22px 0}
+.callout:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;border-radius:6px 0 0 6px;background-image:var(--gradient-primary)}
+.callout strong{display:block;color:hsl(var(--primary-dark));font-size:17px;margin-bottom:6px}
+.quote{padding:28px;border-radius:22px;background:var(--gradient-cta);color:#fff;box-shadow:var(--shadow-glow);margin:24px 0}
+.quote p{color:rgba(255,255,255,.92);font-size:17px;margin:0}
+.quote strong{display:block;font-size:21px;margin-bottom:10px}
+.tag{display:inline-flex;padding:5px 11px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+.tag.blue{background:hsl(var(--primary)/.1);color:hsl(var(--primary-dark))}
+.tag.green{background:hsl(var(--mint)/.12);color:hsl(var(--mint))}
+.tag.orange{background:#fef3e2;color:#b25d00}
+.tag.purple{background:hsl(var(--violet)/.14);color:hsl(280 70% 45%)}
+.tag.teal{background:hsl(var(--mint)/.12);color:hsl(var(--mint))}
+.list{display:grid;gap:9px;padding:0;margin:12px 0 0;list-style:none}
+.list li{display:flex;gap:9px;color:hsl(var(--muted));font-size:14.5px}
+.list li:before{content:"✓";color:hsl(var(--mint));font-weight:900}
+.table{overflow:auto;border-radius:var(--radius);border:1px solid hsl(var(--border));margin:18px 0;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:720px;font-size:14px}
+th{background:hsl(var(--primary)/.07);color:hsl(var(--foreground));text-align:left;padding:13px 14px;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+td{padding:14px;border-top:1px solid hsl(var(--border));color:hsl(var(--muted));vertical-align:top}
+td strong{color:hsl(var(--foreground))}
+.flow{display:grid;grid-template-columns:repeat(7,minmax(135px,1fr));gap:14px;margin:22px 0;overflow:auto;padding-bottom:4px}
+.step{position:relative;min-height:150px;padding:16px;border-radius:16px;background:#fff;border:1px solid hsl(var(--border));box-shadow:var(--shadow-card)}
+.step:not(:last-child):after{content:"→";position:absolute;right:-13px;top:48%;transform:translateY(-50%);color:hsl(var(--primary));font-weight:900;font-size:20px}
+.sn{width:28px;height:28px;border-radius:9px;background-image:var(--gradient-primary);color:#fff;display:grid;place-items:center;font-weight:900;font-size:13px;margin-bottom:12px}
+.step strong{display:block;line-height:1.2;font-size:14.5px}
+.step span{display:block;margin-top:8px;color:hsl(var(--muted));font-size:12.5px}
+.diagram{margin:18px 0;padding:20px;border-radius:var(--radius);background:#fff;border:1px solid hsl(var(--border));overflow:auto}
+.persona{display:grid;grid-template-columns:76px 1fr;gap:16px}
+.avatar{width:76px;height:76px;border-radius:20px;display:grid;place-items:center;font-size:32px;background:hsl(var(--primary)/.1);border:1px solid hsl(var(--primary)/.16)}
+details{border:1px solid hsl(var(--border));background:#fff;border-radius:14px;overflow:hidden;margin:12px 0}
+summary{cursor:pointer;padding:16px 18px;font-weight:700;color:hsl(var(--foreground));list-style:none;font-size:15px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";float:right;color:hsl(var(--primary));font-weight:900}
+details[open] summary:after{content:"–"}
+.dbody{border-top:1px solid hsl(var(--border));padding:16px 18px 18px;color:hsl(var(--muted))}
+.script{display:grid;gap:12px;margin:18px 0}
+.bubble{max-width:78%;padding:14px 16px;border-radius:16px;background:hsl(var(--primary)/.06);border:1px solid hsl(var(--primary)/.14);color:hsl(var(--foreground));font-size:14.5px}
+.bubble.user{justify-self:end;background:hsl(var(--mint)/.08);border-color:hsl(var(--mint)/.22)}
+.who{display:block;font-size:10.5px;color:hsl(var(--muted));text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:4px}
+.formula{display:grid;gap:12px;margin-top:18px}
+.f{padding:18px;border-radius:16px;border:1px solid hsl(var(--border));background:#fff;display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center}
+.op{width:42px;height:42px;border-radius:13px;background:hsl(var(--primary)/.1);display:grid;place-items:center;color:hsl(var(--primary-dark));font-weight:900;font-size:20px}
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.tl{padding:20px;border-radius:16px;border:1px solid hsl(var(--border));background:#fff;box-shadow:var(--shadow-card)}
+.day{display:inline-block;background-image:var(--gradient-primary);color:#fff;padding:6px 12px;border-radius:99px;font-size:11.5px;font-weight:800;margin-bottom:12px}
+.pills{display:flex;flex-wrap:wrap;gap:10px}
+.pill{display:inline-flex;gap:7px;border-radius:99px;border:1px solid hsl(var(--border));background:#fff;color:hsl(var(--foreground));padding:9px 14px;font-size:13px;font-weight:600}
+.pill:before{content:"✓";color:hsl(var(--mint));font-weight:900}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px}
+.stat-card{padding:20px;background:#fff;border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:var(--shadow-card);text-align:center}
+.stat-card .num{font-size:30px;font-weight:900;background-image:var(--gradient-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat-card div:last-child{color:hsl(var(--muted));font-size:12.5px;font-weight:600;margin-top:6px}
+
+/* ---------- Demo modal ---------- */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(20,14,30,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{width:100%;max-width:460px;max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:28px;box-shadow:var(--shadow-glow);position:relative}
+.modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:10px;border:1px solid hsl(var(--border));background:#fff;font-size:16px;color:hsl(var(--muted));cursor:pointer;display:grid;place-items:center}
+.modal-close:hover{background:hsl(var(--primary)/.08);color:hsl(var(--primary))}
+.modal-box h3{font-size:22px;margin-bottom:6px}
+.modal-box p.modal-sub{font-size:14px;margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:hsl(var(--foreground))}
+.field input,.field textarea,.field select{width:100%;padding:11px 13px;border-radius:11px;border:1.5px solid hsl(var(--border));font-size:14px;font-family:inherit;color:hsl(var(--foreground));background:#fff}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:hsl(var(--primary))}
+.field textarea{resize:vertical;min-height:70px}
+.demo-form .btn{width:100%;margin-top:6px}
+.form-msg{font-size:13px;font-weight:700;margin-top:12px;text-align:center;display:none}
+.form-msg.show{display:block}
+.form-msg.ok{color:hsl(var(--mint))}
+.form-msg.err{color:#d33}
+
+/* ---------- Footer ---------- */
+.site-footer{background:hsl(var(--footer-bg));color:hsl(var(--footer-text));padding:44px 0;text-align:center}
+.site-footer strong{display:block;color:#fff;font-size:18px;margin-bottom:6px}
+.top{position:fixed;right:22px;bottom:22px;z-index:60;width:46px;height:46px;border-radius:14px;background:var(--gradient-cta);box-shadow:var(--shadow-glow);display:grid;place-items:center;color:#fff;font-weight:900}
+
+@media(max-width:1080px){
+  .navlinks{display:none}
+  .mobile-select{display:block;position:relative}
+  .mobile-select select{padding:9px 14px;border-radius:10px;border:1px solid hsl(var(--border));background:#fff;font-weight:700;font-size:13px;color:hsl(var(--foreground))}
+  .stats,.grid4,.stats-row{grid-template-columns:repeat(2,1fr)}
+  .grid3{grid-template-columns:repeat(2,1fr)}
+  .flow{grid-template-columns:repeat(7,150px)}
+}
+@media(max-width:760px){
+  .grid2,.grid3,.grid4,.timeline,.stats-row{grid-template-columns:1fr}
+  .bubble{max-width:100%}
+  .step:not(:last-child):after{display:none}
+  .top{display:none}
+  table{min-width:640px}
+  section{padding:44px 0}
+  /* Phone header: logo only — the section-jump dropdown and CTA button
+     don't fit cleanly next to it at this width, and scrolling covers the
+     same job. */
+  .mobile-select,.nav-cta{display:none!important}
+  .nav-inner{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div class="container nav-inner">
+    <a href="#top" class="brand">
+      <img src="converseai-logo.png" alt="ConverseAI"/>
+    </a>
+    <nav class="navlinks" id="desktopNav">
+      <a href="#top">Overview</a><a href="#objectives">Objective</a><a href="#personas">Personas</a><a href="#journey">Journey</a><a href="#runshow">Run-of-Show</a><a href="#scripts">Scripts</a><a href="#why">Why ConverseAI</a><a href="#roi">ROI</a><a href="#nextsteps">Next Steps</a>
+    </nav>
+    <div class="mobile-select">
+      <select id="jump">
+        <option value="#top">Overview</option><option value="#objectives">Demo Objective</option><option value="#overview">Use Case Overview</option><option value="#personas">Personas</option><option value="#journey">Journey Flow</option><option value="#runshow">Run-of-Show</option><option value="#scripts">Scripts</option><option value="#objections">Objections</option><option value="#why">Why ConverseAI</option><option value="#discovery">Discovery</option><option value="#roi">ROI</option><option value="#metrics">Metrics</option><option value="#nextsteps">Next Steps</option>
+      </select>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="/voiceai-demo/recording/">▶ Watch Recording</a>
+      <button type="button" class="btn btn-outline btn-sm" id="openDemoNav">Get a Demo</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="container hero-inner">
+    <span class="badge"><span class="dot-live"></span> ConverseAI Walkthrough</span>
+    <h1>Turn every call into a<br/><span class="gradient-text">conversation that goes somewhere.</span></h1>
+    <p class="lead">A field guide for showing how ConverseAI Voice AI keeps an automotive lead moving — greeting, answering, comparing, qualifying, and scheduling — without a human ever picking up the phone.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" target="_blank" rel="noopener" href="/voiceai-demo/recording/">▶ Watch Recording</a>
+      <button type="button" class="btn btn-outline" id="openDemoHero">Get a Demo</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b>&lt;60s</b><span>Speed-to-lead callback</span></div>
+      <div class="stat"><b>24/7</b><span>Always-on voice agent</span></div>
+      <div class="stat"><b>Multi</b><span>Inbound + outbound lanes</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker"><div class="track"><div class="ti"><span>Answer fast.</span> Reach the lead while the intent is still fresh.</div><div class="ti"><span>Listen.</span> Skip what the customer already told you.</div><div class="ti"><span>Compare.</span> Model, price, range, charging, location.</div><div class="ti"><span>Guide.</span> Book the visit or hand off for later follow-up.</div><div class="ti"><span>Close the loop.</span> Appointment set, CRM updated automatically.</div><div class="ti"><span>Answer fast.</span> Reach the lead while the intent is still fresh.</div><div class="ti"><span>Listen.</span> Skip what the customer already told you.</div><div class="ti"><span>Compare.</span> Model, price, range, charging, location.</div><div class="ti"><span>Guide.</span> Book the visit or hand off for later follow-up.</div><div class="ti"><span>Close the loop.</span> Appointment set, CRM updated automatically.</div></div></div>
+
+<main>
+<div class="container">
+
+  <section id="objectives">
+    <div class="eyebrow">Before you present</div><h2 class="h">What This Walkthrough Proves</h2>
+    <p class="lead">This walks through Carol, the voice agent built for Aurelia Motors, handling a real vehicle lead end to end — comparing models, answering pricing and finance questions, and getting to a booked test drive without a rep on the line.</p>
+    <div class="callout"><strong>The one-line pitch</strong><p>This isn't a scheduling bot. It's proof that a voice agent can carry a genuine sales conversation and still land on a calendar slot.</p></div>
+    <div class="grid3">
+      <div class="card"><div class="icon">1</div><h3>Show the response time</h3><p>The moment a lead comes in, the callback goes out — before interest has a chance to cool off.</p></div>
+      <div class="card"><div class="icon">2</div><h3>Show real conversation</h3><p>Carol handles model comparisons, finance math, and commute-specific questions, not a fixed script.</p></div>
+      <div class="card"><div class="icon">3</div><h3>Show the outcome</h3><p>Every call ends somewhere concrete — a booked test drive or a clearly logged follow-up for the dealer team.</p></div>
+    </div>
+    <h3 style="margin-top:34px;font-size:22px">Where else this pattern fits</h3>
+    <div class="grid4">
+      <div class="card"><span class="tag blue">Automotive</span><ul class="list"><li>Test-drive scheduling</li><li>Dealer handoff</li><li>Trade-in questions</li><li>Finance screening</li></ul></div>
+      <div class="card"><span class="tag teal">Real estate</span><ul class="list"><li>Viewing requests</li><li>Buyer screening</li><li>Agent handoff</li><li>Mortgage referrals</li></ul></div>
+      <div class="card"><span class="tag purple">Education</span><ul class="list"><li>Admissions Q&A</li><li>Program matching</li><li>Campus tour booking</li><li>Application nudges</li></ul></div>
+      <div class="card"><span class="tag orange">B2B Sales</span><ul class="list"><li>Inbound screening</li><li>Demo booking</li><li>Owner routing</li><li>Rep follow-up backup</li></ul></div>
+    </div>
+  </section>
+
+  <section id="overview">
+    <div class="eyebrow">The setup</div><h2 class="h">How This Call Comes Together</h2>
+    <p class="lead">Aurelia Motors runs Carol on two sides of the same conversation: calls that come in directly, and callbacks that go out the moment someone fills a form on the website.</p>
+    <div class="grid2">
+      <div class="card"><span class="tag blue">Inbound lane</span><h3>Customer calls in</h3><p>Someone calls in wanting a test drive. Carol picks up, figures out what they need, and either gets them booked or passes it along for a dealer follow-up.</p></div>
+      <div class="card"><span class="tag green">Outbound lane</span><h3>Website form triggers a call-back</h3><p>Someone fills out the test-drive request form on the site. That submission flows straight to Carol, who calls back already knowing what they asked for.</p><p><strong>Recording URL:</strong><br/><a target="_blank" rel="noopener" href="/voiceai-demo/recording/" style="color:hsl(var(--primary));font-weight:700">/recording</a></p></div>
+    </div>
+    <h3 style="margin-top:34px;font-size:22px">What happened on the recorded call</h3>
+    <div class="table"><table><thead><tr><th>Field</th><th>What Got Confirmed</th><th>Why It Matters</th></tr></thead><tbody>
+      <tr><td><strong>Customer</strong></td><td>Sophia</td><td>Carol already knew who she was calling.</td></tr>
+      <tr><td><strong>Original interest</strong></td><td>Voltis Limited</td><td>Pulled straight from the form, no re-asking.</td></tr>
+      <tr><td><strong>Original dealer</strong></td><td>Aurelia Motors Denver, Colorado</td><td>Confirmed once, not repeated back and forth.</td></tr>
+      <tr><td><strong>Comparison request</strong></td><td>Aero EV vs Voltis EV</td><td>A real product question, answered in real time.</td></tr>
+      <tr><td><strong>Commute need</strong></td><td>50 miles daily in Denver city</td><td>Recommendation grounded in her actual routine.</td></tr>
+      <tr><td><strong>Vehicle selected</strong></td><td>Aero EV Limited</td><td>She changed her mind mid-call — Carol kept up.</td></tr>
+      <tr><td><strong>Purchase timing</strong></td><td>Couple of months</td><td>Useful signal for how hard to push follow-up.</td></tr>
+      <tr><td><strong>Home charging</strong></td><td>Yes</td><td>One less thing the dealer has to ask later.</td></tr>
+      <tr><td><strong>ZIP</strong></td><td>80204</td><td>Enough to route her to the right dealer.</td></tr>
+      <tr><td><strong>Test drive</strong></td><td>Sunday, August 16, 2026 at 10 AM</td><td>Call ended with an actual appointment on the books.</td></tr>
+    </tbody></table></div>
+    <div class="diagram"><h3 style="font-size:19px;margin-bottom:12px">How a call turns into a test drive</h3><svg width="980" height="245" viewBox="0 0 980 245" role="img" aria-label="Lead nurturing flow"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7C3BED"/><stop offset="100%" stop-color="#C058F3"/></linearGradient><filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#3a1a66" flood-opacity=".15"/></filter></defs><rect x="22" y="66" width="138" height="110" rx="22" fill="#fff" stroke="#e7defc" filter="url(#s)"/><text x="91" y="100" text-anchor="middle" font-size="15" font-weight="800" fill="#1f1533">Lead Source</text><text x="91" y="128" text-anchor="middle" font-size="13" fill="#6b6478">Inbound call</text><text x="91" y="152" text-anchor="middle" font-size="13" fill="#6b6478">or web form</text><path d="M174 122 L242 122" stroke="#7C3BED" stroke-width="4" stroke-linecap="round"/><path d="M232 110 L247 122 L232 134" fill="none" stroke="#7C3BED" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="260" y="42" width="168" height="158" rx="28" fill="url(#g)" filter="url(#s)"/><text x="344" y="84" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Carol</text><text x="344" y="112" text-anchor="middle" font-size="13" fill="#f3e9ff">greet • discover</text><text x="344" y="136" text-anchor="middle" font-size="13" fill="#f3e9ff">qualify • decide</text><text x="344" y="160" text-anchor="middle" font-size="13" fill="#f3e9ff">book or nurture</text><path d="M442 122 L508 122" stroke="#7C3BED" stroke-width="4" stroke-linecap="round"/><path d="M498 110 L513 122 L498 134" fill="none" stroke="#7C3BED" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="526" y="66" width="154" height="110" rx="22" fill="#fff" stroke="#e7defc" filter="url(#s)"/><text x="603" y="98" text-anchor="middle" font-size="15" font-weight="800" fill="#1f1533">Knowledge</text><text x="603" y="126" text-anchor="middle" font-size="13" fill="#6b6478">vehicle, price,</text><text x="603" y="150" text-anchor="middle" font-size="13" fill="#6b6478">finance, range</text><path d="M694 122 L760 122" stroke="#7C3BED" stroke-width="4" stroke-linecap="round"/><path d="M750 110 L765 122 L750 134" fill="none" stroke="#7C3BED" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="778" y="66" width="176" height="110" rx="22" fill="#fff" stroke="#e7defc" filter="url(#s)"/><text x="866" y="98" text-anchor="middle" font-size="15" font-weight="800" fill="#1f1533">CRM Action</text><text x="866" y="126" text-anchor="middle" font-size="13" fill="#6b6478">test drive booked</text><text x="866" y="150" text-anchor="middle" font-size="13" fill="#6b6478">or nurture routed</text></svg></div>
+  </section>
+
+  <section id="personas">
+    <div class="eyebrow">Who's on the call</div><h2 class="h">The Buyer and the Agent</h2>
+    <div class="grid2">
+      <div class="card persona"><div class="avatar">🚗</div><div><h3>Lead / Buyer: Sophia</h3><p>Sophia originally filled out a form for the Voltis Limited, but she uses the callback to weigh her options — pricing, financing, and whether the Aero EV actually suits her daily drive across Denver.</p><ul class="list"><li>Started out interested in the Voltis Limited</li><li>Wants a side-by-side with the Aero EV</li><li>Drives roughly 50 miles a day</li><li>Buying her first car</li><li>Ready to book once questions are answered</li></ul></div></div>
+      <div class="card persona"><div class="avatar">🎙</div><div><h3>Carol: The Voice Agent</h3><p>Carol answers for Aurelia Motors. She opens with what she already knows, fills in the gaps, pulls real product answers on demand, and either books the visit or logs the follow-up.</p><ul class="list"><li>Skips questions already answered on the form</li><li>Pulls vehicle and finance details from the knowledge base live</li><li>Follows Sophia when she switches from Voltis to Aero EV</li><li>Locks in dealer and ZIP before scheduling</li><li>Books the test drive and updates the lead record</li></ul></div></div>
+    </div>
+    <div class="callout"><strong>What makes Carol different</strong><p>She's not reading from a script. She's holding a real conversation — discovery, product knowledge, and follow-through, in one call.</p></div>
+  </section>
+
+  <section id="journey">
+    <div class="eyebrow">How the call unfolds</div><h2 class="h">Two Entry Points, One Flow</h2><p class="lead">Whether the customer dials in or Carol calls them, the shape of the conversation is the same: greet, ask what's missing, answer questions, land on a decision.</p>
+    <h3 style="margin-top:30px;font-size:20px">When the customer calls in</h3>
+    <div class="flow"><div class="step"><div class="sn">1</div><strong>Call arrives</strong><span>PSTN/SIP call lands on telephony platform.</span></div><div class="step"><div class="sn">2</div><strong>Carol greets</strong><span>"Thanks for calling Aurelia Motors..."</span></div><div class="step"><div class="sn">3</div><strong>Identity</strong><span>Light-touch name capture.</span></div><div class="step"><div class="sn">4</div><strong>Discovery</strong><span>A handful of questions narrow down the right vehicle.</span></div><div class="step"><div class="sn">5</div><strong>Decision</strong><span>Book it now, or set up a callback.</span></div><div class="step"><div class="sn">6</div><strong>Book/Nurture</strong><span>ZIP finds the dealer, then a slot or a follow-up plan.</span></div><div class="step"><div class="sn">7</div><strong>Dashboard</strong><span>The record updates as the call happens.</span></div></div>
+    <h3 style="margin-top:30px;font-size:20px">When a web form triggers the callback</h3>
+    <div class="flow"><div class="step"><div class="sn">1</div><strong>Form submit</strong><span>Name, phone, email, ZIP, dealer, vehicle.</span></div><div class="step"><div class="sn">2</div><strong>Webhook</strong><span>Submission lands with the calling system.</span></div><div class="step"><div class="sn">3</div><strong>Call trigger</strong><span>Outbound call placed within SLA.</span></div><div class="step"><div class="sn">4</div><strong>Contextual greet</strong><span>"Am I speaking with Sophia?"</span></div><div class="step"><div class="sn">5</div><strong>Confirm intent</strong><span>Voltis Limited at Denver dealer.</span></div><div class="step"><div class="sn">6</div><strong>Missing fields</strong><span>Only asks for what the form left out.</span></div><div class="step"><div class="sn">7</div><strong>Book/Nurture</strong><span>One CRM record; source = outbound_callback.</span></div></div>
+    <div class="callout"><strong>The rule Carol follows</strong><p>If it's already on file, she confirms it instead of asking again. That's the difference between sounding informed and sounding like a form read out loud.</p></div>
+  </section>
+
+  <section id="runshow">
+    <div class="eyebrow">Walking someone through it</div><h2 class="h">What to Point Out While It Plays</h2>
+    <div class="callout"><strong>Before hitting play</strong><p>"Notice she already knows why she's being called. Watch her handle a real comparison question, stay careful around finance numbers, and still land on a booked slot by the end."</p></div>
+    <div class="table"><table><thead><tr><th>Stage</th><th>Demo Moment</th><th>Point to Make</th></tr></thead><tbody>
+      <tr><td>1</td><td>Carol opens by using Sophia's name right away</td><td>"Not a cold call — she's calling with the form context already loaded."</td></tr>
+      <tr><td>2</td><td>She confirms the Voltis Limited and the Denver dealer without asking</td><td>"Confirmed, not re-asked. That's what makes it feel personal instead of scripted."</td></tr>
+      <tr><td>3</td><td>Sophia brings up the Aero EV vs Voltis comparison herself</td><td>"A real product question, not just a scheduling nudge."</td></tr>
+      <tr><td>4</td><td>Carol walks through size, motor, and horsepower differences</td><td>"She's pulling from the spec sheet and explaining it in plain language."</td></tr>
+      <tr><td>5</td><td>Sophia mentions her 50-mile daily Denver commute</td><td>"The answer's tailored to her actual commute, not a generic brochure line."</td></tr>
+      <tr><td>6</td><td>Range, pricing, financing, and incentives all come up</td><td>"She's answering the real buying questions, and staying inside what's actually approved to say."</td></tr>
+      <tr><td>7</td><td>Sophia decides she wants the Aero EV instead</td><td>"Her mind changes mid-call, and Carol just follows along."</td></tr>
+      <tr><td>8</td><td>She asks about being a first-time buyer and home charging</td><td>"Extra context the dealer will want, gathered without anyone asking for it."</td></tr>
+      <tr><td>9</td><td>Date and time selected</td><td>"'Next Sunday, 10 AM' becomes an actual calendar entry."</td></tr>
+      <tr><td>10</td><td>Test drive booked</td><td>"That's a phone call turning directly into a dealership appointment."</td></tr>
+    </tbody></table></div>
+    <div class="quote"><strong>The short version</strong><p>"Most web leads go cold waiting for a callback. Here, Carol calls back fast, handles a real back-and-forth about two different vehicles, follows Sophia when she changes her mind, and still ends the call with a test drive on the calendar."</p></div>
+  </section>
+
+  <section id="scripts">
+    <div class="eyebrow">Conversation examples</div><h2 class="h">A Few Calls, Start to Finish</h2>
+    <details open><summary>The full outbound callback, as recorded</summary><div class="dbody"><div class="script">
+      <div class="bubble"><span class="who">Carol</span>Hi, this is Carol from Aurelia Motors. Am I speaking with Sophia?</div>
+      <div class="bubble user"><span class="who">Sophia</span>Hello. Yeah, I'm Sophia.</div>
+      <div class="bubble"><span class="who">Carol</span>I'm reaching out about your interest in the Voltis Limited, for pickup at Aurelia Motors Denver, Colorado. Shall we go ahead with that?</div>
+      <div class="bubble user"><span class="who">Sophia</span>Can you tell me what's the difference between Aero EV and Voltis EV?</div>
+      <div class="bubble"><span class="who">Carol</span>The Voltis is a larger electric sedan with a dual motor and 420 horsepower, while the Aero EV is a more compact electric hatchback with a single motor and 210 horsepower.</div>
+      <div class="bubble user"><span class="who">Sophia</span>If I drive about 50 miles every day in Denver city, which car is better?</div>
+      <div class="bubble"><span class="who">Carol</span>Both would easily handle a 50-mile daily commute. Aero EV is compact for parking and city traffic; Voltis offers more space and power.</div>
+      <div class="bubble user"><span class="who">Sophia</span>What's the range difference?</div>
+      <div class="bubble"><span class="who">Carol</span>Voltis has 410 miles of range, while Aero EV has 290 miles of range.</div>
+      <div class="bubble user"><span class="who">Sophia</span>And what's the price difference?</div>
+      <div class="bubble"><span class="who">Carol</span>Voltis Limited is $57,495 MSRP. Aero EV Limited is $38,295 MSRP.</div>
+      <div class="bubble user"><span class="who">Sophia</span>What are the finance options if I go with Aero EV?</div>
+      <div class="bubble"><span class="who">Carol</span>Financing terms range from 36 to 72 months. Approximate APR ranges from 4.9% to 18.9% depending on credit tier. Leasing may also be available.</div>
+      <div class="bubble user"><span class="who">Sophia</span>I think I'm more interested in Aero EV. Can you book a test drive?</div>
+      <div class="bubble"><span class="who">Carol</span>Absolutely. Is this your first car, or are you adding another vehicle?</div>
+      <div class="bubble user"><span class="who">Sophia</span>It's my first car.</div>
+      <div class="bubble"><span class="who">Carol</span>Do you have access to home charging, like a garage or driveway with an outlet?</div>
+      <div class="bubble user"><span class="who">Sophia</span>Yes, I have it.</div>
+      <div class="bubble"><span class="who">Carol</span>I have your ZIP code as 80204. Is that right?</div>
+      <div class="bubble user"><span class="who">Sophia</span>Yes, correct.</div>
+      <div class="bubble"><span class="who">Carol</span>What day works best for your test drive?</div>
+      <div class="bubble user"><span class="who">Sophia</span>Next Sunday.</div>
+      <div class="bubble"><span class="who">Carol</span>So that's Sunday, August 16, 2026 — does that work?</div>
+      <div class="bubble user"><span class="who">Sophia</span>Let's do it 10 AM in the morning.</div>
+      <div class="bubble"><span class="who">Carol</span>I've booked your test drive for the Aero EV at Aurelia Motors Denver on Sunday, August 16, 2026 at 10 AM.</div>
+    </div></div></details>
+    <details><summary>A caller who already knows what they want</summary><div class="dbody"><p><strong>Carol:</strong> Thanks for calling Aurelia Motors, this is Carol. How can I help you today?</p><p><strong>Caller:</strong> I want to book a test drive for the Aero EV.</p><p><strong>Carol:</strong> I can help with that. Who do I have the pleasure of speaking with?</p><p><strong>Caller:</strong> Daniel.</p><p><strong>Carol:</strong> Thanks, Daniel. What ZIP code should I use to find your nearest dealer?</p></div></details>
+    <details><summary>A caller who's not ready to book yet</summary><div class="dbody"><p><strong>Caller:</strong> I'm interested but not ready to book. I need more details about incentives.</p><p><strong>Carol:</strong> I can have the dealership finance team follow up with current EV incentive eligibility. May I confirm your ZIP code and preferred dealership?</p><p><strong>Caller:</strong> 80204, Denver.</p><p><strong>Carol:</strong> I'll route your interest in the Aero EV to Aurelia Motors Denver and note that you want a callback about EV incentives and financing options.</p></div></details>
+  </section>
+
+  <section id="objections">
+    <div class="eyebrow">Common pushback</div><h2 class="h">Questions People Ask, and Honest Answers</h2>
+    <div class="grid2">
+      <div class="card"><span class="tag blue">Question</span><h3>"Isn't this just a robocaller?"</h3><p><strong>Answer:</strong> A robocaller reads a script. Carol asks real questions, answers real ones back, adapts when the customer changes their mind, and gets to a booked appointment.</p></div>
+      <div class="card"><span class="tag blue">Question</span><h3>"Can it really handle detailed product questions?"</h3><p><strong>Answer:</strong> Within what it's been given, yes — in this call alone Carol covers range, pricing, financing, down payments, and EV incentives across two different vehicles.</p></div>
+      <div class="card"><span class="tag blue">Question</span><h3>"What if the customer changes their mind mid-call?"</h3><p><strong>Answer:</strong> That's exactly what happens in the recording — Sophia moves from the Voltis Limited to the Aero EV, and Carol just carries the conversation forward.</p></div>
+      <div class="card"><span class="tag blue">Question</span><h3>"What about saying something it shouldn't?"</h3><p><strong>Answer:</strong> Carol sticks to ranges on finance and incentive questions, and hands off exact numbers to the dealership's finance team.</p></div>
+    </div>
+    <h3 style="margin-top:34px;font-size:20px">How Carol handles the tricky moments</h3>
+    <div class="table"><table><thead><tr><th>Situation</th><th>How Carol Handles It</th><th>Why It's Safe</th></tr></thead><tbody>
+      <tr><td>Exact monthly payment</td><td>Explains that the final number depends on price, term, rate, and down payment</td><td>No made-up numbers on real money</td></tr>
+      <tr><td>Incentive amount</td><td>Points to the dealer finance team for current eligibility</td><td>Doesn't guess on regulated terms</td></tr>
+      <tr><td>Vehicle switch</td><td>Confirms the new choice and carries it forward</td><td>Keeps the conversation, not just the form</td></tr>
+      <tr><td>Not ready yet</td><td>Notes the timeline and sets up a later follow-up</td><td>Nothing gets dropped</td></tr>
+      <tr><td>No dealer picked</td><td>Asks for a ZIP and finds the nearest option</td><td>One less thing the customer has to know</td></tr>
+      <tr><td>Missing form fields</td><td>Only asks for what's actually missing</td><td>Doesn't repeat questions already answered</td></tr>
+      <tr><td>Question outside its knowledge</td><td>Logs it and hands off to a dealer specialist</td><td>Doesn't guess where it shouldn't</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="why">
+    <div class="eyebrow">What sets it apart</div><h2 class="h">Why This Isn't Just Another Voice Bot</h2><p class="lead">This isn't a form-filler with a voice on top — it's built to actually carry the sales conversation through to a decision.</p>
+    <div class="grid3">
+      <div class="card"><div class="icon">⏱</div><h3>Fast response</h3><p>Callbacks go out shortly after the form is submitted, while the customer still remembers filling it out.</p></div>
+      <div class="card"><div class="icon">🧭</div><h3>Already briefed</h3><p>Carol opens with what she already has — name, vehicle, dealer, ZIP — and only asks for what's still missing.</p></div>
+      <div class="card"><div class="icon">📚</div><h3>Answers grounded in real data</h3><p>Vehicle specs, pricing, financing, and incentive questions are answered from approved sources, not guesswork.</p></div>
+      <div class="card"><div class="icon">🔁</div><h3>Follows the conversation</h3><p>Handles a change of mind, hesitation, or "not right now" without losing the thread.</p></div>
+      <div class="card"><div class="icon">📅</div><h3>Actually books the visit</h3><p>Turns a qualified conversation into a real appointment on the dealer's calendar.</p></div>
+      <div class="card"><div class="icon">📊</div><h3>Leaves a clean record</h3><p>Status, source, outcome, vehicle, dealer, and appointment — all logged automatically after every call.</p></div>
+    </div>
+    <div class="callout"><strong>The line that lands</strong><p>A form tells you someone's interested. This tells you what they actually want next.</p></div>
+  </section>
+
+  <section id="discovery">
+    <div class="eyebrow">After the walkthrough</div><h2 class="h">Questions Worth Asking Next</h2><p class="lead">Use these right after showing the recording to figure out where the current process actually breaks down.</p>
+    <div class="grid2">
+      <details open><summary>How leads move today</summary><div class="dbody"><ul class="list"><li>How many calls and web leads come in on an average day?</li><li>How long does it usually take to call someone back?</li><li>What share of leads get a callback within five minutes?</li><li>How many leads just never get followed up on?</li><li>What's the current test-drive booking rate?</li></ul></div></details>
+      <details open><summary>What buyers actually ask</summary><div class="dbody"><ul class="list"><li>What do buyers usually ask before booking a test drive?</li><li>Do they often compare more than one model on the same call?</li><li>What usually stalls a booking — price, range, financing, timing, or distance?</li><li>Do people prefer a call, a text, or an email follow-up?</li><li>What's the current process for someone who's not ready yet?</li></ul></div></details>
+      <details><summary>Systems already in place</summary><div class="dbody"><ul class="list"><li>Where do web leads land today — which CRM or system?</li><li>Can the website form send data to an external system?</li><li>Where do dealer locations and open test-drive slots live?</li><li>What has to be known before a test drive can be booked?</li><li>How is lead source and outcome tracked right now?</li></ul></div></details>
+      <details><summary>What a pilot would look like</summary><div class="dbody"><ul class="list"><li>Which model or campaign makes sense to start with?</li><li>Start with inbound, outbound, or both at once?</li><li>What numbers can we use as a baseline?</li><li>Who owns lead routing and follow-up today?</li><li>What result would justify rolling this out further?</li></ul></div></details>
+    </div>
+    <div class="quote" style="margin-top:20px"><strong>The one question worth asking first</strong><p>"Where do your best leads actually stall right now — getting a callback at all, getting their questions answered, or getting on the calendar?"</p></div>
+  </section>
+
+  <section id="roi">
+    <div class="eyebrow">Why it's worth doing</div><h2 class="h">Where the Value Actually Shows Up</h2><p class="lead">Faster callbacks, better-qualified leads, more booked visits, and less manual follow-up work for the team.</p>
+    <div class="grid3">
+      <div class="card"><span class="tag green">Revenue</span><h3>Catch leads before they go cold</h3><p>A quick callback means fewer people drifting off to a competitor while they wait.</p></div>
+      <div class="card"><span class="tag green">Conversion</span><h3>More test drives booked</h3><p>Answering the real questions removes the friction that usually stalls a booking.</p></div>
+      <div class="card"><span class="tag green">Qualification</span><h3>Better data on every lead</h3><p>Vehicle preference, timing, ZIP, dealer, and readiness all get captured without extra effort.</p></div>
+      <div class="card"><span class="tag green">Productivity</span><h3>Less routine work for the team</h3><p>The repetitive callbacks and first-pass comparisons happen without anyone picking up a phone.</p></div>
+      <div class="card"><span class="tag green">Experience</span><h3>Feels personal, not scripted</h3><p>Nobody has to repeat information they already gave — it's confirmed, not re-asked.</p></div>
+      <div class="card"><span class="tag green">Visibility</span><h3>A funnel you can actually see</h3><p>Source, outcome, vehicle switches, and booking status are all tracked automatically.</p></div>
+    </div>
+    <h3 style="margin-top:34px;font-size:20px">A simple way to think about ROI</h3>
+    <div class="formula"><div class="f"><div class="op">+</div><div><strong>Extra bookings</strong><p style="margin:0">More leads reached × better conversion × close rate × margin per sale</p></div></div><div class="f"><div class="op">+</div><div><strong>Leads that would've gone cold</strong><p style="margin:0">Leads reached in time × what used to get lost × typical deal value</p></div></div><div class="f"><div class="op">+</div><div><strong>Time saved on routine calls</strong><p style="margin:0">Callbacks handled automatically × what each one used to cost in staff time</p></div></div><div class="f"><div class="op">=</div><div><strong>What it's actually worth over a year</strong><p style="margin:0">More appointments, better-qualified leads, less manual follow-up, a funnel you can actually see</p></div></div></div>
+  </section>
+
+  <section id="metrics">
+    <div class="eyebrow">What a pilot should prove</div><h2 class="h">What "Working" Looks Like</h2><p class="lead">A short pilot should be enough to show response speed, how many leads actually get reached, how well they're qualified, and how many end up booked.</p>
+    <div class="stats-row"><div class="stat-card"><div class="num">&lt;60s</div><div>Callback triggered after web form submission</div></div><div class="stat-card"><div class="num">70%+</div><div>Target for fully qualified lead fields</div></div><div class="stat-card"><div class="num">95%+</div><div>Target for successful record updates</div></div><div class="stat-card"><div class="num">100%</div><div>Calls logged with transcript and outcome</div></div></div>
+    <div class="table" style="margin-top:22px"><table><thead><tr><th>Category</th><th>Metric</th><th>What It Means</th></tr></thead><tbody>
+      <tr><td>Speed</td><td>Response time</td><td>How long between form submission and the callback going out</td></tr>
+      <tr><td>Reach</td><td>Contact rate</td><td>How many leads actually get reached by the voice agent</td></tr>
+      <tr><td>Engagement</td><td>Completed conversations</td><td>Calls that reach a clear outcome instead of dropping off</td></tr>
+      <tr><td>Conversion</td><td>Booking rate</td><td>Share of qualified leads that end in a scheduled test drive</td></tr>
+      <tr><td>Follow-up</td><td>Opt-in rate</td><td>Leads not ready yet who still agree to a later follow-up</td></tr>
+      <tr><td>Qualification</td><td>Field completeness</td><td>Vehicle, ZIP, dealer, timing, finance interest, EV readiness, contact details</td></tr>
+      <tr><td>Accuracy</td><td>Appointment accuracy</td><td>Vehicle, dealer, date, time, and customer record all correct</td></tr>
+      <tr><td>Operations</td><td>Record update success</td><td>Lead, source, outcome, and appointment correctly reflected in the system</td></tr>
+      <tr><td>Governance</td><td>Logging completeness</td><td>Transcript, summary, tool calls, and outcome captured for every call</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="nextsteps" style="border-bottom:none">
+    <div class="eyebrow">Getting from demo to pilot</div><h2 class="h">Next Steps</h2><p class="lead">A focused pilot works best scoped to one campaign, one dealer region, and one clear workflow — not everything at once.</p>
+    <div class="timeline"><div class="tl"><span class="day">Days 0–15</span><h3 style="font-size:17px">Pick a starting point</h3><p>Pick the campaign, models, and dealer region, then write down where things stand today — response time, contact rate, booking rate.</p></div><div class="tl"><span class="day">Days 16–45</span><h3 style="font-size:17px">Set it up and test it</h3><p>Load Carol with vehicle, pricing, and finance knowledge, then wire up the form, CRM, dealer locator, and appointment calendar.</p></div><div class="tl"><span class="day">Days 46–90</span><h3 style="font-size:17px">Run it and measure</h3><p>Launch inbound and/or outbound, keep an eye on it daily, adjust weekly, and come back with real numbers.</p></div></div>
+    <h3 style="margin-top:34px;font-size:20px">What needs to be in place</h3>
+    <div class="grid2"><div class="card"><h4 style="margin-bottom:10px">Business side</h4><ul class="list"><li>Campaign picked</li><li>Dealer region picked</li><li>Vehicle models picked</li><li>Someone owning follow-up ops</li><li>Success metrics agreed on</li></ul></div><div class="card"><h4 style="margin-bottom:10px">Content side</h4><ul class="list"><li>Vehicle specs</li><li>Pricing rules</li><li>Finance guardrails</li><li>Incentive disclaimers</li><li>Dealer callback scripts</li></ul></div><div class="card"><h4 style="margin-bottom:10px">Technical side</h4><ul class="list"><li>Website form wired up</li><li>CRM lead updates</li><li>Dealer locator</li><li>Appointment slots</li><li>Dashboard views</li></ul></div><div class="card"><h4 style="margin-bottom:10px">Before going live</h4><ul class="list"><li>Inbound booking tested</li><li>Outbound callback tested</li><li>Vehicle-switch handling tested</li><li>Finance questions tested</li><li>Not-ready fallback tested</li></ul></div></div>
+    <div class="quote" style="margin-top:24px"><strong>Where this leads</strong><p>"The interesting part isn't that it picks up the phone. It's that it can actually carry the conversation somewhere — and show you exactly where every lead ended up."</p></div>
+  </section>
+
+  <section style="border-bottom:none">
+    <div class="eyebrow">Quick reference</div><h2 class="h">Lines Worth Remembering</h2>
+    <div class="pills"><span class="pill">A form tells you someone's interested. This tells you what they want next.</span><span class="pill">A fast callback is the difference between a sale and a cold lead.</span><span class="pill">Confirmed, not re-asked.</span><span class="pill">Not a dialer — a conversation that ends in a booking.</span><span class="pill">Started with a Voltis form, ended with an Aero EV test drive.</span><span class="pill">The buyer gets straight answers. The dealer gets a real appointment.</span></div>
+  </section>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <strong>ConverseAI Voice AI</strong>
+    Real conversations, not just automated calls.
+  </div>
+</footer>
+
+<a class="top" href="#top" aria-label="Back to top">↑</a>
+
+<div class="modal-overlay" id="demoModal">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="closeDemoModal" aria-label="Close">✕</button>
+    <div id="demoFormWrap">
+      <h3>Get a Demo</h3>
+      <p class="modal-sub">Fill in your details and our team will get in touch to show you ConverseAI Voice AI in action.</p>
+      <form class="demo-form" id="demoForm">
+        <div class="field">
+          <label for="df-name">Full Name *</label>
+          <input type="text" id="df-name" name="fullName" required maxlength="100" placeholder="John Doe">
+        </div>
+        <div class="field">
+          <label for="df-email">Email Address *</label>
+          <input type="email" id="df-email" name="email" required maxlength="255" placeholder="john@company.com">
+        </div>
+        <div class="field">
+          <label for="df-phone">Phone Number *</label>
+          <input type="tel" id="df-phone" name="phone" required maxlength="30" placeholder="+971 50 123 4567">
+        </div>
+        <div class="field">
+          <label for="df-message">Message</label>
+          <textarea id="df-message" name="message" maxlength="2000" placeholder="Tell us about your project and requirements..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="demoSubmitBtn">Request Demo</button>
+        <p class="form-msg" id="demoFormMsg"></p>
+      </form>
+    </div>
+    <div id="demoThanks" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:44px;margin-bottom:10px">✅</div>
+      <h3>Thanks — you're all set!</h3>
+      <p class="modal-sub">Our team will reach out shortly to schedule your ConverseAI Voice AI demo.</p>
+      <button type="button" class="btn btn-outline" id="closeDemoThanks">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyuCXLpkK2e8kC37As23AnW4aw-s0cs0irjmtEXHP9mN5QPMDjqNmnWbgYBcZWMKT4x/exec';
+  var modal = document.getElementById('demoModal');
+  var formWrap = document.getElementById('demoFormWrap');
+  var thanks = document.getElementById('demoThanks');
+  var form = document.getElementById('demoForm');
+  var msg = document.getElementById('demoFormMsg');
+  var submitBtn = document.getElementById('demoSubmitBtn');
+
+  function openModal(){
+    modal.classList.add('open');
+    formWrap.style.display='';
+    thanks.style.display='none';
+    form.reset();
+    msg.className='form-msg';
+    msg.textContent='';
+  }
+  function closeModal(){ modal.classList.remove('open'); }
+
+  document.getElementById('openDemoNav').addEventListener('click', openModal);
+  document.getElementById('openDemoHero').addEventListener('click', openModal);
+  document.getElementById('closeDemoModal').addEventListener('click', closeModal);
+  document.getElementById('closeDemoThanks').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    var params = new URLSearchParams();
+    params.append('fullName', document.getElementById('df-name').value.trim());
+    params.append('email', document.getElementById('df-email').value.trim());
+    params.append('phone', document.getElementById('df-phone').value.trim());
+    params.append('countryName', 'N/A');
+    params.append('product', 'Voice AI');
+    params.append('subject', 'Play1 Voice AI Demo Page');
+    params.append('message', document.getElementById('df-message').value.trim() || 'N/A');
+    params.append('form_source', 'Play1 Voice AI Demo Page');
+    params.append('captcha_token', '');
+    params.append('utm_source', 'Direct');
+    params.append('utm_medium', 'N/A');
+    params.append('utm_campaign', 'N/A');
+    params.append('utm_term', 'N/A');
+    params.append('utm_content', 'N/A');
+    params.append('utm_id', 'N/A');
+    params.append('page_url', window.location.href);
+    params.append('device_info', navigator.userAgent.substring(0,200));
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    }).then(function(){
+      formWrap.style.display='none';
+      thanks.style.display='';
+    }).catch(function(){
+      msg.textContent = 'Something went wrong — please try again or email us directly.';
+      msg.className = 'form-msg show err';
+    }).finally(function(){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Request Demo';
+    });
+  });
+})();
+</script>
+
+<script>
+const links=[...document.querySelectorAll('.navlinks a')];
+const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.remove('active'));const a=document.querySelector('.navlinks a[href="#'+e.target.id+'"]');if(a)a.classList.add('active')}})},{rootMargin:'-30% 0px -60% 0px',threshold:.01});
+sections.forEach(s=>obs.observe(s));
+document.getElementById('jump').addEventListener('change',e=>document.querySelector(e.target.value)?.scrollIntoView({behavior:'smooth'}));
+window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>10));
+</script>
+</body>
+</html>
