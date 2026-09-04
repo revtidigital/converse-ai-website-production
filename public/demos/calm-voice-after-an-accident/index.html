@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ConverseAI Voice AI Insurance Demo Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:0 0% 100%;--foreground:260 20% 10%;
+  --card:0 0% 100%;--muted:260 10% 45%;--muted-bg:260 20% 96%;
+  --primary:262 83% 58%;--primary-dark:262 83% 45%;
+  --secondary:270 50% 96%;
+  --accent:168 84% 40%;--mint:168 84% 42%;
+  --border:260 20% 90%;
+  --violet:280 87% 65%;--pink:330 75% 60%;
+  --footer-bg:225 25% 14%;--footer-text:220 10% 65%;
+  --radius:0.9rem;
+  --shadow-soft:0 4px 20px -4px hsl(var(--primary) / .15);
+  --shadow-glow:0 8px 40px -8px hsl(var(--primary) / .35);
+  --shadow-card:0 4px 24px -4px hsl(260 20% 20% / .08);
+  --gradient-primary:linear-gradient(135deg,hsl(262 83% 58%) 0%,hsl(280 87% 65%) 50%,hsl(310 70% 60%) 100%);
+  --gradient-hero:linear-gradient(180deg,hsl(260 50% 98%) 0%,hsl(0 0% 100%) 100%);
+  --gradient-cta:linear-gradient(135deg,hsl(262 83% 55%) 0%,hsl(290 80% 55%) 100%);
+  --nav-h:76px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 14px)}
+body{margin:0;font-family:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;color:hsl(var(--foreground));background:hsl(var(--background));line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+.container{max-width:1240px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4{font-weight:800;letter-spacing:-.03em;margin:0}
+p{color:hsl(var(--muted));margin:0 0 14px}
+
+/* ---------- Navbar ---------- */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(18px);border-bottom:1px solid hsl(var(--border));transition:box-shadow .3s}
+.navbar.scrolled{box-shadow:var(--shadow-soft)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px;letter-spacing:-.02em}
+.brand img{height:30px;width:auto}
+.navlinks{display:flex;align-items:center;gap:6px}
+.navlinks a{font-size:14px;font-weight:600;color:hsl(var(--muted));padding:9px 14px;border-radius:10px;transition:.2s}
+.navlinks a:hover,.navlinks a.active{color:hsl(var(--primary));background:hsl(var(--primary)/.08)}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.mobile-select{display:none}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:700;font-size:14px;border:2px solid transparent;transition:all .25s ease;cursor:pointer;white-space:nowrap}
+.btn-primary{color:#fff;background-image:var(--gradient-cta);box-shadow:var(--shadow-glow)}
+.btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 16px 50px -10px hsl(var(--primary)/.6)}
+.btn-outline{border-color:hsl(var(--primary)/.35);color:hsl(var(--foreground));background:rgba(255,255,255,.7)}
+.btn-outline:hover{border-color:hsl(var(--primary));background:hsl(var(--primary));color:#fff;transform:translateY(-2px) scale(1.02);box-shadow:var(--shadow-glow)}
+.btn-sm{padding:9px 16px;font-size:13px;border-radius:10px}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;padding:calc(var(--nav-h) + 64px) 0 60px;background:var(--gradient-hero)}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none}
+.blob-1{width:420px;height:420px;top:-60px;left:-80px;background:hsl(var(--primary)/.16)}
+.blob-2{width:360px;height:360px;top:100px;right:-60px;background:hsl(var(--violet)/.14)}
+.hero-inner{position:relative;z-index:2;text-align:center;max-width:900px;margin:0 auto}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;background:hsl(var(--primary)/.1);color:hsl(var(--primary-dark));font-size:13px;font-weight:700;margin-bottom:22px}
+.dot-live{width:8px;height:8px;border-radius:99px;background:hsl(var(--mint));box-shadow:0 0 0 0 hsl(var(--mint)/.5);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px hsl(var(--mint)/0)}}
+.hero h1{font-size:clamp(34px,5.4vw,60px);line-height:1.06;margin-bottom:20px}
+.gradient-text{background-image:var(--gradient-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.subhead{font-size:clamp(16px,1.8vw,19px);max-width:700px;margin:0 auto 30px;color:hsl(var(--muted))}
+.hero-actions{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:10px}
+
+/* ---------- Ticker ---------- */
+.ticker{border-top:1px solid hsl(var(--border));border-bottom:1px solid hsl(var(--border));background:#fff;overflow:hidden}
+.track{display:flex;width:max-content;animation:ticker 34s linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+.item{padding:14px 26px;white-space:nowrap;font-weight:700;font-size:13.5px;color:hsl(var(--foreground));border-right:1px solid hsl(var(--border))}
+.item span{background-image:var(--gradient-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes ticker{to{transform:translateX(-50%)}}
+
+/* ---------- Sections / Glass cards ---------- */
+main{background:hsl(var(--muted-bg)/.5)}
+section{padding:64px 0;border-bottom:1px solid hsl(var(--border))}
+.kicker,.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:hsl(var(--primary));margin-bottom:10px}
+.kicker:before{content:"";width:22px;height:3px;border-radius:99px;background-image:var(--gradient-primary)}
+section>h2{font-size:clamp(26px,3vw,36px);margin-bottom:14px}
+p.lead{font-size:17px;color:hsl(var(--muted));max-width:820px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}
+.card{background:rgba(255,255,255,.85);backdrop-filter:blur(14px);border:1px solid hsl(var(--border));border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-card);transition:.3s}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-glow);border-color:hsl(var(--primary)/.25)}
+.icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-weight:900;margin-bottom:14px;background:hsl(var(--primary)/.1);color:hsl(var(--primary-dark))}
+.card h3{font-size:18px;margin-bottom:8px}
+.callout{position:relative;padding:22px 24px 22px 28px;border-radius:var(--radius);background:linear-gradient(135deg,hsl(var(--primary)/.08),hsl(var(--mint)/.08));border:1px solid hsl(var(--primary)/.2);margin:22px 0}
+.callout:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;border-radius:6px 0 0 6px;background-image:var(--gradient-primary)}
+.callout strong{display:block;color:hsl(var(--primary-dark));font-size:17px;margin-bottom:6px}
+.quote{padding:28px;border-radius:22px;background:var(--gradient-cta);color:#fff;box-shadow:var(--shadow-glow);margin:24px 0}
+.quote p{color:rgba(255,255,255,.92);font-size:17px;margin:0}
+.quote strong{display:block;font-size:21px;margin-bottom:10px}
+.tag{display:inline-flex;padding:5px 11px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+.tag.blue{background:hsl(var(--primary)/.1);color:hsl(var(--primary-dark))}
+.tag.green{background:hsl(var(--mint)/.12);color:hsl(var(--mint))}
+.tag.orange{background:#fef3e2;color:#b25d00}
+.tag.red{background:#fde8e8;color:#c0392b}
+.tag.purple{background:hsl(var(--violet)/.14);color:hsl(280 70% 45%)}
+.tag.teal{background:hsl(var(--mint)/.12);color:hsl(var(--mint))}
+.clean,.list{display:grid;gap:9px;padding:0;margin:12px 0 0;list-style:none}
+.clean li,.list li{display:flex;gap:9px;color:hsl(var(--muted));font-size:14.5px}
+.clean li:before,.list li:before{content:"✓";color:hsl(var(--mint));font-weight:900}
+.table{overflow:auto;border-radius:var(--radius);border:1px solid hsl(var(--border));margin:18px 0;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:720px;font-size:14px}
+th{background:hsl(var(--primary)/.07);color:hsl(var(--foreground));text-align:left;padding:13px 14px;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+td{padding:14px;border-top:1px solid hsl(var(--border));color:hsl(var(--muted));vertical-align:top}
+td strong{color:hsl(var(--foreground))}
+.flow{display:grid;grid-template-columns:repeat(7,minmax(135px,1fr));gap:14px;margin:22px 0;overflow:auto;padding-bottom:4px}
+.step{position:relative;min-height:150px;padding:16px;border-radius:16px;background:#fff;border:1px solid hsl(var(--border));box-shadow:var(--shadow-card)}
+.step:not(:last-child):after{content:"→";position:absolute;right:-13px;top:48%;transform:translateY(-50%);color:hsl(var(--primary));font-weight:900;font-size:20px}
+.stepno,.sn{width:28px;height:28px;border-radius:9px;background-image:var(--gradient-primary);color:#fff;display:grid;place-items:center;font-weight:900;font-size:13px;margin-bottom:12px}
+.step strong{display:block;line-height:1.2;font-size:14.5px}
+.step span{display:block;margin-top:8px;color:hsl(var(--muted));font-size:12.5px}
+.diagram{margin:18px 0;padding:20px;border-radius:var(--radius);background:#fff;border:1px solid hsl(var(--border));overflow:auto}
+.persona{display:grid;grid-template-columns:76px 1fr;gap:16px}
+.avatar{width:76px;height:76px;border-radius:20px;display:grid;place-items:center;font-size:32px;background:hsl(var(--primary)/.1);border:1px solid hsl(var(--primary)/.16)}
+details{border:1px solid hsl(var(--border));background:#fff;border-radius:14px;overflow:hidden;margin:12px 0}
+summary{cursor:pointer;padding:16px 18px;font-weight:700;color:hsl(var(--foreground));list-style:none;font-size:15px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";float:right;color:hsl(var(--primary));font-weight:900}
+details[open] summary:after{content:"–"}
+.details,.dbody{border-top:1px solid hsl(var(--border));padding:16px 18px 18px;color:hsl(var(--muted))}
+.script{display:grid;gap:12px;margin:18px 0}
+.bubble{max-width:78%;padding:14px 16px;border-radius:16px;background:hsl(var(--primary)/.06);border:1px solid hsl(var(--primary)/.14);color:hsl(var(--foreground));font-size:14.5px}
+.bubble.user{justify-self:end;background:hsl(var(--mint)/.08);border-color:hsl(var(--mint)/.22)}
+.who{display:block;font-size:10.5px;color:hsl(var(--muted));text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:4px}
+.formula{display:grid;gap:12px;margin-top:18px}
+.f,.formula-card{padding:18px;border-radius:16px;border:1px solid hsl(var(--border));background:#fff;display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center}
+.op{width:42px;height:42px;border-radius:13px;background:hsl(var(--primary)/.1);display:grid;place-items:center;color:hsl(var(--primary-dark));font-weight:900;font-size:20px}
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.tl,.timeline-card{padding:20px;border-radius:16px;border:1px solid hsl(var(--border));background:#fff;box-shadow:var(--shadow-card)}
+.day{display:inline-block;background-image:var(--gradient-primary);color:#fff;padding:6px 12px;border-radius:99px;font-size:11.5px;font-weight:800;margin-bottom:12px}
+.pills{display:flex;flex-wrap:wrap;gap:10px}
+.pill{display:inline-flex;gap:7px;border-radius:99px;border:1px solid hsl(var(--border));background:#fff;color:hsl(var(--foreground));padding:9px 14px;font-size:13px;font-weight:600}
+.pill:before{content:"✓";color:hsl(var(--mint));font-weight:900}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px}
+.stat{padding:20px;background:#fff;border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:var(--shadow-card);text-align:center}
+.stat .num{font-size:30px;font-weight:900;background-image:var(--gradient-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .label{color:hsl(var(--muted));font-size:12.5px;font-weight:600;margin-top:6px}
+
+/* ---------- Footer ---------- */
+.site-footer{background:hsl(var(--footer-bg));color:hsl(var(--footer-text));padding:44px 0;text-align:center}
+.site-footer strong{display:block;color:#fff;font-size:18px;margin-bottom:6px}
+.top{position:fixed;right:22px;bottom:22px;z-index:60;width:46px;height:46px;border-radius:14px;background:var(--gradient-cta);box-shadow:var(--shadow-glow);display:grid;place-items:center;color:#fff;font-weight:900}
+
+@media(max-width:1080px){
+  .navlinks{display:none}
+  .mobile-select{display:block;position:relative}
+  .mobile-select select{padding:9px 14px;border-radius:10px;border:1px solid hsl(var(--border));background:#fff;font-weight:700;font-size:13px;color:hsl(var(--foreground))}
+  .stats,.grid4{grid-template-columns:repeat(2,1fr)}
+  .grid3{grid-template-columns:repeat(2,1fr)}
+  .flow{grid-template-columns:repeat(7,150px)}
+}
+@media(max-width:760px){
+  .grid2,.grid3,.grid4,.timeline,.stats{grid-template-columns:1fr}
+  .bubble{max-width:100%}
+  .step:not(:last-child):after{display:none}
+  .top{display:none}
+  table{min-width:640px}
+  section{padding:44px 0}
+  /* Phone header: logo only — the section-jump dropdown and CTA buttons
+     don't fit cleanly next to it at this width, and scrolling covers the
+     same job. */
+  .mobile-select,.nav-cta{display:none!important}
+  .nav-inner{justify-content:center}
+}
+
+/* ---------- Demo modal ---------- */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(20,14,30,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{width:100%;max-width:460px;max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:28px;box-shadow:var(--shadow-glow);position:relative}
+.modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:10px;border:1px solid hsl(var(--border));background:#fff;font-size:16px;color:hsl(var(--muted));cursor:pointer;display:grid;place-items:center}
+.modal-close:hover{background:hsl(var(--primary)/.08);color:hsl(var(--primary))}
+.modal-box h3{font-size:22px;margin-bottom:6px}
+.modal-box p.modal-sub{font-size:14px;margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:hsl(var(--foreground))}
+.field input,.field textarea,.field select{width:100%;padding:11px 13px;border-radius:11px;border:1.5px solid hsl(var(--border));font-size:14px;font-family:inherit;color:hsl(var(--foreground));background:#fff}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:hsl(var(--primary))}
+.field textarea{resize:vertical;min-height:70px}
+.demo-form .btn{width:100%;margin-top:6px}
+.form-msg{font-size:13px;font-weight:700;margin-top:12px;text-align:center;display:none}
+.form-msg.show{display:block}
+.form-msg.ok{color:hsl(var(--mint))}
+.form-msg.err{color:#d33}
+
+</style>
+<script src="https://www.google.com/recaptcha/api.js?render=6Ld6E40sAAAAAAayjrv2wh-ZInD0yK12mVNWlmpH"></script>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div class="container nav-inner">
+    <a href="#top" class="brand">
+      <img src="converseai-logo.png" alt="ConverseAI"/>
+    </a>
+    <div class="mobile-select">
+      <select id="jump">
+        <option value="#top">Overview</option><option value="#objectives">Demo Objective</option><option value="#overview">Use Case Overview</option><option value="#personas">Personas</option><option value="#journey">Journey Flow</option><option value="#runshow">Run-of-Show</option><option value="#scripts">Scripts</option><option value="#objections">Objections &amp; Edge Cases</option><option value="#why">Why ConverseAI</option><option value="#discovery">Discovery Questions</option><option value="#roi">ROI Narrative</option><option value="#metrics">Pilot Metrics</option><option value="#nextsteps">Next Steps</option>
+      </select>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="/demos/calm-voice-after-an-accident/inbound-claim/">▶ Inbound Claim</a>
+      <button type="button" class="btn btn-outline btn-sm" id="openDemoNav">Get a Demo</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="container hero-inner">
+    <span class="badge"><span class="dot-live"></span> ConverseAI Walkthrough</span>
+    <h1><span class="gradient-text">A calm voice after an accident.</span><br/>A useful one before a lapse.</h1>
+    <p class="subhead">Two sides of the same insurance conversation — a voice agent that stays steady when a customer calls in stressed, and stays useful when it has to call a customer who'd rather not talk about their premium.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" target="_blank" rel="noopener" href="/demos/calm-voice-after-an-accident/inbound-claim/">▶ Inbound Claim Recording</a>
+      <a class="btn btn-outline" target="_blank" rel="noopener" href="/demos/calm-voice-after-an-accident/outbound-renewal/">▶ Outbound Renewal Recording</a>
+      <button type="button" class="btn btn-outline" id="openDemoHero">Get a Demo</button>
+    </div>
+  </div>
+</section>
+
+<div class="ticker"><div class="track"><div class="item"><span>Claims:</span> check on the person before the paperwork.</div><div class="item"><span>Renewals:</span> straight answers, not a sales pitch.</div><div class="item"><span>Before the call:</span> policy details already loaded in.</div><div class="item"><span>Boundaries:</span> logs the claim, doesn't decide the outcome.</div><div class="item"><span>Along the way:</span> a relevant add-on gets a mention.</div><div class="item"><span>Claims:</span> check on the person before the paperwork.</div><div class="item"><span>Renewals:</span> straight answers, not a sales pitch.</div><div class="item"><span>Before the call:</span> policy details already loaded in.</div><div class="item"><span>Boundaries:</span> logs the claim, doesn't decide the outcome.</div><div class="item"><span>Along the way:</span> a relevant add-on gets a mention.</div></div></div>
+
+<main>
+<div class="container">
+
+<section id="objectives"><div class="kicker">Before you present</div><h2>What This Walkthrough Proves</h2><p class="lead">This covers both sides of what an insurer's voice line actually has to handle — someone calling in shaken after an accident, and someone getting a renewal call they weren't thrilled to receive.</p><div class="callout"><strong>The one-line pitch</strong><p>Insurance isn't one conversation, it's a handful of very different ones — panic, paperwork, price objections, and a payment that still needs to get made. This shows one voice agent holding up across all of them.</p></div><div class="grid3"><div class="card"><div class="icon">1</div><h3>Handles a hard moment well</h3><p>Before anything else, Carol checks that the caller is actually okay.</p></div><div class="card"><div class="icon">2</div><h3>Gets the details right</h3><p>Verifies the policy, works out what kind of accident this was, and logs it with an actual reference number.</p></div><div class="card"><div class="icon">3</div><h3>Doesn't fold under pushback</h3><p>Handles frustration, a real premium objection, and questions about a rider — without losing the thread.</p></div></div><h3>Where else this pattern fits</h3><div class="grid4"><div class="card"><span class="tag blue">Claims</span><ul class="clean"><li>FNOL intake</li><li>Claim status update</li><li>Document reminder</li><li>Repair network routing</li></ul></div><div class="card"><span class="tag green">Renewals</span><ul class="clean"><li>Renewal reminder</li><li>Lapse prevention</li><li>Premium explanation</li><li>Payment nudges</li></ul></div><div class="card"><span class="tag purple">Policy Service</span><ul class="clean"><li>Coverage explanation</li><li>Member update</li><li>Address change</li><li>Add-on inquiry</li></ul></div><div class="card"><span class="tag orange">Retention</span><ul class="clean"><li>Rider education</li><li>Cross-sell offers</li><li>Win-back journey</li><li>Agent callback routing</li></ul></div></div></section>
+
+<section id="overview"><div class="kicker">The setup</div><h2>What Happened in These Two Calls</h2><p class="lead">Two recordings: one is a motor accident claim coming in, the other is a health-policy renewal call going out — triggered by a web form that hands the agent the customer's policy details before she even dials.</p><div class="grid2"><div class="card"><span class="tag red">Scenario 1: Inbound</span><h3>Registering a motor claim</h3><p>Andy calls Aurelia Insurance after getting rear-ended. Carol checks he's okay, verifies his policy, works out where and when it happened, logs it as a collision claim, and hands him a reference number.</p><p><strong>Recording:</strong><br><a href="/demos/calm-voice-after-an-accident/inbound-claim/" target="_blank">/inbound-claim</a></p></div><div class="card"><span class="tag purple">Scenario 2: Outbound</span><h3>A health policy renewal</h3><p>Emily gets a call she's not thrilled about. Carol works through her frustration, explains what the AD&D rider actually costs and covers, clears up a waiting-period question, and walks her through the one-year vs. two-year options.</p><p><strong>Recording:</strong><br><a href="/demos/calm-voice-after-an-accident/outbound-renewal/" target="_blank">/outbound-renewal</a></p></div></div><h3>Demo assets</h3><div class="table"><table><thead><tr><th>Asset</th><th>URL / Detail</th><th>Use in Demo</th></tr></thead><tbody><tr><td><strong>Renewal Web Form</strong></td><td><a href="https://aurelia-insurer.netlify.app/" target="_blank">https://aurelia-insurer.netlify.app/</a></td><td>Passes policy and customer context into renewal journey</td></tr><tr><td><strong>Inbound Claim Recording</strong></td><td><a href="/demos/calm-voice-after-an-accident/inbound-claim/" target="_blank">/inbound-claim</a></td><td>Shows accident claim intake and registration</td></tr><tr><td><strong>Outbound Renewal Recording</strong></td><td><a href="/demos/calm-voice-after-an-accident/outbound-renewal/" target="_blank">/outbound-renewal</a></td><td>Shows context-aware renewal objection handling</td></tr></tbody></table></div><h3>What each call ended with</h3><div class="table"><table><thead><tr><th>Scenario</th><th>Captured / Confirmed</th><th>Outcome</th><th>Why It Matters</th></tr></thead><tbody><tr><td><strong>Inbound claim</strong></td><td>Andy Brown, policy ending 0345, rear-ended, bumper damage, New York, August 11, 2026</td><td>Claim logged with reference CLM842019</td><td>Handled with care, verified properly, logged correctly</td></tr><tr><td><strong>Outbound renewal</strong></td><td>Emily, health renewal, premium $612.40, AD&D rider +$38.50, one-year with rider $650.90, two-year with rider approx. $1,208.34</td><td>Emily chooses one-year renewal path and payment via app or website</td><td>Pushback handled, rider explained clearly, policy kept alive</td></tr></tbody></table></div><div class="diagram"><h3>How a call turns into a system update</h3><svg width="980" height="250" viewBox="0 0 980 250"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7C3BED"/><stop offset="100%" stop-color="#7257ff"/></linearGradient></defs><rect x="25" y="35" width="145" height="78" rx="22" fill="#fff" stroke="#dbe3ef"/><text x="98" y="70" text-anchor="middle" font-size="15" font-weight="900" fill="#152033">Inbound</text><text x="98" y="94" text-anchor="middle" font-size="13" fill="#637083">claim call</text><rect x="25" y="137" width="145" height="78" rx="22" fill="#fff" stroke="#dbe3ef"/><text x="98" y="172" text-anchor="middle" font-size="15" font-weight="900" fill="#152033">Outbound</text><text x="98" y="196" text-anchor="middle" font-size="13" fill="#637083">renewal event</text><path d="M185 75 L300 119" stroke="#7C3BED" stroke-width="4" stroke-linecap="round"/><path d="M185 176 L300 135" stroke="#7257ff" stroke-width="4" stroke-linecap="round"/><rect x="315" y="65" width="180" height="120" rx="28" fill="url(#g)"/><text x="405" y="105" text-anchor="middle" font-size="19" font-weight="900" fill="#fff">Carol</text><text x="405" y="132" text-anchor="middle" font-size="13" fill="#edf2ff">empathize • verify</text><text x="405" y="156" text-anchor="middle" font-size="13" fill="#edf2ff">decide next action</text><path d="M510 125 L610 125" stroke="#7C3BED" stroke-width="4" stroke-linecap="round"/><rect x="625" y="35" width="150" height="78" rx="22" fill="#fff" stroke="#dbe3ef"/><text x="700" y="70" text-anchor="middle" font-size="15" font-weight="900" fill="#152033">Policy Data</text><text x="700" y="94" text-anchor="middle" font-size="13" fill="#637083">customer + cover</text><rect x="625" y="137" width="150" height="78" rx="22" fill="#fff" stroke="#dbe3ef"/><text x="700" y="172" text-anchor="middle" font-size="15" font-weight="900" fill="#152033">Knowledge</text><text x="700" y="196" text-anchor="middle" font-size="13" fill="#637083">riders + rules</text><path d="M790 75 L865 119" stroke="#7C3BED" stroke-width="4" stroke-linecap="round"/><path d="M790 176 L865 135" stroke="#7257ff" stroke-width="4" stroke-linecap="round"/><rect x="880" y="70" width="85" height="110" rx="24" fill="#fff" stroke="#dbe3ef"/><text x="923" y="112" text-anchor="middle" font-size="15" font-weight="900" fill="#152033">Action</text><text x="923" y="139" text-anchor="middle" font-size="12" fill="#637083">log claim</text><text x="923" y="160" text-anchor="middle" font-size="12" fill="#637083">renew</text></svg></div></section>
+
+<section id="personas"><div class="kicker">Who's on the call</div><h2>The Callers and the Assistant</h2><div class="grid3"><div class="card persona"><div class="avatar">🚗</div><div><h3>Andy: The Claimant</h3><p>He just got rear-ended. He's fine, the car's not too bad off, and he mostly just wants this logged and dealt with.</p><ul class="clean"><li>Motor insurance customer</li><li>Policy ending 0345</li><li>Collision claim</li><li>Accident in New York</li></ul></div></div><div class="card persona"><div class="avatar">🩺</div><div><h3>Emily: The Renewal Customer</h3><p>She's tired of getting these calls and isn't happy about the premium. She also has a genuine question about the AD&D rider that nobody's answered yet.</p><ul class="clean"><li>Health policy renewal</li><li>Premium-sensitive</li><li>Asks rider benefits</li><li>Chooses one-year path</li></ul></div></div><div class="card persona"><div class="avatar">🎙</div><div><h3>Carol: The Voice Agent</h3><p>She answers for Aurelia Insurance — policy questions, claims, renewals — and knows when a real person needs to take over instead.</p><ul class="clean"><li>Leads with empathy on claims</li><li>Verifies the policy properly</li><li>Classifies the claim correctly</li><li>Handles renewal pushback</li></ul></div></div></div><div class="callout"><strong>The tone shift that matters</strong><p>On a claim call, she sounds calm and careful. On a renewal call, she sounds respectful and direct — helpful without turning into a sales pitch.</p></div></section>
+
+<section id="journey"><div class="kicker">How the call unfolds</div><h2>Two Very Different Calls, Same Underlying Shape</h2><p class="lead">One is reacting to something that just happened. The other is proactively reaching out before something happens — a lapsed policy.</p><h3>Inbound — the motor claim</h3><div class="flow"><div class="step"><div class="stepno">1</div><strong>Call arrives</strong><span>He dials the insurer's line right after the accident.</span></div><div class="step"><div class="stepno">2</div><strong>Carol greets</strong><span>A normal opening, not a menu of options.</span></div><div class="step"><div class="stepno">3</div><strong>Safety check</strong><span>"Are you safe and uninjured?"</span></div><div class="step"><div class="stepno">4</div><strong>Policy lookup</strong><span>Phone lookup comes up empty — falls back to last-four verification.</span></div><div class="step"><div class="stepno">5</div><strong>Claim intake</strong><span>What happened, where, and when.</span></div><div class="step"><div class="stepno">6</div><strong>Register</strong><span>Comes away with an actual reference number.</span></div><div class="step"><div class="stepno">7</div><strong>Cross-sell</strong><span>A renewal reminder and add-on mention, in passing.</span></div></div><h3>Outbound — the renewal triggered by a web form</h3><div class="flow"><div class="step"><div class="stepno">1</div><strong>Form/context</strong><span>Policy and customer details land with the calling system.</span></div><div class="step"><div class="stepno">2</div><strong>Journey trigger</strong><span>The outbound renewal call gets kicked off.</span></div><div class="step"><div class="stepno">3</div><strong>Contextual greet</strong><span>Carol confirms Emily and call recording.</span></div><div class="step"><div class="stepno">4</div><strong>Objections</strong><span>She's frustrated, worried about cost, missing an answer.</span></div><div class="step"><div class="stepno">5</div><strong>Explain value</strong><span>What the rider actually costs, and why the waiting period matters.</span></div><div class="step"><div class="stepno">6</div><strong>Decision</strong><span>One year or two, with or without the rider.</span></div><div class="step"><div class="stepno">7</div><strong>Payment path</strong><span>Points her to the app or website to actually pay.</span></div></div><div class="callout"><strong>The rule Carol follows here</strong><p>The context should already be there before she dials. That's why the renewal call opens already knowing who Emily is and what her policy looks like, instead of starting from zero.</p></div></section>
+
+<section id="runshow"><div class="kicker">Walking someone through it</div><h2>What to Point Out While It Plays</h2><div class="callout"><strong>Before hitting play on either one</strong><p>"These are two different kinds of hard conversations — one person is shaken up, the other is annoyed. Watch how she adjusts for each, and notice both calls still end somewhere concrete."</p></div><h3>Scenario 1 — the inbound claim</h3><div class="table"><table><thead><tr><th>Stage</th><th>Demo Moment</th><th>Point to Make</th></tr></thead><tbody><tr><td>1</td><td>Andy says he was rear-ended</td><td>"She immediately recognizes this as an accident claim, not a routine question."</td></tr><tr><td>2</td><td>Carol asks if he is safe</td><td>"That's the right instinct — check on the person before the paperwork."</td></tr><tr><td>3</td><td>Phone lookup comes up empty</td><td>"It doesn't stall out — she just falls back to another way to verify him."</td></tr><tr><td>4</td><td>Policy ending 0345</td><td>"Now she's got the right policy pulled up and confirmed."</td></tr><tr><td>5</td><td>Location and time captured</td><td>"Loose details turn into exactly what the claim form needs."</td></tr><tr><td>6</td><td>Claim reference CLM842019</td><td>"He hangs up with something concrete, not just a promise to follow up."</td></tr><tr><td>7</td><td>Claim not approved or settled</td><td>"Notice she's careful not to overpromise here."</td></tr></tbody></table></div><h3>Scenario 2 — the outbound renewal</h3><div class="table"><table><thead><tr><th>Stage</th><th>Demo Moment</th><th>Point to Make</th></tr></thead><tbody><tr><td>1</td><td>Carol calls Emily with renewal context</td><td>"She's calling already knowing who Emily is and what her policy looks like."</td></tr><tr><td>2</td><td>Emily is annoyed</td><td>"Watch how she de-escalates instead of just pushing through a script."</td></tr><tr><td>3</td><td>Premium objection</td><td>"A real pushback, handled on the spot."</td></tr><tr><td>4</td><td>AD&D rider cost explained</td><td>"She gives an exact number, not a vague answer."</td></tr><tr><td>5</td><td>Waiting periods explained</td><td>"A genuinely confusing insurance concept, explained simply."</td></tr><tr><td>6</td><td>Multi-year discount calculated</td><td>"She lays out the actual options instead of pushing one."</td></tr><tr><td>7</td><td>Emily chooses one year</td><td>"Her choice, respected — and it still ends in a payment step."</td></tr></tbody></table></div><div class="quote"><strong>The short version</strong><p>"One call calms someone down and gets a claim logged correctly. The other handles real pushback and still ends with a renewal decision. Same voice, two very different jobs, both actually finished."</p></div></section>
+
+<section id="scripts"><div class="kicker">Conversation examples</div><h2>Two Calls, Start to Finish</h2><details open><summary>Scenario 1: The claim call, as recorded</summary><div class="details"><div class="script"><div class="bubble"><span class="who">Carol</span>Hi, I'm Carol, the voice assistant for Aurelia Insurance. I can help with policy details, claims, and renewals — how can I help you today?</div><div class="bubble user"><span class="who">Andy</span>Hey, I got into an accident this morning. Someone rear-ended me.</div><div class="bubble"><span class="who">Carol</span>I am so sorry to hear that. First and foremost, are you safe and uninjured right now?</div><div class="bubble user"><span class="who">Andy</span>Yeah, we both are just fine. It’s just bumper damage.</div><div class="bubble"><span class="who">Carol</span>I’m not able to pull up your account by this number. Could you tell me the last four digits of your policy number?</div><div class="bubble user"><span class="who">Andy</span>Policy last four digits are 0345.</div><div class="bubble"><span class="who">Carol</span>I’ve got your policy ending in 0345. Since you were rear-ended, I’ve noted this as a collision claim. Could you tell me the city and state?</div><div class="bubble user"><span class="who">Andy</span>New York.</div><div class="bubble"><span class="who">Carol</span>To confirm, this was a collision in New York on August 11, 2026. Is that correct?</div><div class="bubble user"><span class="who">Andy</span>Yeah, that’s right.</div><div class="bubble"><span class="who">Carol</span>I have logged your claim. Your claim reference number is CLM842019. This claim has been registered, but it hasn’t been approved or settled yet.</div></div></div></details><details><summary>Scenario 2: The renewal call, as recorded</summary><div class="details"><div class="script"><div class="bubble"><span class="who">Carol</span>Hello! This is Carol from Aurelia Insurance. This call may be recorded. I’m calling because your health policy renewal is coming up. Is this Emily?</div><div class="bubble user"><span class="who">Emily</span>I already know about the renewal. Why do you people keep calling? It’s annoying.</div><div class="bubble"><span class="who">Carol</span>I’m very sorry for the frustration. Since you’re already aware, I’ll keep this brief.</div><div class="bubble user"><span class="who">Emily</span>I don’t know if I want to renew. Your premium is too expensive. And I never got the AD&D rider price.</div><div class="bubble"><span class="who">Carol</span>Your current renewal premium is $612.40. Adding AD&D brings the total to $650.90, so the rider itself is $38.50.</div><div class="bubble user"><span class="who">Emily</span>What benefits do I get?</div><div class="bubble"><span class="who">Carol</span>The rider pays a lump sum in the event of accidental death or permanent disability, adding a financial safety net.</div><div class="bubble user"><span class="who">Emily</span>If I switch provider, will the waiting period start over?</div><div class="bubble"><span class="who">Carol</span>Typically, yes. By renewing with Aurelia, you keep the waiting-period progress you have already made.</div><div class="bubble user"><span class="who">Emily</span>Let’s stick to one year only for now.</div><div class="bubble"><span class="who">Carol</span>We’ll stick with the one-year term. You can complete payment through the Aurelia app or website under Pay Now.</div></div></div></details></section>
+
+<section id="objections"><div class="kicker">Common pushback</div><h2>Questions People Ask, and Honest Answers</h2><div class="grid2"><div class="card"><span class="tag blue">Question</span><h3>"Can AI really handle a sensitive claim call?"</h3><p><strong>Answer:</strong> With the right boundaries, yes. In the recording, she checks on his safety first, stays warm about it, verifies the policy properly, and is clear that logging a claim isn't the same as approving one.</p></div><div class="card"><span class="tag blue">Question</span><h3>"What if the policy lookup fails?"</h3><p><strong>Answer:</strong> It doesn't derail the call — she just falls back to asking for the last four digits of the policy number and confirms from there.</p></div><div class="card"><span class="tag blue">Question</span><h3>"Can it handle someone who's already annoyed?"</h3><p><strong>Answer:</strong> That's literally how the renewal call starts. She acknowledges it, keeps things brief, answers the question that's actually been bothering Emily, and the call turns useful instead of adversarial.</p></div><div class="card"><span class="tag blue">Question</span><h3>"Will it promise something it shouldn't?"</h3><p><strong>Answer:</strong> It explains policy details and next steps — it doesn't approve claims, settle anything, or make binding commitments on the insurer's behalf.</p></div></div><h3>How Carol handles the tricky moments</h3><div class="table"><table><thead><tr><th>Situation</th><th>How Carol Handles It</th><th>Why It's Safe</th></tr></thead><tbody><tr><td>Caller is hurt or unsafe</td><td>Points to emergency services or hands off to a person, depending on the situation</td><td>Safety comes before anything else</td></tr><tr><td>Policy not found by phone number</td><td>Falls back to asking for the last four digits</td><td>One dead end doesn't stop the call</td></tr><tr><td>Vague incident date</td><td>Works out the actual date and confirms it</td><td>Loose speech still becomes a clean record</td></tr><tr><td>Customer asks if the claim is approved</td><td>Makes clear it's logged, not approved or settled</td><td>Doesn't overpromise on something it can't decide</td></tr><tr><td>Customer's frustrated about renewal calls</td><td>Acknowledges it and keeps things short, or offers an opt-out</td><td>Doesn't push when someone's had enough</td></tr><tr><td>Premium pushback</td><td>Explains the value, the rider cost difference, and the discount options</td><td>A real answer, not a deflection</td></tr><tr><td>Not ready to renew</td><td>Notes why and sets up a follow-up</td><td>Nothing just gets dropped</td></tr></tbody></table></div></section>
+
+<section id="why"><div class="kicker">What sets it apart</div><h2>Why This Isn't Just Another Voice Bot</h2><p class="lead">It's not built for one insurance moment — it holds up across the ones that actually matter: a claim, a renewal, a real objection.</p><div class="grid3"><div class="card"><div class="icon">🧭</div><h3>Already briefed</h3><p>Comes into the call already knowing the policy and customer context, so it's not re-asking things that are already on file.</p></div><div class="card"><div class="icon">💬</div><h3>Reads the moment</h3><p>Leads with safety on a claim call. Leads with respect on a renewal call someone didn't want to get.</p></div><div class="card"><div class="icon">🛡</div><h3>Knows its limits</h3><p>Logs claims and explains renewals — doesn't approve, settle, or make promises it can't keep.</p></div><div class="card"><div class="icon">🔌</div><h3>Actually does the work</h3><p>Looks things up, resolves dates, logs claims, updates records, and points customers to the right next step.</p></div><div class="card"><div class="icon">📈</div><h3>Protects the renewal</h3><p>Keeps continuity going, explains what riders are actually worth, and cuts down on policies quietly lapsing.</p></div><div class="card"><div class="icon">📊</div><h3>Leaves a clean record</h3><p>Every call leaves a transcript, an outcome, and a clear next step behind.</p></div></div><div class="callout"><strong>The line that lands</strong><p>Same voice, two very different jobs: helping when something's gone wrong, and holding onto a customer when a policy is at risk.</p></div></section>
+
+<section id="discovery"><div class="kicker">After the walkthrough</div><h2>Questions Worth Asking Next</h2><p class="lead">Use these right after the recordings to figure out where this would actually help first — claims, renewals, or both.</p><div class="grid2"><details open><summary>How claims run today</summary><div class="details"><ul class="clean"><li>How many claim calls come in on a typical day?</li><li>What share of those are first-notice-of-loss calls?</li><li>What has to be captured before a claim can be logged?</li><li>How often does phone-based policy lookup just fail?</li><li>Which claim types would make sense to start with?</li></ul></div></details><details open><summary>How renewals run today</summary><div class="details"><ul class="clean"><li>What's the lapse rate by product line?</li><li>How many renewal reminders end up needing an actual call?</li><li>What are the most common objections you hear?</li><li>Which riders or add-ons confuse people the most?</li><li>What share of renewal calls actually end in payment?</li></ul></div></details><details><summary>Systems already in place</summary><div class="details"><ul class="clean"><li>Where do policy, claim, and rider details live today?</li><li>Can your web form or campaign tool fire a webhook?</li><li>What system needs to receive claim updates?</li><li>What system needs to receive renewal outcomes?</li><li>What do you actually want to see on a dashboard?</li></ul></div></details><details><summary>Governance and compliance</summary><div class="details"><ul class="clean"><li>What consent language is required for call recording?</li><li>What is the AI allowed to say about claims and coverage?</li><li>When does a call need to go to a licensed adjuster instead?</li><li>What does the audit trail need to include?</li><li>Any data retention or residency requirements to plan around?</li></ul></div></details></div><div class="quote"><strong>The one question worth asking first</strong><p>"Where's the biggest gap right now — how long claims take to log, how anxious customers get, how many renewals lapse, or how much manual follow-up your team is stuck doing?"</p></div></section>
+
+<section id="roi"><div class="kicker">Why it's worth doing</div><h2>Where the Value Actually Shows Up</h2><p class="lead">One side is about handling claims efficiently. The other is about not losing customers you already have.</p><div class="grid3"><div class="card"><span class="tag green">Claims</span><h3>Faster claim logging</h3><p>Get incident type, location, date, and policy details captured in one call instead of several.</p></div><div class="card"><span class="tag green">Experience</span><h3>Less anxiety on the call</h3><p>Starting with a safety check and a calm tone changes how the whole call goes.</p></div><div class="card"><span class="tag green">Compliance</span><h3>Consistent language</h3><p>What counts as "logged" vs. "approved" gets said the same way, every time.</p></div><div class="card"><span class="tag green">Renewals</span><h3>Fewer policies lapsing</h3><p>A proactive, well-informed call that actually addresses the objection beats a generic reminder.</p></div><div class="card"><span class="tag green">Cross-sell</span><h3>Riders explained properly</h3><p>Add-ons like AD&D or roadside assistance explained in plain terms, not insurance jargon.</p></div><div class="card"><span class="tag green">Operations</span><h3>Better visibility</h3><p>Claim volumes, renewal objections, and outcomes all show up somewhere you can actually see them.</p></div></div><h3>A simple way to think about ROI</h3><div class="formula"><div class="formula-card"><div class="op">+</div><div><strong>Time saved on claims</strong><p>Claims handled by AI × time saved per claim × what that time is worth</p></div></div><div class="formula-card"><div class="op">+</div><div><strong>Premium retained</strong><p>Policies saved from lapsing × average annual premium</p></div></div><div class="formula-card"><div class="op">+</div><div><strong>Extra rider revenue</strong><p>More riders attached × average rider premium</p></div></div><div class="formula-card"><div class="op">=</div><div><strong>What it's actually worth over a year</strong><p>Time saved on claims, premium kept from lapsing, extra rider revenue, and a clearer compliance trail</p></div></div></div><div class="callout"><strong>The short version</strong><p>Claims cost less to handle. Renewals stop leaking revenue. Same voice agent handles both.</p></div></section>
+
+<section id="metrics"><div class="kicker">What a pilot should prove</div><h2>What "Working" Looks Like</h2><p class="lead">A pilot should show both sides — how well claims get handled, and how many renewals actually get saved.</p><div class="stats"><div class="stat"><div class="num">50–60%</div><div class="label">Target for calls handled without a person stepping in</div></div><div class="stat"><div class="num">90%+</div><div class="label">Target for fully captured claim fields</div></div><div class="stat"><div class="num">95%+</div><div class="label">Target for successful system updates</div></div><div class="stat"><div class="num">100%</div><div class="label">Calls logged with a full record</div></div></div><div class="table"><table><thead><tr><th>Category</th><th>Metric</th><th>What It Means</th></tr></thead><tbody><tr><td>Claims</td><td>Intake completion rate</td><td>Claim calls where every required field actually got captured</td></tr><tr><td>Claims</td><td>Registration success</td><td>Claims that end up logged with a reference number</td></tr><tr><td>Claims</td><td>Verification success</td><td>Customer matched, either directly or through fallback</td></tr><tr><td>Experience</td><td>Safety check completion</td><td>Claim calls where safety status actually got confirmed</td></tr><tr><td>Renewal</td><td>Contact rate</td><td>Outbound calls that actually reach the right person</td></tr><tr><td>Renewal</td><td>Objection resolution rate</td><td>Price, rider, or coverage pushback that reaches a clear outcome</td></tr><tr><td>Revenue</td><td>Renewal intent captured</td><td>Proceed now, think later, callback, declined, payment pending</td></tr><tr><td>Revenue</td><td>Rider interest</td><td>Customers who accept or seriously consider an add-on</td></tr><tr><td>Operations</td><td>System update success</td><td>Claim or renewal outcome correctly reflected in the system</td></tr><tr><td>Governance</td><td>Logging completeness</td><td>Transcript, summary, and outcome captured for every call</td></tr></tbody></table></div></section>
+
+<section id="nextsteps"><div class="kicker">Getting from demo to pilot</div><h2>Next Steps</h2><p class="lead">Pick one claim type and one renewal segment to start with — trying to cover everything at once just slows things down.</p><div class="timeline"><div class="timeline-card"><span class="day">Days 0–15</span><h3>Pick a starting point</h3><p>Settle on the claim type, renewal segment, and product, and write down where things stand today — call volumes, lapse rates, handling time.</p></div><div class="timeline-card"><span class="day">Days 16–45</span><h3>Set it up and test it</h3><p>Load Carol with policy lookup, claim fields, renewal knowledge, and rider rules, then wire up the web-form trigger and dashboard.</p></div><div class="timeline-card"><span class="day">Days 46–90</span><h3>Run it and measure</h3><p>Go live with both pilots, keep an eye on it daily, adjust weekly, and come back with real numbers.</p></div></div><h3>What needs to be in place</h3><div class="grid2"><div class="card"><h4>Business side</h4><ul class="clean"><li>Claim type picked</li><li>Renewal segment picked</li><li>Someone owning the product</li><li>Claims and renewal owners aligned</li><li>Success metrics agreed on</li></ul></div><div class="card"><h4>Content side</h4><ul class="clean"><li>Policy vocabulary</li><li>Claim intake fields</li><li>Rider explanations</li><li>Waiting-period scripts</li><li>Approved disclaimers</li></ul></div><div class="card"><h4>Technical side</h4><ul class="clean"><li>Call routing</li><li>Policy lookup</li><li>Claim registration endpoint</li><li>Renewal web-form trigger</li><li>Dashboard views</li></ul></div><div class="card"><h4>Before going live</h4><ul class="clean"><li>Straightforward claim tested</li><li>Policy-lookup fallback tested</li><li>Injury escalation tested</li><li>Renewal objection tested</li><li>Payment handoff tested</li></ul></div></div><div class="quote"><strong>Where this leads</strong><p>"People call insurers when something's gone wrong. Insurers call people when a policy's at risk. Both moments deserve to actually go somewhere instead of just being a pleasant conversation."</p></div></section>
+
+<section class="compact"><div class="kicker">Quick reference</div><h2>Lines Worth Remembering</h2><div class="pills"><span class="pill">Claims need care and accuracy, in that order.</span><span class="pill">Renewals need context and a real answer, not a script.</span><span class="pill">Logs the claim — doesn't promise it'll be approved.</span><span class="pill">The renewal call starts already knowing who it's calling.</span><span class="pill">One voice agent, two very different jobs.</span><span class="pill">The customer gets help. The insurer gets a clean record.</span></div></section>
+
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <strong>ConverseAI Voice AI</strong>
+    Real conversations, not just automated calls.
+  </div>
+</footer>
+
+<a class="top" href="#top" aria-label="Back to top">↑</a>
+
+<script>
+const links=[...document.querySelectorAll('.navlinks a')];
+const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.remove('active'));const a=document.querySelector('.navlinks a[href="#'+e.target.id+'"]');if(a)a.classList.add('active')}})},{rootMargin:'-30% 0px -60% 0px',threshold:.01});
+sections.forEach(s=>obs.observe(s));
+document.getElementById('jump').addEventListener('change',e=>document.querySelector(e.target.value)?.scrollIntoView({behavior:'smooth'}));
+window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>10));
+</script>
+
+<div class="modal-overlay" id="demoModal">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="closeDemoModal" aria-label="Close">✕</button>
+    <div id="demoFormWrap">
+      <h3>Get a Demo</h3>
+      <p class="modal-sub">Fill in your details and our team will get in touch to show you ConverseAI Voice AI in action.</p>
+      <form class="demo-form" id="demoForm">
+        <div class="field">
+          <label for="df-name">Full Name *</label>
+          <input type="text" id="df-name" name="fullName" required maxlength="100" placeholder="John Doe">
+        </div>
+        <div class="field">
+          <label for="df-email">Email Address *</label>
+          <input type="email" id="df-email" name="email" required maxlength="255" placeholder="john@company.com">
+        </div>
+        <div class="field">
+          <label for="df-phone">Phone Number *</label>
+          <input type="tel" id="df-phone" name="phone" required maxlength="30" placeholder="+971 50 123 4567">
+        </div>
+        <div class="field">
+          <label for="df-message">Message</label>
+          <textarea id="df-message" name="message" maxlength="2000" placeholder="Tell us about your project and requirements..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="demoSubmitBtn">Request Demo</button>
+        <p class="form-msg" id="demoFormMsg"></p>
+      </form>
+    </div>
+    <div id="demoThanks" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:44px;margin-bottom:10px">✅</div>
+      <h3>Thanks — you're all set!</h3>
+      <p class="modal-sub">Our team will reach out shortly to schedule your ConverseAI Voice AI demo.</p>
+      <button type="button" class="btn btn-outline" id="closeDemoThanks">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyuCXLpkK2e8kC37As23AnW4aw-s0cs0irjmtEXHP9mN5QPMDjqNmnWbgYBcZWMKT4x/exec';
+  var modal = document.getElementById('demoModal');
+  var formWrap = document.getElementById('demoFormWrap');
+  var thanks = document.getElementById('demoThanks');
+  var form = document.getElementById('demoForm');
+  var msg = document.getElementById('demoFormMsg');
+  var submitBtn = document.getElementById('demoSubmitBtn');
+
+  function openModal(){
+    modal.classList.add('open');
+    formWrap.style.display='';
+    thanks.style.display='none';
+    form.reset();
+    msg.className='form-msg';
+    msg.textContent='';
+  }
+  function closeModal(){ modal.classList.remove('open'); }
+
+  var navBtn = document.getElementById('openDemoNav');
+  var heroBtn = document.getElementById('openDemoHero');
+  if (navBtn) navBtn.addEventListener('click', openModal);
+  if (heroBtn) heroBtn.addEventListener('click', openModal);
+  document.getElementById('closeDemoModal').addEventListener('click', closeModal);
+  document.getElementById('closeDemoThanks').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+
+  function getCaptchaToken(){
+    return new Promise(function(resolve){
+      if (!window.grecaptcha) { resolve(''); return; }
+      window.grecaptcha.ready(function(){
+        window.grecaptcha.execute('6Ld6E40sAAAAAAayjrv2wh-ZInD0yK12mVNWlmpH', { action: 'contact_form' })
+          .then(resolve)
+          .catch(function(){ resolve(''); });
+      });
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    getCaptchaToken().then(function(token){
+      var params = new URLSearchParams();
+      params.append('fullName', document.getElementById('df-name').value.trim());
+      params.append('email', document.getElementById('df-email').value.trim());
+      params.append('phone', document.getElementById('df-phone').value.trim());
+      params.append('countryName', 'N/A');
+      params.append('product', 'Voice AI');
+      params.append('subject', 'Insurance Demo Page');
+      params.append('message', document.getElementById('df-message').value.trim() || 'N/A');
+      params.append('form_source', 'Insurance Demo Page');
+      params.append('captcha_token', token || '');
+      params.append('utm_source', localStorage.getItem('utm_source') || 'Direct');
+      params.append('utm_medium', localStorage.getItem('utm_medium') || 'N/A');
+      params.append('utm_campaign', localStorage.getItem('utm_campaign') || 'N/A');
+      params.append('utm_term', localStorage.getItem('utm_term') || 'N/A');
+      params.append('utm_content', localStorage.getItem('utm_content') || 'N/A');
+      params.append('utm_id', localStorage.getItem('utm_id') || 'N/A');
+      params.append('page_url', window.location.href);
+      params.append('device_info', navigator.userAgent.substring(0,200));
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      }).then(function(){
+        formWrap.style.display='none';
+        thanks.style.display='';
+      }).catch(function(){
+        msg.textContent = 'Something went wrong — please try again or email us directly.';
+        msg.className = 'form-msg show err';
+      }).finally(function(){
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request Demo';
+      });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
