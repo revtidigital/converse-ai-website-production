@@ -26,23 +26,49 @@ const NOINDEX_SLUGS = new Set<string>([
 ]);
 
 /**
- * Sanitizes a canonical URL value stored in the DB.
- * - Strips leading/trailing whitespace and backtick characters (`` ` ``) that
- *   can sneak in when authors copy-paste Markdown code snippets into the field.
- * - Returns null when the cleaned value is empty or not a valid https:// URL
- *   so callers can fall back to the correct blog subdomain URL.
+ * Sanitizes and auto-corrects a canonical URL value stored in the DB.
+ *
+ * Problems handled:
+ * 1. Backtick-prefixed values (e.g. "`new-upi-rules-...") — stripped and
+ *    returned as null so the caller falls back to blog.theconverseai.com/<slug>.
+ * 2. Old main-site /blog/<slug> paths stored as canonical
+ *    (e.g. "https://theconverseai.com/blog/ai-agents-vs-chatbots") — these
+ *    were the WordPress-era canonical URLs. They are auto-rewritten to the
+ *    correct blog subdomain URL so the sitemap <loc> always matches the
+ *    page's <link rel="canonical"> and Google stops flagging them as
+ *    "Non-canonical URL".
+ * 3. Returns null for anything that isn't a valid https:// URL so callers
+ *    can safely fall back.
  */
-function sanitizeCanonical(raw: string | null | undefined): string | null {
+function sanitizeCanonical(
+  raw: string | null | undefined,
+  blogBaseUrl = "https://blog.theconverseai.com"
+): string | null {
   if (!raw) return null;
+
+  // Strip leading/trailing backticks and whitespace
   const cleaned = raw.trim().replace(/^`+|`+$/g, "").trim();
   if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) return null;
+
+  let parsed: URL;
   try {
-    // Validate it parses as a real URL
-    new URL(cleaned);
-    return cleaned;
+    parsed = new URL(cleaned);
   } catch {
     return null;
   }
+
+  // Auto-correct old WordPress-era main-site /blog/<slug> canonicals:
+  // https://theconverseai.com/blog/some-slug  →  https://blog.theconverseai.com/some-slug
+  // https://www.theconverseai.com/blog/some-slug  →  https://blog.theconverseai.com/some-slug
+  const isBlogPathOnMainSite =
+    (parsed.hostname === "theconverseai.com" || parsed.hostname === "www.theconverseai.com") &&
+    parsed.pathname.startsWith("/blog/");
+  if (isBlogPathOnMainSite) {
+    const slug = parsed.pathname.replace(/^\/blog\//, "").replace(/\/$/, "");
+    return slug ? `${blogBaseUrl}/${slug}` : null;
+  }
+
+  return cleaned;
 }
 
 /**
@@ -106,7 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Backtick-prefixed values (e.g. "`new-upi-rules-...") or any non-https
       // strings are treated as unset and fall back to the correct slug URL,
       // keeping every sitemap <loc> on the canonical blog domain.
-      const storedCanonical = sanitizeCanonical((post as any).canonical_url);
+      const storedCanonical = sanitizeCanonical((post as any).canonical_url, blogBaseUrl);
       const isExternalCanonical =
         storedCanonical &&
         !storedCanonical.startsWith(blogBaseUrl) &&
