@@ -111,6 +111,25 @@ function extractInlineFaqs(html: string): { question: string; answer: string }[]
   return results;
 }
 
+/**
+ * Sanitizes a canonical URL value stored in the DB.
+ * - Strips leading/trailing whitespace and backtick characters (`` ` ``) that
+ *   can sneak in when authors copy-paste Markdown code snippets into the field.
+ * - Returns null when the cleaned value is empty or not a valid https:// URL
+ *   so callers can fall back to the correct blog subdomain URL.
+ */
+function sanitizeCanonical(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const cleaned = raw.trim().replace(/^`+|`+$/g, "").trim();
+  if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) return null;
+  try {
+    new URL(cleaned);
+    return cleaned;
+  } catch {
+    return null;
+  }
+}
+
 function getBlogBaseUrl(req: VercelRequest): string {
   const host = (req.headers["x-forwarded-host"] as string) || (req.headers["host"] as string) || "";
   if (host.includes("staging") || host.includes("vercel.app")) {
@@ -357,7 +376,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const title = post.seo_title || post.title;
     const desc = post.meta_description || post.excerpt;
-    const canonical = post.canonical_url || `${blogBaseUrl}/${post.slug}`;
+    const canonical = sanitizeCanonical(post.canonical_url) || `${blogBaseUrl}/${post.slug}`;
     
     // Prefer original_url (the exact WordPress /wp-content URL) for SEO parity; fall back to storage_url for new uploads.
     const imgUrlOf = (img: any, fallback = ""): string =>

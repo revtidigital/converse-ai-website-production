@@ -26,6 +26,26 @@ const NOINDEX_SLUGS = new Set<string>([
 ]);
 
 /**
+ * Sanitizes a canonical URL value stored in the DB.
+ * - Strips leading/trailing whitespace and backtick characters (`` ` ``) that
+ *   can sneak in when authors copy-paste Markdown code snippets into the field.
+ * - Returns null when the cleaned value is empty or not a valid https:// URL
+ *   so callers can fall back to the correct blog subdomain URL.
+ */
+function sanitizeCanonical(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const cleaned = raw.trim().replace(/^`+|`+$/g, "").trim();
+  if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) return null;
+  try {
+    // Validate it parses as a real URL
+    new URL(cleaned);
+    return cleaned;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Returns the blog subdomain base URL based on the incoming request host.
  * Staging  → https://blog2.staging.theconverseai.com
  * Production → https://blog.theconverseai.com
@@ -59,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { data: posts, error } = await supabase
       .from("blog_posts")
-      .select("slug, updated_at, publish_date")
+      .select("slug, updated_at, publish_date, canonical_url")
       .eq("status", "published")
       .is("deleted_at", null)
       .order("publish_date", { ascending: false });
@@ -77,14 +97,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Individual blog posts — URL is /<slug> on the blog subdomain.
     // Skip noindexed posts so Google dequeues them faster.
+    // Use canonical_url when set (must match the <link rel="canonical"> in the HTML),
+    // so Google never flags a sitemap URL as "Non-canonical URL".
     for (const post of posts ?? []) {
       if (NOINDEX_SLUGS.has(post.slug)) continue;
+
+      // Sanitize and validate the stored canonical URL.
+      // Backtick-prefixed values (e.g. "`new-upi-rules-...") or any non-https
+      // strings are treated as unset and fall back to the correct slug URL,
+      // keeping every sitemap <loc> on the canonical blog domain.
+      const storedCanonical = sanitizeCanonical((post as any).canonical_url);
+      const isExternalCanonical =
+        storedCanonical &&
+        !storedCanonical.startsWith(blogBaseUrl) &&
+        !storedCanonical.startsWith("https://blog.theconverseai.com");
+      const loc = (!storedCanonical || isExternalCanonical)
+        ? `${blogBaseUrl}/${post.slug}`
+        : storedCanonical;
+
       const lastmod = post.updated_at
         ? new Date(post.updated_at).toISOString().split("T")[0]
         : post.publish_date ?? new Date().toISOString().split("T")[0];
 
       urlEntries.push(`  <url>
-    <loc>${blogBaseUrl}/${post.slug}</loc>
+    <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
