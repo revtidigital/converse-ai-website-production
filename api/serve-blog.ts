@@ -130,7 +130,7 @@ function sanitizeCanonical(
   raw: string | null | undefined,
   blogBaseUrl = "https://blog.theconverseai.com"
 ): string | null {
-  if (!raw) return null;
+  if (!raw || raw.trim() === '') return null;
 
   // Strip leading/trailing backticks and whitespace
   const cleaned = raw.trim().replace(/^`+|`+$/g, "").trim();
