@@ -9,7 +9,7 @@ const WhatsAppFloat = memo(() => {
     <a
       href={`https://wa.me/${phoneNumber}?text=${message}`}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener noreferrer nofollow"
       aria-label="Chat with us on WhatsApp"
       title="Chat with ConverseAI on WhatsApp"
       onClick={() => trackWhatsAppClick()}
