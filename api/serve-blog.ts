@@ -505,16 +505,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       faqSchema ? jsonLd(faqSchema) : "",
     ].filter(Boolean).join("\n");
 
-    const cleanedContentHtml = (post.content_html || "").replace(
-      /(src=["'])(https?:\/\/[^"'>]*?supabase\.co\/storage\/[^"'>]*?)(["'])/gi,
-      (match, p1, p2, p3) => {
-        const i = p2.indexOf("/storage/");
-        return `${p1}${blogBaseUrl}${p2.slice(i)}${p3}`;
-      }
-    ).replace(
-      /(src=["'])(\/storage\/[^"'>]*?)(["'])/gi,
-      `$1${blogBaseUrl}$2$3`
-    );
+    const cleanedContentHtml = (post.content_html || "")
+      .replace(
+        /(src=["'])(https?:\/\/[^"'>]*?supabase\.co\/storage\/[^"'>]*?)(["'])/gi,
+        (match, p1, p2, p3) => {
+          const i = p2.indexOf("/storage/");
+          return `${p1}${blogBaseUrl}${p2.slice(i)}${p3}`;
+        }
+      )
+      .replace(
+        /(src=["'])(\/storage\/[^"'>]*?)(["'])/gi,
+        `$1${blogBaseUrl}$2$3`
+      )
+      // Fix image-only links missing alt text in blog articles (SEO: "Links with no anchor text")
+      .replace(/<a(\s+[^>]*?href=["'][^"']+["'][^>]*)>(\s*<img\s+(?![^>]*\balt=)[^>]*>)\s*<\/a>/gi, (_m, aAttrs, imgTag) => {
+        const altText = (post.title || "Blog link").replace(/"/g, "&quot;");
+        const fixedImg = imgTag.replace(/\/?>$/, ` alt="${altText}" />`);
+        return `<a${aAttrs}>${fixedImg}</a>`;
+      })
+      // Fix empty anchor tags in blog content HTML
+      .replace(/<a(\s+[^>]*?href=["'][^"']+["'][^>]*)>\s*<\/a>/gi, (_m, aAttrs) => {
+        const label = (post.title || "Read post").replace(/"/g, "&quot;");
+        return `<a${aAttrs}><span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">${label}</span></a>`;
+      });
 
     const bodyHtml = `
 <header style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">

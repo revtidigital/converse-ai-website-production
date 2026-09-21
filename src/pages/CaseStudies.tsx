@@ -100,9 +100,11 @@ const CaseStudies = () => {
                       <Link
                         to={`/case-studies/${cs.slug}`}
                         className="absolute inset-0 z-0 rounded-2xl"
-                        aria-hidden="true"
+                        aria-label={`Read ${cs.company} case study`}
                         tabIndex={-1}
-                      />
+                      >
+                        <span className="sr-only">Read {cs.company} case study</span>
+                      </Link>
                       <div className="md:flex">
                         {/* Image */}
                         <div className="md:w-2/5 relative overflow-hidden">
