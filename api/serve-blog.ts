@@ -403,7 +403,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const title = post.seo_title || post.title;
     const desc = post.meta_description || post.excerpt;
-    const canonical = sanitizeCanonical(post.canonical_url, blogBaseUrl) || `${blogBaseUrl}/${post.slug}`;
+    const storedCanonical = sanitizeCanonical(post.canonical_url, blogBaseUrl);
+    const isExternalCanonical =
+      storedCanonical &&
+      !storedCanonical.startsWith(blogBaseUrl) &&
+      !storedCanonical.startsWith("https://blog.theconverseai.com");
+    const canonical = (!storedCanonical || isExternalCanonical)
+      ? `${blogBaseUrl}/${post.slug}`
+      : storedCanonical;
     
     // Prefer original_url (the exact WordPress /wp-content URL) for SEO parity; fall back to storage_url for new uploads.
     const imgUrlOf = (img: any, fallback = ""): string =>
