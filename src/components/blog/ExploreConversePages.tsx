@@ -82,7 +82,8 @@ export const getConversePageIcon = (iconType: string) => {
 };
 
 const ExploreConversePages: React.FC<ExploreConversePagesProps> = ({ pages }) => {
-  const displayPages = pages && pages.length > 0 ? pages : DEFAULT_CONVERSE_PAGES;
+  if (!pages || pages.length === 0) return null;
+  const displayPages = pages;
   const [startIndex, setStartIndex] = useState(0);
 
   const totalCards = displayPages.length;

@@ -1383,7 +1383,9 @@ const BlogPost = () => {
             </div>
             
             {/* Explore Converse Pages section rendered above the blog carousel */}
-            <ExploreConversePages pages={post.converse_pages} />
+            {post.converse_pages && post.converse_pages.length > 0 && (
+              <ExploreConversePages pages={post.converse_pages} />
+            )}
           </main>
 
           <aside className="wp-sidebar">
