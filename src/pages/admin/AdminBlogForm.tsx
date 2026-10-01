@@ -24,11 +24,12 @@ import { analyzeReadability, type ReadabilityCheck } from "@/lib/readabilityAnal
 import { analyzeAnchorRules, extractLinks } from "@/lib/checkLink";
 import RichTextEditor, { type RichTextEditorHandle, type ScanState } from "@/components/admin/RichTextEditor";
 import FAQRichTextEditor from "@/components/admin/FAQRichTextEditor";
+import { CONVERSE_PAGES_CATALOG, type ConversePageItem, deriveTitleFromUrl } from "@/data/conversePages";
 import {
   ArrowLeft, Save, Eye, EyeOff, Clock, History, AlertTriangle,
   CheckCircle, XCircle, ChevronDown, ChevronUp, Plus, Trash2,
   GripVertical, RotateCcw, Globe, Share2, BookOpen, HelpCircle,
-  Link2, BarChart2, Search
+  Link2, BarChart2, Search, Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -268,6 +269,16 @@ const AdminBlogForm = () => {
   const [searchBlog, setSearchBlog] = useState("");
   const [dropOpen, setDropOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
+
+  const [selectedConversePages, setSelectedConversePages] = useState<ConversePageItem[]>([]);
+  const [searchConversePage, setSearchConversePage] = useState("");
+  const [converseDropOpen, setConverseDropOpen] = useState(false);
+  const converseDropRef = useRef<HTMLDivElement>(null);
+
+  // Custom Converse Page Link Builder state
+  const [customPageUrl, setCustomPageUrl] = useState("");
+  const [customPageLabel, setCustomPageLabel] = useState("");
+  const [customPageDesc, setCustomPageDesc] = useState("");
   const prevTitleRef = useRef("");
 
   // Carousel states for live preview
@@ -353,6 +364,9 @@ const AdminBlogForm = () => {
     const handler = (e: MouseEvent) => {
       if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
         setDropOpen(false);
+      }
+      if (converseDropRef.current && !converseDropRef.current.contains(e.target as Node)) {
+        setConverseDropOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -520,8 +534,8 @@ const AdminBlogForm = () => {
   // Autosave — exclude display_order so a restore can never re-pin a post's order.
   const getFormData = useCallback(() => {
     const { display_order, ...form } = watch();
-    return { form, faqs, selectedCatIds, selectedTagIds, relatedPostIds };
-  }, [watch, faqs, selectedCatIds, selectedTagIds, relatedPostIds]);
+    return { form, faqs, selectedCatIds, selectedTagIds, relatedPostIds, selectedConversePages };
+  }, [watch, faqs, selectedCatIds, selectedTagIds, relatedPostIds, selectedConversePages]);
 
   useEffect(() => {
     const saved = loadAutosave(autosaveKey);
@@ -552,8 +566,8 @@ const AdminBlogForm = () => {
       supabase.from("blog_post_tags").select("tag_id").eq("post_id", Number(id)),
       supabase.from("blog_faqs").select("*").eq("post_id", Number(id)).order("order_index"),
       supabase.from("blog_related_posts").select("related_post_id").eq("post_id", Number(id)),
-      supabase.from("blog_images").select("id, storage_url").eq("id", 0), // placeholder
-    ]).then(async ([postRes, catRes, tagRes, faqRes, relRes]) => {
+      supabase.from("blog_converse_page_links").select("url, label, description, icon, order_index").eq("post_id", Number(id)).order("order_index", { ascending: true }),
+    ]).then(async ([postRes, catRes, tagRes, faqRes, relRes, convRes]) => {
       const post = postRes.data;
       if (postRes.error || !post) {
         toast({ title: "Failed to load post", variant: "destructive" });
@@ -597,6 +611,26 @@ const AdminBlogForm = () => {
       setSelectedTagIds((tagRes.data ?? []).map((r: any) => r.tag_id));
       setFaqs((faqRes.data ?? []) as FAQ[]);
       setRelatedPostIds((relRes.data ?? []).map((r: any) => r.related_post_id).filter((pid: number) => pid !== Number(id)));
+
+      // Load converse page links from DB table first, with fallback
+      if (convRes && !convRes.error && convRes.data && convRes.data.length > 0) {
+        const loaded: ConversePageItem[] = convRes.data.map((c: any) => ({
+          id: c.url,
+          title: c.label,
+          url: c.url,
+          description: c.description || "",
+          iconType: c.icon || "sparkles",
+        }));
+        setSelectedConversePages(loaded);
+      } else if (typeof window !== "undefined") {
+        try {
+          const saved = localStorage.getItem(`converse_pages_post_${id}`);
+          if (saved) {
+            setSelectedConversePages(JSON.parse(saved));
+          }
+        } catch (e) {}
+      }
+
       setLoadingData(false);
     });
   }, [id, isEdit]);
@@ -689,6 +723,31 @@ const AdminBlogForm = () => {
         const { data, error } = await supabase.from("blog_posts").insert({ ...payload, display_order: 99 }).select("id").single();
         if (error) throw error;
         postId = data.id;
+      }
+
+      // Save Converse Page links to blog_converse_page_links table
+      try {
+        await supabase.from("blog_converse_page_links").delete().eq("post_id", postId!);
+        if (selectedConversePages.length > 0) {
+          const converseRows = selectedConversePages.map((page, idx) => ({
+            post_id: postId!,
+            url: page.url,
+            label: page.title,
+            description: page.description || "",
+            icon: page.iconType || "sparkles",
+            order_index: idx,
+          }));
+          await supabase.from("blog_converse_page_links").insert(converseRows);
+        }
+      } catch (convErr) {
+        console.warn("Could not save to blog_converse_page_links table:", convErr);
+      }
+
+      // Persist Converse Pages selection in local storage as reliable backup
+      if (typeof window !== "undefined" && postId) {
+        try {
+          localStorage.setItem(`converse_pages_post_${postId}`, JSON.stringify(selectedConversePages));
+        } catch (e) {}
       }
 
       // Save categories
@@ -1343,111 +1402,300 @@ const AdminBlogForm = () => {
             <FAQEditor faqs={faqs} onChange={setFaqs} />
           </SectionCard>
 
-          {/* ─── Section 7: Related Blogs ────────────────────────────────── */}
-          <SectionCard title="Related Blogs Carousel" icon={Link2} defaultOpen={false} overflowHidden={false}>
-            {/* Selected tags */}
-            <div className="flex flex-wrap gap-2 min-h-[36px] mb-3">
-              {relatedPostIds.map((pid) => {
-                const post = allPosts.find((p) => p.id === pid);
-                return post ? (
-                  <span key={pid} className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700 border border-violet-200">
-                    {post.title.length > 35 ? post.title.slice(0, 35) + "…" : post.title}
-                    <button type="button" onClick={() => setRelatedPostIds((ids) => ids.filter((i) => i !== pid))} className="ml-1 hover:text-red-500 transition-colors">
+          {/* ─── Section 7: Converse Pages Links ─────────────────────────────── */}
+          <SectionCard title="Converse Pages Links" icon={Sparkles} defaultOpen={false} overflowHidden={false}>
+            <div className="space-y-4">
+              <label className="block text-[13.5px] font-semibold text-gray-800 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="h-4 w-4 text-purple-600" />
+                  Select Converse Pages to link (shown above blog carousel on post page):
+                </span>
+                <span className="text-xs text-purple-600 font-medium">
+                  {selectedConversePages.length} pages selected
+                </span>
+              </label>
+
+              {/* Selected Converse pages tags */}
+              <div className="flex flex-wrap gap-2 min-h-[36px]">
+                {selectedConversePages.map((page, idx) => (
+                  <span
+                    key={page.id || page.url || idx}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700 border border-purple-200 shadow-sm"
+                  >
+                    <Sparkles className="h-3 w-3 text-purple-600" />
+                    {page.title}
+                    {page.isCustom && <span className="text-[10px] text-purple-500 font-mono">(Custom)</span>}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedConversePages((prev) => prev.filter((p) => p !== page))}
+                      className="ml-1 hover:text-red-500 transition-colors"
+                    >
                       <XCircle className="h-3.5 w-3.5" />
                     </button>
                   </span>
-                ) : null;
-              })}
-              {relatedPostIds.length === 0 && (
-                <span className="text-xs text-muted-foreground italic">No related blogs selected yet.</span>
-              )}
-            </div>
-
-            {/* Searchable Popover Dropdown (Matches user reference picture exactly) */}
-            <div ref={dropRef} className="relative w-full">
-              <label className="block text-[13.5px] font-semibold text-gray-700 mb-1.5">
-                Select related blogs to link:
-              </label>
-              
-              {/* Dropdown trigger */}
-              <button
-                type="button"
-                onClick={() => setDropOpen(!dropOpen)}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200 bg-white",
-                  dropOpen 
-                    ? "border-violet-500 ring-2 ring-violet-100 shadow-sm" 
-                    : "border-gray-200 hover:border-violet-300"
+                ))}
+                {selectedConversePages.length === 0 && (
+                  <span className="text-xs text-muted-foreground italic">
+                    No custom Converse pages selected (default featured pages will be shown).
+                  </span>
                 )}
-                style={{ height: "46px" }}
-              >
-                <span className="text-gray-400 text-[14.5px]">
-                  Select a related blog...
-                </span>
-                {dropOpen ? (
-                  <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
-                )}
-              </button>
+              </div>
 
-              {/* Dropdown menu containing search input & results list */}
-              {dropOpen && (
-                <div className="absolute top-[100%] left-0 right-0 z-50 mt-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 slide-in-from-top-2 duration-200">
-                  {/* Search box inside the dropdown menu */}
-                  <div className="relative mb-2">
-                    <input
-                      type="text"
-                      className="w-full rounded-xl border border-violet-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                      placeholder="Search blogs..."
-                      value={searchBlog}
-                      onChange={(e) => setSearchBlog(e.target.value)}
-                      autoFocus
-                    />
-                    {searchBlog && (
-                      <button
-                        type="button"
-                        onClick={() => setSearchBlog("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
+              {/* Searchable Popover Dropdown for Predefined Converse Pages (21 Pages) */}
+              <div ref={converseDropRef} className="relative w-full">
+                <button
+                  type="button"
+                  onClick={() => setConverseDropOpen(!converseDropOpen)}
+                  className={cn(
+                    "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200 bg-white",
+                    converseDropOpen
+                      ? "border-purple-500 ring-2 ring-purple-100 shadow-sm"
+                      : "border-gray-200 hover:border-purple-300"
+                  )}
+                  style={{ height: "46px" }}
+                >
+                  <span className="text-gray-500 text-[14.5px]">
+                    Select a predefined Converse AI page (21 available)...
+                  </span>
+                  {converseDropOpen ? (
+                    <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                  )}
+                </button>
 
-                  {/* Matching blogs list */}
-                  <div className="max-h-[200px] overflow-y-auto pr-1 space-y-0.5 custom-scrollbar">
-                    {(() => {
-                      const filtered = availablePosts
-                        .filter((p) => !relatedPostIds.includes(p.id))
-                        .filter((p) => p.title.toLowerCase().includes(searchBlog.toLowerCase()));
-
-                      if (filtered.length === 0) {
-                        return (
-                          <div className="py-8 text-center text-sm text-gray-400 italic">
-                            {searchBlog ? `No blogs match "${searchBlog}"` : "All available blogs selected"}
-                          </div>
-                        );
-                      }
-
-                      return filtered.map((p) => (
+                {converseDropOpen && (
+                  <div className="absolute top-[100%] left-0 right-0 z-50 mt-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 slide-in-from-top-2 duration-200">
+                    <div className="relative mb-2">
+                      <input
+                        type="text"
+                        className="w-full rounded-xl border border-purple-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                        placeholder="Search 21 Converse pages..."
+                        value={searchConversePage}
+                        onChange={(e) => setSearchConversePage(e.target.value)}
+                        autoFocus
+                      />
+                      {searchConversePage && (
                         <button
-                          key={p.id}
                           type="button"
-                          onClick={() => {
-                            setRelatedPostIds((ids) => [...ids, p.id]);
-                            setSearchBlog("");
-                            setDropOpen(false);
-                          }}
-                          className="w-full text-left rounded-lg px-3.5 py-2.5 text-[14.5px] text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors font-normal duration-150"
+                          onClick={() => setSearchConversePage("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
-                          {p.title}
+                          <XCircle className="h-4 w-4" />
                         </button>
-                      ));
-                    })()}
+                      )}
+                    </div>
+
+                    <div className="max-h-[220px] overflow-y-auto pr-1 space-y-1 custom-scrollbar">
+                      {(() => {
+                        const filtered = CONVERSE_PAGES_CATALOG
+                          .filter((p) => !selectedConversePages.some((sp) => sp.url === p.url || sp.id === p.id))
+                          .filter(
+                            (p) =>
+                              p.title.toLowerCase().includes(searchConversePage.toLowerCase()) ||
+                              p.description.toLowerCase().includes(searchConversePage.toLowerCase()) ||
+                              p.url.toLowerCase().includes(searchConversePage.toLowerCase())
+                          );
+
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="py-6 text-center text-sm text-gray-400 italic">
+                              {searchConversePage
+                                ? `No Converse pages match "${searchConversePage}"`
+                                : "All 21 catalog pages selected"}
+                            </div>
+                          );
+                        }
+
+                        return filtered.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedConversePages((prev) => [...prev, p]);
+                              setSearchConversePage("");
+                              setConverseDropOpen(false);
+                            }}
+                            className="w-full text-left rounded-lg px-3.5 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors font-normal duration-150 flex flex-col gap-0.5"
+                          >
+                            <div className="font-semibold text-gray-800 flex items-center justify-between">
+                              <span>{p.title}</span>
+                              <span className="text-[11px] text-gray-400 font-mono">{p.url}</span>
+                            </div>
+                            <div className="text-xs text-gray-500 line-clamp-1">{p.description}</div>
+                          </button>
+                        ));
+                      })()}
+                    </div>
                   </div>
+                )}
+              </div>
+
+              {/* Custom URL Input Section */}
+              <div className="pt-3 border-t border-purple-100 space-y-2">
+                <span className="text-xs font-semibold text-gray-700 block">
+                  Add Custom Converse Page Link:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Input
+                    type="text"
+                    placeholder="URL path (e.g. /custom-page)"
+                    value={customPageUrl}
+                    onChange={(e) => setCustomPageUrl(e.target.value)}
+                    className="text-xs"
+                  />
+                  <Input
+                    type="text"
+                    placeholder={`Title (auto: "${deriveTitleFromUrl(customPageUrl)}")`}
+                    value={customPageLabel}
+                    onChange={(e) => setCustomPageLabel(e.target.value)}
+                    className="text-xs"
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Short description (optional)"
+                    value={customPageDesc}
+                    onChange={(e) => setCustomPageDesc(e.target.value)}
+                    className="text-xs"
+                  />
                 </div>
-              )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (!customPageUrl.trim()) return;
+                    const url = customPageUrl.trim();
+                    const label = customPageLabel.trim() || deriveTitleFromUrl(url);
+                    const newItem: ConversePageItem = {
+                      id: `custom_${Date.now()}`,
+                      title: label,
+                      url: url.startsWith("/") || url.startsWith("http") ? url : `/${url}`,
+                      description: customPageDesc.trim(),
+                      iconType: "sparkles",
+                      isCustom: true,
+                    };
+                    setSelectedConversePages((prev) => [...prev, newItem]);
+                    setCustomPageUrl("");
+                    setCustomPageLabel("");
+                    setCustomPageDesc("");
+                  }}
+                  disabled={!customPageUrl.trim()}
+                  className="text-xs border-purple-300 text-purple-700 hover:bg-purple-50 h-8 mt-1"
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Add Custom Page Link
+                </Button>
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* ─── Section 8: Related Blogs Carousel ───────────────────────── */}
+          <SectionCard title="Related Blogs Carousel" icon={Link2} defaultOpen={false} overflowHidden={false}>
+            <div>
+              <label className="block text-[13.5px] font-semibold text-gray-700 mb-1.5">
+                Select related blogs to link in carousel:
+              </label>
+
+              {/* Selected tags */}
+              <div className="flex flex-wrap gap-2 min-h-[36px] mb-3">
+                {relatedPostIds.map((pid) => {
+                  const post = allPosts.find((p) => p.id === pid);
+                  return post ? (
+                    <span key={pid} className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700 border border-violet-200">
+                      {post.title.length > 35 ? post.title.slice(0, 35) + "…" : post.title}
+                      <button type="button" onClick={() => setRelatedPostIds((ids) => ids.filter((i) => i !== pid))} className="ml-1 hover:text-red-500 transition-colors">
+                        <XCircle className="h-3.5 w-3.5" />
+                      </button>
+                    </span>
+                  ) : null;
+                })}
+                {relatedPostIds.length === 0 && (
+                  <span className="text-xs text-muted-foreground italic">No related blogs selected yet.</span>
+                )}
+              </div>
+
+              {/* Searchable Popover Dropdown */}
+              <div ref={dropRef} className="relative w-full">
+                {/* Dropdown trigger */}
+                <button
+                  type="button"
+                  onClick={() => setDropOpen(!dropOpen)}
+                  className={cn(
+                    "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200 bg-white",
+                    dropOpen 
+                      ? "border-violet-500 ring-2 ring-violet-100 shadow-sm" 
+                      : "border-gray-200 hover:border-violet-300"
+                  )}
+                  style={{ height: "46px" }}
+                >
+                  <span className="text-gray-400 text-[14.5px]">
+                    Select a related blog...
+                  </span>
+                  {dropOpen ? (
+                    <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                  )}
+                </button>
+
+                {/* Dropdown menu containing search input & results list */}
+                {dropOpen && (
+                  <div className="absolute top-[100%] left-0 right-0 z-50 mt-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 slide-in-from-top-2 duration-200">
+                    {/* Search box inside the dropdown menu */}
+                    <div className="relative mb-2">
+                      <input
+                        type="text"
+                        className="w-full rounded-xl border border-violet-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                        placeholder="Search blogs..."
+                        value={searchBlog}
+                        onChange={(e) => setSearchBlog(e.target.value)}
+                        autoFocus
+                      />
+                      {searchBlog && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchBlog("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Matching blogs list */}
+                    <div className="max-h-[200px] overflow-y-auto pr-1 space-y-0.5 custom-scrollbar">
+                      {(() => {
+                        const filtered = availablePosts
+                          .filter((p) => !relatedPostIds.includes(p.id))
+                          .filter((p) => p.title.toLowerCase().includes(searchBlog.toLowerCase()));
+
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="py-8 text-center text-sm text-gray-400 italic">
+                              {searchBlog ? `No blogs match "${searchBlog}"` : "All available blogs selected"}
+                            </div>
+                          );
+                        }
+
+                        return filtered.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              setRelatedPostIds((ids) => [...ids, p.id]);
+                              setSearchBlog("");
+                              setDropOpen(false);
+                            }}
+                            className="w-full text-left rounded-lg px-3.5 py-2.5 text-[14.5px] text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors font-normal duration-150"
+                          >
+                            {p.title}
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </SectionCard>
 

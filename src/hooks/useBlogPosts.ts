@@ -20,6 +20,7 @@ export type PublicBlogPost = DbBlogPost & {
   published_date: string;
   read_time: string;
   related_page_links: unknown[];
+  converse_pages?: any[];
   faqs?: { id?: number; question: string; answer: string; order_index: number }[];
   author?: {
     name: string;
@@ -42,6 +43,17 @@ function normalize(row: any): PublicBlogPost {
     .map((j: any) => j?.blog_categories?.name)
     .filter(Boolean);
   const faqs = (row.blog_faqs ?? []).sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0));
+  
+  let conversePages = row.converse_pages ?? row.converse_page_links ?? null;
+  if (!conversePages && typeof window !== "undefined" && row.id) {
+    try {
+      const saved = localStorage.getItem(`converse_pages_post_${row.id}`);
+      if (saved) conversePages = JSON.parse(saved);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
   return {
     ...row,
     // Prefer original_url (exact WordPress /wp-content URL) for SEO parity; fall back to storage_url for new uploads.
@@ -53,6 +65,7 @@ function normalize(row: any): PublicBlogPost {
     published_date: row.publish_date ?? "",
     read_time: row.reading_time ? `${row.reading_time} min read` : "",
     related_page_links: [],
+    converse_pages: conversePages ?? undefined,
     faqs,
     author: row.blog_authors ? {
       name: row.blog_authors.name,
@@ -116,44 +129,43 @@ export function useBlogPostBySlug(slug: string | undefined) {
           setError(err.message);
           setLoading(false);
         } else if (data) {
-          // Fetch the related posts from blog_related_posts junction table
-          supabase
-            .from("blog_related_posts")
-            .select("related_post_id")
-            .eq("post_id", data.id)
-            .then(async ({ data: relData, error: relErr }) => {
-              if (relErr) {
-                console.error("Error fetching related posts:", relErr.message);
-                setPost(normalize(data));
-              } else {
-                const relIds = (relData ?? []).map((r: any) => r.related_post_id);
-                if (relIds.length > 0) {
-                  // Fetch slug and title for matching posts (only published ones)
-                  const { data: postsData, error: postsErr } = await supabase
-                    .from("blog_posts")
-                    .select("title, slug")
-                    .in("id", relIds)
-                    .eq("status", "published")
-                    .is("deleted_at", null);
-                  
-                  if (postsErr) {
-                    console.error("Error fetching related posts details:", postsErr.message);
-                    setPost(normalize(data));
-                  } else {
-                    const relatedLinks = (postsData ?? []).map((p: any) => ({
-                      url: `https://blog.theconverseai.com/${p.slug}`,
-                      label: p.title,
-                    }));
-                    const normalized = normalize(data);
-                    normalized.related_page_links = relatedLinks;
-                    setPost(normalized);
-                  }
-                } else {
-                  setPost(normalize(data));
-                }
+          // Fetch related posts and custom converse page links concurrently
+          Promise.all([
+            supabase.from("blog_related_posts").select("related_post_id").eq("post_id", data.id),
+            supabase.from("blog_converse_page_links").select("url, label, description, icon, order_index").eq("post_id", data.id).order("order_index", { ascending: true })
+          ]).then(async ([relRes, converseRes]) => {
+            const normalized = normalize(data);
+
+            if (!converseRes.error && converseRes.data && converseRes.data.length > 0) {
+              normalized.converse_pages = converseRes.data.map((c: any) => ({
+                id: c.url,
+                title: c.label,
+                url: c.url,
+                description: c.description || "",
+                iconType: c.icon || "sparkles",
+              }));
+            }
+
+            const relIds = (relRes.data ?? []).map((r: any) => r.related_post_id);
+            if (relIds.length > 0) {
+              const { data: postsData, error: postsErr } = await supabase
+                .from("blog_posts")
+                .select("title, slug")
+                .in("id", relIds)
+                .eq("status", "published")
+                .is("deleted_at", null);
+
+              if (!postsErr && postsData) {
+                normalized.related_page_links = postsData.map((p: any) => ({
+                  url: `https://blog.theconverseai.com/${p.slug}`,
+                  label: p.title,
+                }));
               }
-              setLoading(false);
-            });
+            }
+
+            setPost(normalized);
+            setLoading(false);
+          });
         } else {
           setPost(null);
           setLoading(false);

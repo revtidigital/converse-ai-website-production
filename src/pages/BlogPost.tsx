@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
+import ExploreConversePages from "@/components/blog/ExploreConversePages";
 import { useBlogPosts, useBlogPostBySlug } from "@/hooks/useBlogPosts";
 import { blogHref, isBlogHost, absoluteImageUrl, cleanBlogImageUrl } from "@/lib/blogUrl";
 import NotFound from "@/pages/NotFound";
@@ -1380,6 +1381,9 @@ const BlogPost = () => {
             )}
             */}
             </div>
+            
+            {/* Explore Converse Pages section rendered above the blog carousel */}
+            <ExploreConversePages pages={post.converse_pages} />
           </main>
 
           <aside className="wp-sidebar">
