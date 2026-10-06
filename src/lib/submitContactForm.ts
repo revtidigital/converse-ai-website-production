@@ -92,6 +92,7 @@ async function submitToZohoCRM(payload: ContactPayload, utm: Record<string, stri
     zohoParams.append('Email', payload.email || '');
     zohoParams.append('Phone', payload.phone || '');
     zohoParams.append('Lead Source', payload.form_source || 'Website');
+    zohoParams.append('URL', window.location.href);
     zohoParams.append('Description', descriptionLines.join('\n'));
 
     await fetch(ZOHO_ACTION_URL, {
