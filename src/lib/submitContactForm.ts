@@ -106,6 +106,42 @@ async function submitToZohoCRM(payload: ContactPayload, utm: Record<string, stri
   }
 }
 
+/**
+ * Triggers serverless Brevo email dispatcher.
+ * Non-blocking, isolated try-catch so it never disrupts form UX or sheet logging.
+ */
+async function triggerBrevoEmail(payload: ContactPayload, subject: string): Promise<void> {
+  if (
+    payload.extraFields?.partial_lead === "true" ||
+    payload.extraFields?.send_user_email === "false"
+  ) {
+    return;
+  }
+
+  if (!payload.email || !payload.email.includes("@")) {
+    return;
+  }
+
+  try {
+    await fetch("/api/send-brevo-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: payload.email,
+        fullName: payload.fullName,
+        product: payload.product,
+        subject,
+        message: payload.message,
+        form_source: payload.form_source,
+        page_url: window.location.href,
+        extraFields: payload.extraFields,
+      }),
+    });
+  } catch (err) {
+    console.warn("Brevo Email Dispatch Warning:", err);
+  }
+}
+
 export const submitContactForm = async (payload: ContactPayload): Promise<void> => {
   const token = await getCaptchaToken("contact_form") ?? "";
 
@@ -151,7 +187,7 @@ export const submitContactForm = async (payload: ContactPayload): Promise<void> 
     params.append(key, value);
   });
 
-  // Execute Google Apps Script and Zoho CRM lead submission concurrently
+  // Execute Google Apps Script, Zoho CRM, and Brevo Email dispatch concurrently
   await Promise.allSettled([
     fetch(SCRIPT_URL, {
       method: 'POST',
@@ -160,6 +196,6 @@ export const submitContactForm = async (payload: ContactPayload): Promise<void> 
       body: params.toString(),
     }),
     submitToZohoCRM(payload, utm, subject),
+    triggerBrevoEmail(payload, subject),
   ]);
 };
-

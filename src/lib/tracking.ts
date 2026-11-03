@@ -257,12 +257,97 @@ export function trackFormError(form: string, error: string, params?: TrackingPar
   });
 }
 
+// ---------- DEMO BOOKING ----------
+export function trackDemoBooked(params?: TrackingParams) {
+  trackEvent("demo_booked", {
+    event_category: "conversion",
+    event_label: "demo_scheduled",
+    value: 1,
+    ...params,
+  }, {
+    transport_type: "beacon",
+    event_timeout: 2000,
+  });
+
+  // Meta Pixel Schedule standard event
+  if (typeof window !== "undefined" && window.fbq) {
+    try {
+      window.fbq("track", "Schedule", cleanParams(params));
+    } catch (e) {
+      console.error("Meta Pixel Error:", e);
+    }
+  }
+}
+
+// ---------- PRICING & SERVICE VIEWS ----------
+export function trackPricingView(params?: TrackingParams) {
+  trackEvent("pricing_view", {
+    event_category: "engagement",
+    page_type: "pricing",
+    ...params,
+  });
+
+  if (typeof window !== "undefined" && window.fbq) {
+    try {
+      window.fbq("trackCustom", "PricingView", cleanParams(params));
+    } catch (e) {
+      console.error("Meta Pixel Error:", e);
+    }
+  }
+}
+
+export function trackServiceView(serviceName: string, params?: TrackingParams) {
+  trackEvent("service_view", {
+    event_category: "engagement",
+    service_name: serviceName,
+    ...params,
+  });
+
+  if (typeof window !== "undefined" && window.fbq) {
+    try {
+      window.fbq("trackCustom", "ServiceView", cleanParams({ service_name: serviceName, ...params }));
+    } catch (e) {
+      console.error("Meta Pixel Error:", e);
+    }
+  }
+}
+
 // ---------- WHATSAPP ----------
-export function trackWhatsAppClick() {
+export function trackWhatsAppClick(params?: TrackingParams & { destination_url?: string; campaign?: string }) {
+  let utmSource: string | undefined;
+  let utmCampaign: string | undefined;
+  let utmMedium: string | undefined;
+
+  if (typeof window !== "undefined") {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      utmSource = searchParams.get("utm_source") || undefined;
+      utmCampaign = searchParams.get("utm_campaign") || undefined;
+      utmMedium = searchParams.get("utm_medium") || undefined;
+    } catch {
+      // Ignore URL parsing errors
+    }
+  }
+
   trackEvent("whatsapp_click", {
     event_category: "engagement",
     location: typeof window !== "undefined" ? window.location.pathname : undefined,
+    utm_source: utmSource,
+    utm_campaign: utmCampaign,
+    utm_medium: utmMedium,
+    ...params,
   });
+
+  if (typeof window !== "undefined" && window.fbq) {
+    try {
+      window.fbq("trackCustom", "WhatsAppClick", cleanParams({
+        location: typeof window !== "undefined" ? window.location.pathname : undefined,
+        ...params,
+      }));
+    } catch (e) {
+      console.error("Meta Pixel Error:", e);
+    }
+  }
 }
 
 // ---------- SCROLL ----------

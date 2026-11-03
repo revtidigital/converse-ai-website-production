@@ -61,6 +61,7 @@ import CaseStudies from "./pages/CaseStudies";
 import CaseStudyDetail from "./pages/CaseStudyDetail";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Pricing from "./pages/Pricing";
 // Admin pages are lazy-loaded so their heavy deps (TipTap editor, etc.) are
 // code-split out of the public bundle — a blog/site visitor never downloads them.
 // NOTE: no vite manualChunks (that reordered CSS and broke the design); this
@@ -197,6 +198,7 @@ const AnimatedRoutes = () => {
         <Route path="/blog-2/:slug" element={<PageTransition><BlogPost2 /></PageTransition>} />
         <Route path="/case-studies/:slug" element={<PageTransition><CaseStudyDetail /></PageTransition>} />
         <Route path="/teams-2" element={<Navigate to="/teams" replace />} />
+        <Route path="/pricing" element={<PageTransition><MainSiteOnly><Pricing /></MainSiteOnly></PageTransition>} />
 
         {/* Admin routes — no page transition, no public header */}
         <Route path="/admin/login" element={<AdminLogin />} />

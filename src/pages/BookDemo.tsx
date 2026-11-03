@@ -19,7 +19,7 @@ import { validateContactForm } from "@/lib/validations/contact";
 import { submitContactForm } from "@/lib/submitContactForm";
 import { usePartialLeadCapture } from "@/lib/usePartialLeadCapture";
 import PhoneInputField from "@/components/ui/PhoneInputField";
-import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView } from "@/lib/tracking";
+import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView, trackDemoBooked } from "@/lib/tracking";
 
 const BookDemo = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -83,6 +83,11 @@ const BookDemo = () => {
       });
 
       trackFormSuccess("book_demo_page_form", { form_location: "book_demo_page" });
+      trackDemoBooked({
+        form_location: "book_demo_page",
+        product: formData.product,
+        country: formData.countryName,
+      });
 
       setFormSubmitted(true);
     } catch {

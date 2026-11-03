@@ -73,6 +73,7 @@ const navLinks = [
   { label: "Features", href: "#features", isRoute: false, hasDropdown: "features" },
   { label: "Products", href: "#products", isRoute: false, hasDropdown: "products" },
   { label: "Agentic AI", href: "/services", isRoute: true, hasDropdown: "services" },
+  { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "Case Studies", href: "/case-studies", isRoute: true },
   { label: "Blog", href: "https://blog.theconverseai.com/", isRoute: false, isExternal: true },
 ];

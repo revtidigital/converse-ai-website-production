@@ -12,7 +12,12 @@ const WhatsAppFloat = memo(() => {
       rel="noopener noreferrer nofollow"
       aria-label="Chat with us on WhatsApp"
       title="Chat with ConverseAI on WhatsApp"
-      onClick={() => trackWhatsAppClick()}
+      onClick={() =>
+        trackWhatsAppClick({
+          destination_url: `https://wa.me/${phoneNumber}`,
+          source_placement: "floating_button",
+        })
+      }
       className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-11 h-11 rounded-full bg-[#25D366] text-white shadow-lg  hover:shadow-xl transition-all duration-300"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white">
