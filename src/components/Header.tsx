@@ -51,6 +51,7 @@ const featuresMenu = {
 
 const productsMenu = [
   { label: "Conversational AI Chatbot", href: "/chatbot", noWrap: true },
+  { label: "Voice AI Demos (Interactive)", href: "/voice-demos", noWrap: true },
   { label: "WhatsApp AI Chatbot", href: "/whatsapp-ai-chatbot" },
   { label: "Live Chat", href: "/live-chat" },
   { label: "Omni Channel", href: "/omni-channel" },
@@ -62,6 +63,7 @@ const servicesMenu = [
   { label: "AI Strategy & Readiness Audit", href: "/services/ai-strategy-audit", noWrap: true },
   { label: "Agentic Systems & Process Automation", href: "/services/agentic-automation", noWrap: true },
   { label: "AI Voice Agents", href: "/services/ai-voice-agents" },
+  { label: "🎙️ Voice AI Demos (Sarvam Style)", href: "/voice-demos", noWrap: true },
   { label: "Custom AI Agent Development", href: "/services/custom-ai-agents", noWrap: true },
   { label: "AI Integration Services", href: "/services/ai-integration", noWrap: true },
   { label: "Document & Knowledge Intelligence", href: "/services/knowledge-intelligence", noWrap: true },
@@ -73,6 +75,7 @@ const navLinks = [
   { label: "Features", href: "#features", isRoute: false, hasDropdown: "features" },
   { label: "Products", href: "#products", isRoute: false, hasDropdown: "products" },
   { label: "Agentic AI", href: "/services", isRoute: true, hasDropdown: "services" },
+  { label: "Voice AI Demos", href: "/voice-demos", isRoute: true },
   { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "Case Studies", href: "/case-studies", isRoute: true },
   { label: "Blog", href: "https://blog.theconverseai.com/", isRoute: false, isExternal: true },

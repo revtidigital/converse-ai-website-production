@@ -169,10 +169,19 @@ export default function Index() {
                 transition={{ duration: 0.7 }}
                 className="text-center lg:text-left"
               >
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                  <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
-                  Conversational AI + Agentic Systems
-                </span>
+                <div className="flex flex-wrap items-center gap-2.5 justify-center lg:justify-start mb-6">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                    <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
+                    Conversational AI + Agentic Systems
+                  </span>
+                  <Link
+                    to="/voice-demos"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-sm transition-all hover:scale-105"
+                  >
+                    <span>🎙️ Listen to Voice AI Demos</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
                 <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">
                   AI Agents <span className="gradient-text">Built and Run</span> for Your Business
                 </h1>
@@ -191,8 +200,8 @@ export default function Index() {
                   >
                     Get a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </a>
-                  <Link to="/services" className={buttonVariants({ variant: 'hero-outline', size: 'xl' })}>
-                    See What We Build
+                  <Link to="/voice-demos" className={buttonVariants({ variant: 'hero-outline', size: 'xl' })}>
+                    🎙️ Voice AI Demos
                   </Link>
                 </div>
               </motion.div>
