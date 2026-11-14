@@ -13,6 +13,7 @@ import SectionHeading from '@/components/SectionHeading'
 import StatCard from '@/components/StatCard'
 import Footer from '@/components/Footer'
 import UserSection from '@/components/UserSection'
+import GetCallBackModal from '@/components/GetCallBackModal'
 
 const products = [
   { icon: Bot, title: 'AI Chatbot', description: 'Natural language understanding with 24/7 automated support, lead qualification, and smart handover to human agents.', path: '/chatbot' },
@@ -168,10 +169,15 @@ export default function Index() {
                 transition={{ duration: 0.7 }}
                 className="text-center lg:text-left"
               >
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-callback-modal'))}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 hover:bg-primary/15 text-primary text-sm font-medium mb-6 transition-colors cursor-pointer text-left"
+                  title="Click to request a quick call back"
+                >
                   <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
-                  Conversational AI + Agentic Systems
-                </span>
+                  <span>Conversational AI + Agentic Systems — <strong className="underline underline-offset-2">Request a Call Back</strong></span>
+                </button>
                 <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">
                   AI Agents <span className="gradient-text">Built and Run</span> for Your Business
                 </h1>
@@ -413,6 +419,7 @@ export default function Index() {
         </section>
 
         <Footer />
+        <GetCallBackModal />
       </div>
     </>
   )
