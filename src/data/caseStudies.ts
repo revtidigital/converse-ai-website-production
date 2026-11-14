@@ -219,6 +219,69 @@ export const caseStudies: CaseStudy[] = [
       "No-show prevention",
     ],
   },
+  {
+    id: 4,
+    slug: "hrtech-ai-interview-agent-automation",
+    company: "Northfield Talent",
+    industry: "HR Tech / Recruitment",
+    category: "AI Voice Agent",
+    tagline: "Northfield Talent cut time-to-hire by 70% with an AI agent that runs the entire first-round interview",
+    excerpt:
+      "Northfield Talent deployed ConverseAI's AI Voice Agent to schedule, conduct, and score first-round interviews end-to-end over WhatsApp and Google Meet, eliminating manual screening bottlenecks.",
+    heroImage:
+      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&h=600&fit=crop",
+    logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=80&h=80&fit=crop",
+    readTime: "5 min read",
+    publishedDate: "April 2025",
+    metrics: [
+      { label: "Time-to-Hire", value: "−70%", description: "Reduction in days from application to final interview decision" },
+      { label: "Interviews Automated/Day", value: "150+", description: "First-round interviews conducted by the AI agent without human recruiters" },
+      { label: "No-Show Recovery", value: "60%", description: "Candidates re-engaged and rescheduled via automated WhatsApp follow-up" },
+      { label: "Recruiter Hours Saved", value: "200hrs", description: "Per month reclaimed from manual scheduling and first-round screening" },
+    ],
+    challenge:
+      "Northfield Talent's recruiters were manually coordinating interview slots over phone and email, chasing candidates who went silent, and conducting repetitive first-round screening calls that varied in quality depending on who ran them. Scheduling alone ate up most of a recruiter's day, and no-shows meant wasted slots with no structured way to follow up. The team needed a consistent, scalable way to screen candidates against the job description before a human ever got involved.",
+    solution:
+      "ConverseAI's AI Voice Agent took over the entire first-round interview process. It messaged candidates on WhatsApp to schedule the interview, let them pick a slot, and auto-generated a Google Meet link. The agent itself joined the meeting at the scheduled time, carrying the job description and the candidate's resume as context, and asked tailored questions based on both. Every response was scored and pushed to Northfield's CRM in real time, along with a clear suitability recommendation against the job description. If a candidate didn't join, the agent automatically followed up to reschedule.",
+    outcome:
+      "Time-to-hire dropped 70% as first-round screening stopped waiting on recruiter calendars. The AI agent ran 150+ interviews a day at a consistent quality bar, and automated follow-ups recovered 60% of no-shows that would have previously been lost. Recruiters now spend their time reviewing AI-generated scorecards and resumes instead of running repetitive screening calls themselves, making the final call on who moves forward based on the agent's structured results.",
+    sections: [
+      {
+        title: "Scheduling Was Eating the Recruiting Day",
+        content:
+          "Before ConverseAI, every first-round interview required a recruiter to manually message candidates, confirm a time, create a Google Meet link, and then run the call themselves. With hundreds of applicants per role, scheduling alone consumed hours daily, and the actual screening quality depended heavily on which recruiter picked up the call.",
+      },
+      {
+        title: "An Agent That Interviews Like a Recruiter",
+        content:
+          "ConverseAI's AI Voice Agent sent an automated WhatsApp message to each candidate to schedule their interview. Once the candidate picked a slot, the agent generated a Google Meet link and joined the call itself at the scheduled time. With the job description and the candidate's resume loaded as context, it asked relevant, role-specific questions throughout the conversation, just like a human interviewer would.",
+      },
+      {
+        title: "Scorecards, Not Just Transcripts, in the CRM",
+        content:
+          "Every interview was logged in Northfield's CRM in real time, including a review of the candidate's answers, a score, and a clear recommendation on whether the candidate was a fit for the job description. Recruiters no longer had to listen to recordings or write up notes; they reviewed structured scorecards and made the final selection decision directly from the agent's output.",
+      },
+      {
+        title: "No-Shows Didn't Mean Lost Candidates Anymore",
+        content:
+          "When a candidate missed their scheduled interview, the agent automatically followed up over WhatsApp to understand why and offer a new slot, instead of the candidate simply falling out of the pipeline. This follow-up loop recovered a majority of no-shows that recruiters previously had no structured way to chase.",
+      },
+    ],
+    testimonial: {
+      quote:
+        "We were nervous about letting an AI run actual interviews, but the scorecards it produces are more consistent than what our own recruiters were doing manually. It doesn't make the hiring decision for us — it just makes sure we only spend our time on candidates worth talking to.",
+      author: "Ritika Dsouza",
+      role: "Head of Talent Acquisition, Northfield Talent",
+    },
+    featuresUsed: ["AI Voice Agent", "WhatsApp AI Chatbot", "Agent Reports", "CRM Auto-Sync"],
+    useCase: [
+      "Automated interview scheduling",
+      "AI-led first-round interviews",
+      "JD-based question generation",
+      "Candidate scoring & CRM sync",
+    ],
+    displayOrder: 4,
+  },
 ];
 
 export const getCaseStudyBySlug = (slug: string): CaseStudy | undefined =>
