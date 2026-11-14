@@ -1322,6 +1322,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 1. DISPATCH INTERNAL TEAM LEAD ALERT (Option B Included)
     // -------------------------------------------------------------
     const TEAM_RECIPIENTS = [
+      { email: "himanshu@theconverseai.com", name: "Himanshu - ConverseAI" },
       { email: "contact@theconverseai.com", name: "ConverseAI Team" },
     ];
 
