@@ -9,12 +9,11 @@ import {
   Send,
   Sparkles,
   PhoneCall,
-  Calendar,
-  Headphones,
-  Layers,
-  CheckCircle2,
+  Play,
+  Pause,
   ExternalLink,
   Globe,
+  Radio,
 } from "lucide-react";
 
 export type AgentType = "appointment" | "support" | "services";
@@ -52,9 +51,9 @@ export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
     accentBg: "bg-blue-600",
     greetings: {
       hindi:
-        "नमस्ते! Converse AI अपॉइंटमेंट डेस्क में आपका स्वागत है। मैं आपकी डॉक्टर या कंसल्टेशन अपॉइंटमेंट बुक या रीशेड्यूल करने में मदद कर सकती हूँ। आप किस दिन का स्लॉट चाहते हैं?",
+        "नमस्ते! Converse AI अपॉइंटमेंट डेस्क में आपका स्वागत है। मैं आपकी डॉक्टर या कंसल्टेशन अपॉइंटमेंट बुक करने में मदद कर सकती हूँ। आप किस दिन का स्लॉट चाहते हैं?",
       uk_english:
-        "Good day! Welcome to the ConverseAI Appointment Desk. I can assist you with booking, rescheduling, or confirming your consultation. Which date or time suits you best?",
+        "Good day! Welcome to the ConverseAI Appointment Desk. I can assist you with booking or rescheduling your consultation. Which date or time suits you best?",
       us_english:
         "Hi there! Welcome to the ConverseAI Scheduling Service. I'm here to help you book or reschedule your appointment. What day and time work best for you?",
       spanish:
@@ -101,7 +100,7 @@ export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
         {
           keywords: ["कल", "3 बजे", "बुक", "अपॉइंटमेंट", "समय", "स्लॉट", "दोपहर"],
           answer:
-            "बढ़िया! कल दोपहर 3:00 बजे का स्लॉट खाली है। क्या मैं इसे आपके नाम से कन्फर्म कर दूँ? आपके मोबाइल नंबर पर कन्फर्मेशन SMS और WhatsApp भेज दिया जाएगा।",
+            "बढ़िया! कल दोपहर 3:00 बजे का स्लॉट खाली है। क्या मैं इसे आपके नाम से कन्फर्म कर दूँ? आपके मोबाइल पर कन्फर्मेशन SMS और WhatsApp भेज दिया जाएगा।",
         },
         {
           keywords: ["डॉक्टर", "शर्मा", "उपलब्ध", "timing", "टाइमिंग", "दिन"],
@@ -178,7 +177,7 @@ export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
     accentBg: "bg-emerald-600",
     greetings: {
       hindi:
-        "नमस्ते! Converse AI कस्टमर सपोर्ट में आपका स्वागत है। मैं आपकी ऑर्डर ट्रैकिंग, रिफंड या कंप्लेंट में सहायता कर सकती हूँ। बताइए, आज मैं आपकी क्या मदद करूँ?",
+        "नमस्ते! Converse AI कस्टमर सपोर्ट में आपका स्वागत है। मैं आपकी ऑर्डर ट्रैकिंग या रिफंड में सहायता कर सकती हूँ। बताइए, आज मैं आपकी क्या मदद करूँ?",
       uk_english:
         "Hello and welcome to ConverseAI Customer Support. I'm here to assist you with order tracking, returns, or technical inquiries. How may I be of service today?",
       us_english:
@@ -441,30 +440,48 @@ export default function VoiceCallModal({
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<DialogueMessage[]>([]);
   const [callDuration, setCallDuration] = useState<number>(0);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [lastSpokenText, setLastSpokenText] = useState<string>("");
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
   const recognitionRef = useRef<any>(null);
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentConfig = AGENT_CONFIGS[selectedAgent];
 
-  // Load browser voices
+  // Pre-load browser voices so accent selection works immediately
   useEffect(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-
     const loadVoices = () => {
       const v = window.speechSynthesis.getVoices();
       if (v && v.length > 0) {
-        setAvailableVoices(v);
+        setVoices(v);
+        voicesRef.current = v;
       }
     };
-
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => {
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
   }, []);
 
-  // Update initial agent if prop changes
+  // ── FIX 1: Lock body scrolling when modal is open so page never scrolls underneath ──
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  // Update initial agent if modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedAgent(initialAgent);
@@ -474,7 +491,7 @@ export default function VoiceCallModal({
     }
   }, [isOpen, initialAgent]);
 
-  // Handle call timer
+  // Handle call duration counter
   useEffect(() => {
     if (isCalling) {
       callTimerRef.current = setInterval(() => {
@@ -488,86 +505,129 @@ export default function VoiceCallModal({
     };
   }, [isCalling]);
 
-  // Auto-scroll chat
+  // Auto-scroll chat smoothly inside dialogue container
   useEffect(() => {
     if (chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
   }, [messages, isAgentSpeaking]);
 
-  // Voice synthesis with distinct accents
+  // Stop any active playing audio
+  const stopAudio = useCallback(() => {
+    if (activeAudioRef.current) {
+      try {
+        activeAudioRef.current.pause();
+        activeAudioRef.current.src = "";
+      } catch {}
+      activeAudioRef.current = null;
+    }
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    }
+    setIsAgentSpeaking(false);
+  }, []);
+
+  // ── FIX 2: Authentic Sarvam AI Voice (Ritu) & Distinct Regional Accents ──
   const speakText = useCallback(
-    (text: string, lang: LanguageKey) => {
-      if (typeof window === "undefined" || !window.speechSynthesis || isMuted) {
-        return;
+    async (text: string, lang: LanguageKey) => {
+      if (isMuted) return;
+
+      stopAudio();
+      setIsAgentSpeaking(true);
+      setLastSpokenText(text);
+
+      // Strategy A: If Hindi, stream directly from Sarvam AI TTS (Ritu Voice)
+      if (lang === "hindi") {
+        try {
+          const streamUrl = `/api/voice-tts?text=${encodeURIComponent(text.slice(0, 300))}&lang=hi-IN&speaker=ritu`;
+          const audio = new Audio(streamUrl);
+          activeAudioRef.current = audio;
+
+          audio.onended = () => {
+            setIsAgentSpeaking(false);
+            activeAudioRef.current = null;
+          };
+
+          audio.onerror = () => {
+            console.warn("Sarvam stream failed, falling back to browser speech");
+            fallbackSpeak(text, lang);
+          };
+
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              console.warn("Autoplay was prevented by browser:", err);
+              fallbackSpeak(text, lang);
+            });
+          }
+          return;
+        } catch {
+          // Fallback if network blocked
+        }
       }
 
-      window.speechSynthesis.cancel();
-
-      const utterance = new SpeechSynthesisUtterance(text);
-
-      // Select specific regional voices to make accents clearly distinguishable
-      let chosenVoice: SpeechSynthesisVoice | null = null;
-      const allVoices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
-
-      if (lang === "uk_english") {
-        utterance.lang = "en-GB";
-        utterance.rate = 0.95; // British measured cadence
-        utterance.pitch = 1.05;
-        chosenVoice =
-          allVoices.find((v) => v.lang.toLowerCase() === "en-gb") ||
-          allVoices.find((v) => v.lang.toLowerCase().includes("gb")) ||
-          allVoices.find((v) => v.name.toLowerCase().includes("uk") || v.name.toLowerCase().includes("british")) ||
-          allVoices.find((v) => v.name.toLowerCase().includes("george") || v.name.toLowerCase().includes("hazel")) ||
-          null;
-      } else if (lang === "hindi") {
-        utterance.lang = "hi-IN";
-        utterance.rate = 0.92;
-        utterance.pitch = 1.05;
-        chosenVoice =
-          allVoices.find((v) => v.lang.toLowerCase() === "hi-in") ||
-          allVoices.find((v) => v.lang.toLowerCase().startsWith("hi")) ||
-          allVoices.find((v) => v.name.toLowerCase().includes("hindi")) ||
-          null;
-      } else if (lang === "us_english") {
-        utterance.lang = "en-US";
-        utterance.rate = 1.02;
-        utterance.pitch = 1.0;
-        chosenVoice =
-          allVoices.find((v) => v.lang.toLowerCase() === "en-us") ||
-          allVoices.find((v) => v.name.toLowerCase().includes("us") || v.name.toLowerCase().includes("zira")) ||
-          null;
-      } else if (lang === "spanish") {
-        utterance.lang = "es-ES";
-        utterance.rate = 0.98;
-        utterance.pitch = 1.0;
-        chosenVoice =
-          allVoices.find((v) => v.lang.toLowerCase() === "es-es") ||
-          allVoices.find((v) => v.lang.toLowerCase().startsWith("es")) ||
-          allVoices.find((v) => v.name.toLowerCase().includes("helena") || v.name.toLowerCase().includes("spanish")) ||
-          null;
-      }
-
-      if (chosenVoice) {
-        utterance.voice = chosenVoice;
-      }
-
-      utterance.onstart = () => {
-        setIsAgentSpeaking(true);
-      };
-
-      utterance.onend = () => {
-        setIsAgentSpeaking(false);
-      };
-
-      utterance.onerror = () => {
-        setIsAgentSpeaking(false);
-      };
-
-      window.speechSynthesis.speak(utterance);
+      // Strategy B: Regional voices with distinct British UK, American US, and Spanish accents
+      fallbackSpeak(text, lang);
     },
-    [availableVoices, isMuted]
+    [isMuted, stopAudio]
   );
+
+  const fallbackSpeak = (text: string, lang: LanguageKey) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      setIsAgentSpeaking(false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const available = voicesRef.current.length > 0 ? voicesRef.current : window.speechSynthesis.getVoices();
+
+    if (lang === "uk_english") {
+      // Distinct British accent
+      utterance.lang = "en-GB";
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      const ukVoice =
+        available.find((v) => v.lang.toLowerCase() === "en-gb" || v.lang.toLowerCase() === "en_gb") ||
+        available.find((v) => v.name.toLowerCase().includes("united kingdom") || v.name.toLowerCase().includes("british") || v.name.toLowerCase().includes("uk")) ||
+        available.find((v) => v.name.toLowerCase().includes("george") || v.name.toLowerCase().includes("hazel") || v.name.toLowerCase().includes("libby") || v.name.toLowerCase().includes("sonia"));
+      if (ukVoice) utterance.voice = ukVoice;
+    } else if (lang === "hindi") {
+      utterance.lang = "hi-IN";
+      utterance.rate = 0.92;
+      utterance.pitch = 1.02;
+      const hiVoice =
+        available.find((v) => v.lang.toLowerCase() === "hi-in" || v.lang.toLowerCase() === "hi_in") ||
+        available.find((v) => v.lang.toLowerCase().startsWith("hi")) ||
+        available.find((v) => v.name.toLowerCase().includes("hindi") || v.name.toLowerCase().includes("kalpana") || v.name.toLowerCase().includes("hemant"));
+      if (hiVoice) utterance.voice = hiVoice;
+    } else if (lang === "us_english") {
+      utterance.lang = "en-US";
+      utterance.rate = 1.02;
+      utterance.pitch = 1.0;
+      const usVoice =
+        available.find((v) => v.lang.toLowerCase() === "en-us" || v.lang.toLowerCase() === "en_us") ||
+        available.find((v) => v.name.toLowerCase().includes("united states") || v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("david") || v.name.toLowerCase().includes("natural"));
+      if (usVoice) utterance.voice = usVoice;
+    } else if (lang === "spanish") {
+      utterance.lang = "es-ES";
+      utterance.rate = 0.98;
+      utterance.pitch = 1.0;
+      const esVoice =
+        available.find((v) => v.lang.toLowerCase() === "es-es" || v.lang.toLowerCase() === "es_es") ||
+        available.find((v) => v.lang.toLowerCase().startsWith("es")) ||
+        available.find((v) => v.name.toLowerCase().includes("spanish") || v.name.toLowerCase().includes("helena") || v.name.toLowerCase().includes("laura"));
+      if (esVoice) utterance.voice = esVoice;
+    }
+
+    utterance.onstart = () => setIsAgentSpeaking(true);
+    utterance.onend = () => setIsAgentSpeaking(false);
+    utterance.onerror = () => setIsAgentSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   const startCall = (agent: AgentType, lang: LanguageKey) => {
     setIsCalling(true);
@@ -584,18 +644,16 @@ export default function VoiceCallModal({
 
     setMessages([initialMsg]);
 
+    // Speak greeting immediately
     setTimeout(() => {
       speakText(greetingText, lang);
-    }, 400);
+    }, 200);
   };
 
   const endCall = () => {
+    stopAudio();
     setIsCalling(false);
-    setIsAgentSpeaking(false);
     setIsUserSpeaking(false);
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
@@ -603,13 +661,13 @@ export default function VoiceCallModal({
     }
   };
 
-  // Agent response matcher
+  // Agent response matcher with pre-defined answers + polite fallback
   const handleUserSpeechOrInput = (userQuery: string) => {
     if (!userQuery.trim()) return;
 
     const trimmed = userQuery.trim();
 
-    // Add user message to dialogue
+    // Add user turn to dialogue
     const userMsg: DialogueMessage = {
       id: `msg-${Date.now()}`,
       sender: "user",
@@ -647,7 +705,7 @@ export default function VoiceCallModal({
       };
       setMessages((prev) => [...prev, agentMsg]);
       speakText(finalAnswer, selectedLanguage);
-    }, 600);
+    }, 500);
   };
 
   // Web Speech Recognition for Real Microphone interaction
@@ -727,15 +785,22 @@ export default function VoiceCallModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      
-      {/* Modal Container */}
-      <div className="relative w-full max-w-3xl bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 overflow-hidden select-none overscroll-none"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          endCall();
+          onClose();
+        }
+      }}
+    >
+      {/* ── Fixed compact card height (h-[85vh] max-h-[570px]), strictly overflow-hidden so popup NEVER scrolls ── */}
+      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[85vh] max-h-[570px] min-h-[380px] overscroll-contain">
         
-        {/* ── Top Header Bar ── */}
-        <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        {/* ── Top Header Bar (Fixed height, no scroll) ── */}
+        <div className="px-5 py-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-violet-600/30 border border-violet-500/40 flex items-center justify-center text-lg">
+            <div className="w-9 h-9 rounded-xl bg-violet-600/30 border border-violet-500/40 flex items-center justify-center text-lg">
               {currentConfig.avatarBadge}
             </div>
             <div>
@@ -748,19 +813,27 @@ export default function VoiceCallModal({
                   Live Call &bull; {formatDuration(callDuration)}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 font-mono">
+              <p className="text-[11px] text-slate-400 font-mono truncate max-w-[260px] sm:max-w-none">
                 {currentConfig.roleTitle}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={() => {
+                if (isMuted) {
+                  setIsMuted(false);
+                  if (lastSpokenText) speakText(lastSpokenText, selectedLanguage);
+                } else {
+                  setIsMuted(true);
+                  stopAudio();
+                }
+              }}
               className="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
               title={isMuted ? "Unmute Agent Voice" : "Mute Agent Voice"}
             >
-              {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
+              {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
             </button>
             <button
               onClick={() => startCall(selectedAgent, selectedLanguage)}
@@ -782,8 +855,8 @@ export default function VoiceCallModal({
           </div>
         </div>
 
-        {/* ── 3 Agent Tabs Switcher ── */}
-        <div className="bg-slate-950/70 border-b border-slate-800/80 px-4 py-2 flex gap-2 overflow-x-auto">
+        {/* ── 3 Agent Tabs Switcher (Fixed height, no scroll) ── */}
+        <div className="bg-slate-950/70 border-b border-slate-800/80 px-4 py-2 flex gap-1.5 overflow-x-auto flex-shrink-0">
           {(["appointment", "support", "services"] as AgentType[]).map((agentKey) => {
             const cfg = AGENT_CONFIGS[agentKey];
             const isActive = selectedAgent === agentKey;
@@ -791,7 +864,7 @@ export default function VoiceCallModal({
               <button
                 key={agentKey}
                 onClick={() => handleAgentChange(agentKey)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                   isActive
                     ? "bg-violet-600 text-white shadow-md shadow-violet-600/30"
                     : "bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
@@ -804,8 +877,8 @@ export default function VoiceCallModal({
           })}
         </div>
 
-        {/* ── Language Switcher with Flag & Accent ── */}
-        <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between gap-2 overflow-x-auto">
+        {/* ── Distinct Regional Accents Switcher (Fixed height) ── */}
+        <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between gap-2 overflow-x-auto flex-shrink-0">
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 flex-shrink-0">
             <Globe className="w-3.5 h-3.5 text-violet-400" />
             <span>Voice Accent:</span>
@@ -813,7 +886,7 @@ export default function VoiceCallModal({
           <div className="flex items-center gap-1.5 overflow-x-auto">
             {(
               [
-                { key: "hindi", label: "Hindi", flag: "🇮🇳", accent: "Indian Accent" },
+                { key: "hindi", label: "Hindi (Sarvam Ritu)", flag: "🇮🇳", accent: "Indian Accent" },
                 { key: "uk_english", label: "UK English", flag: "🇬🇧", accent: "British Accent" },
                 { key: "us_english", label: "US English", flag: "🇺🇸", accent: "American Accent" },
                 { key: "spanish", label: "Spanish", flag: "🇪🇸", accent: "European Accent" },
@@ -835,12 +908,17 @@ export default function VoiceCallModal({
           </div>
         </div>
 
-        {/* ── Active Voice Orb / Visualizer Stage ── */}
-        <div className="py-4 px-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-900 border-b border-slate-800/60 flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            {/* Glowing Voice Orb */}
-            <div className="relative w-20 h-20 flex items-center justify-center">
-              {/* Outer pulsing ripples */}
+        {/* ── Compact Voice Orb Stage (Fixed height) ── */}
+        <div className="py-2.5 px-4 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-900 border-b border-slate-800/60 flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-3">
+            {/* Glowing Voice Orb with tap-to-replay */}
+            <div
+              onClick={() => {
+                if (lastSpokenText) speakText(lastSpokenText, selectedLanguage);
+              }}
+              className="relative w-12 h-12 flex items-center justify-center cursor-pointer group"
+              title="Click to replay agent voice"
+            >
               <div
                 className={`absolute inset-0 rounded-full transition-all duration-300 ${
                   isAgentSpeaking
@@ -851,75 +929,64 @@ export default function VoiceCallModal({
                 }`}
               />
               <div
-                className={`absolute inset-1 rounded-full border-2 transition-all ${
+                className={`w-11 h-11 rounded-full flex items-center justify-center text-white shadow-xl transition-all transform ${
                   isAgentSpeaking
-                    ? "border-violet-400/80 animate-pulse"
+                    ? "bg-gradient-to-br from-violet-500 to-indigo-600 scale-105 shadow-violet-500/50"
                     : isUserSpeaking
-                    ? "border-emerald-400/80 animate-pulse"
-                    : "border-slate-700"
-                }`}
-              />
-
-              {/* Core Orb */}
-              <div
-                className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl transition-all transform ${
-                  isAgentSpeaking
-                    ? "bg-gradient-to-br from-violet-500 to-indigo-600 scale-110 shadow-violet-500/50"
-                    : isUserSpeaking
-                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 scale-110 shadow-emerald-500/50"
-                    : "bg-slate-800 shadow-slate-900"
+                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 scale-105 shadow-emerald-500/50"
+                    : "bg-slate-800 shadow-slate-900 group-hover:bg-slate-700"
                 }`}
               >
                 {isAgentSpeaking ? (
-                  <Sparkles className="w-6 h-6 animate-spin text-violet-200" />
+                  <Sparkles className="w-5 h-5 animate-spin text-violet-200" />
                 ) : isUserSpeaking ? (
-                  <Mic className="w-6 h-6 text-emerald-100 animate-bounce" />
+                  <Mic className="w-5 h-5 text-emerald-100 animate-bounce" />
                 ) : (
-                  <PhoneCall className="w-5 h-5 text-slate-400" />
+                  <Volume2 className="w-5 h-5 text-slate-300" />
                 )}
               </div>
             </div>
 
-            {/* Speaking Status Text */}
-            <div className="mt-2 text-center">
+            {/* Speaking Status Pill */}
+            <div>
               <span
-                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 ${
                   isAgentSpeaking
-                    ? "bg-violet-500/20 text-violet-300 animate-pulse"
+                    ? "bg-violet-500/20 text-violet-300 animate-pulse border border-violet-500/30"
                     : isUserSpeaking
-                    ? "bg-emerald-500/20 text-emerald-300 animate-pulse"
-                    : "bg-slate-800 text-slate-400"
+                    ? "bg-emerald-500/20 text-emerald-300 animate-pulse border border-emerald-500/30"
+                    : "bg-slate-800 text-slate-300 border border-slate-700"
                 }`}
               >
                 {isAgentSpeaking
-                  ? "🎙️ Agent is speaking..."
+                  ? "🎙️ Sarvam Agent Speaking..."
                   : isUserSpeaking
                   ? "👂 Listening to you (Speak now)..."
-                  : "Tap mic or choose a question below"}
+                  : "Tap mic to speak or choose a question below"}
               </span>
             </div>
           </div>
         </div>
 
-        {/* ── Dialogue Conversation Stream ── */}
+        {/* ── Dialogue Conversation Stream (ONLY this container scrolls!) ── */}
         <div
           ref={chatScrollRef}
-          className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3.5 bg-slate-900/60 min-h-[200px] max-h-[300px]"
+          className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-2.5 bg-slate-900/60 min-h-0"
         >
           {messages.map((m) => {
             const isAgent = m.sender === "agent";
             return (
               <div
                 key={m.id}
-                className={`flex items-start gap-2.5 ${isAgent ? "justify-start" : "justify-end"}`}
+                className={`flex items-start gap-2 ${isAgent ? "justify-start" : "justify-end"}`}
               >
                 {isAgent && (
-                  <div className="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-lg bg-violet-600 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 mt-0.5">
                     AI
                   </div>
                 )}
                 <div
-                  className={`max-w-[82%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed shadow-sm ${
+                  className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed shadow-sm ${
                     isAgent
                       ? "bg-slate-800 text-slate-100 border border-slate-700/80 rounded-tl-sm"
                       : "bg-violet-600 text-white rounded-tr-sm"
@@ -928,7 +995,7 @@ export default function VoiceCallModal({
                   {m.text}
                 </div>
                 {!isAgent && (
-                  <div className="w-7 h-7 rounded-lg bg-slate-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-lg bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 mt-0.5">
                     You
                   </div>
                 )}
@@ -937,18 +1004,18 @@ export default function VoiceCallModal({
           })}
         </div>
 
-        {/* ── Suggested Questions (1-Tap Testing) ── */}
-        <div className="px-4 py-2.5 bg-slate-950 border-t border-slate-800">
-          <div className="text-[11px] font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
+        {/* ── Suggested Questions (Fixed height, compact single/double row) ── */}
+        <div className="px-3.5 py-2 bg-slate-950 border-t border-slate-800 flex-shrink-0">
+          <div className="text-[10px] font-semibold text-slate-400 mb-1 flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-400" />
-            <span>Try asking (Tap any to speak):</span>
+            <span>Try asking (Tap to speak):</span>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto">
             {currentConfig.suggestions[selectedLanguage].map((sug, idx) => (
               <button
                 key={idx}
                 onClick={() => handleUserSpeechOrInput(sug)}
-                className={`text-[11px] text-left px-2.5 py-1 rounded-lg border transition-all ${
+                className={`text-[10px] text-left px-2 py-0.5 rounded border transition-all ${
                   idx === 3
                     ? "bg-rose-950/40 border-rose-800/60 text-rose-300 hover:bg-rose-900/50"
                     : "bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
@@ -960,19 +1027,19 @@ export default function VoiceCallModal({
           </div>
         </div>
 
-        {/* ── Bottom Input & Mic Action Bar ── */}
-        <div className="p-3 sm:p-4 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
+        {/* ── Bottom Input & Mic Action Bar (Fixed height) ── */}
+        <div className="p-2.5 sm:p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-2 flex-shrink-0">
           {/* Real Mic Button */}
           <button
             onClick={toggleListening}
-            className={`w-11 h-11 rounded-xl flex items-center justify-center text-white transition-all transform hover:scale-105 flex-shrink-0 ${
+            className={`w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all transform hover:scale-105 flex-shrink-0 ${
               isUserSpeaking
                 ? "bg-rose-600 hover:bg-rose-500 animate-pulse shadow-lg shadow-rose-600/40"
                 : "bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/30"
             }`}
             title={isUserSpeaking ? "Stop Listening" : "Tap to Speak with Microphone"}
           >
-            {isUserSpeaking ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            {isUserSpeaking ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </button>
 
           {/* Text Input Box */}
@@ -987,7 +1054,7 @@ export default function VoiceCallModal({
                   handleUserSpeechOrInput(inputText);
                 }
               }}
-              className="w-full h-11 bg-slate-900 border border-slate-700 rounded-xl px-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="w-full h-10 bg-slate-900 border border-slate-700 rounded-xl px-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
 
@@ -995,25 +1062,11 @@ export default function VoiceCallModal({
           <button
             onClick={() => handleUserSpeechOrInput(inputText)}
             disabled={!inputText.trim()}
-            className="w-11 h-11 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:hover:bg-violet-600 text-white flex items-center justify-center transition-all flex-shrink-0"
+            className="w-10 h-10 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:hover:bg-violet-600 text-white flex items-center justify-center transition-all flex-shrink-0"
             title="Send Message"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-3.5 h-3.5" />
           </button>
-        </div>
-
-        {/* Modal Footer Link to Full-Duplex Engine */}
-        <div className="px-4 py-2 bg-slate-950 border-t border-slate-900 text-center flex items-center justify-center gap-2 text-[11px] text-slate-400">
-          <span>Powered by ConverseAI Real-Time Voice Engine</span>
-          <span>&bull;</span>
-          <a
-            href="https://sonara-voice-agent.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-violet-400 hover:underline inline-flex items-center gap-0.5 font-medium"
-          >
-            <span>Full-Duplex Sonara Engine ↗</span>
-          </a>
         </div>
 
       </div>
