@@ -71,8 +71,8 @@ const servicesMenu = [
 const navLinks = [
   { label: "Home", href: "/", isRoute: true },
   { label: "Features", href: "#features", isRoute: false, hasDropdown: "features" },
-  { label: "Products", href: "#products", isRoute: false, hasDropdown: "products" },
   { label: "Agentic AI", href: "/services", isRoute: true, hasDropdown: "services" },
+  { label: "Products", href: "#products", isRoute: false, hasDropdown: "products" },
   { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "Case Studies", href: "/case-studies", isRoute: true },
   { label: "Blog", href: "https://blog.theconverseai.com/", isRoute: false, isExternal: true },
@@ -529,6 +529,29 @@ const Header = () => {
                 )}
               </div>
 
+              {/* ── Services (flat accordion) ── */}
+              <div>
+                <AccordionRow
+                  label="Agentic AI"
+                  isOpen={openMobileTop === "services"}
+                  onToggle={() => toggleMobileTop("services")}
+                  depth={0}
+                />
+                {openMobileTop === "services" && (
+                  <div className="mt-0.5 flex flex-col gap-0.5 animate-fade-in">
+                    {servicesMenu.map((item) => (
+                      <LeafItem
+                        key={item.label}
+                        label={item.label}
+                        href={absolutize(item.href)}
+                        depth={1}
+                        onClose={handleMobileClose}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* ── Products (flat accordion) ── */}
               <div>
                 <AccordionRow
@@ -552,28 +575,15 @@ const Header = () => {
                 )}
               </div>
 
-              {/* ── Services (flat accordion) ── */}
-              <div>
-                <AccordionRow
-                  label="Agentic AI"
-                  isOpen={openMobileTop === "services"}
-                  onToggle={() => toggleMobileTop("services")}
-                  depth={0}
-                />
-                {openMobileTop === "services" && (
-                  <div className="mt-0.5 flex flex-col gap-0.5 animate-fade-in">
-                    {servicesMenu.map((item) => (
-                      <LeafItem
-                        key={item.label}
-                        label={item.label}
-                        href={absolutize(item.href)}
-                        depth={1}
-                        onClose={handleMobileClose}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* ── Pricing ── */}
+              <SmartLink
+                to="/pricing"
+                onClick={() => setIsMobileMenuOpen(false)}
+                title="View ConverseAI pricing plans"
+                className="px-[42px] py-2.5 text-[14px] font-semibold text-foreground hover:bg-secondary rounded-lg transition-colors block"
+              >
+                Pricing
+              </SmartLink>
 
               {/* ── Case Studies ── */}
               <SmartLink

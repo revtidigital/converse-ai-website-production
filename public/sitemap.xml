@@ -28,7 +28,19 @@
   </url>
 
   <url>
+    <loc>https://theconverseai.com/pricing</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://theconverseai.com/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://theconverseai.com/blog-2</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -55,6 +67,12 @@
 
   <url>
     <loc>https://theconverseai.com/services/ai-strategy-audit</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://theconverseai.com/services/ai-strategy-audit/start</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

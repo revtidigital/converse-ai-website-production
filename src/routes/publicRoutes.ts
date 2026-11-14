@@ -3,6 +3,7 @@ export const SITEMAP_ROUTES = [
   "/about-us",
   "/contact-us",
   "/book-demo",
+  "/pricing",
   "/blog",
   "/blog-2",
   "/case-studies",

@@ -342,6 +342,96 @@ const Pricing = () => {
     return <span className="text-sm font-medium text-gray-700">{val}</span>;
   };
 
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://theconverseai.com/pricing#webpage",
+        url: "https://theconverseai.com/pricing",
+        name: "Pricing Built Around Your Business | ConverseAI",
+        description:
+          "Voice and agentic AI agents, built and run for you. Every plan is sized to your needs. Engage, Grow, and Scale plans with tailored custom quotes.",
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: "https://theconverseai.com/",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Pricing",
+              item: "https://theconverseai.com/pricing",
+            },
+          ],
+        },
+      },
+      {
+        "@type": "Organization",
+        name: "ConverseAI",
+        url: "https://theconverseai.com",
+        logo: "https://theconverseai.com/logo.webp",
+        sameAs: [
+          "https://www.linkedin.com/company/theconverseai",
+          "https://www.youtube.com/@theconverseai",
+          "https://www.instagram.com/theconverseai/",
+          "https://www.facebook.com/61564130560658/",
+        ],
+      },
+      {
+        "@type": "Product",
+        name: "ConverseAI AI Agents & Workflows",
+        description:
+          "Inbound & outbound voice agents, WhatsApp chatbots, and agentic workflows tailored to your business.",
+        brand: {
+          "@type": "Brand",
+          name: "ConverseAI",
+        },
+        offers: [
+          {
+            "@type": "Offer",
+            name: "Engage Plan",
+            price: "Custom quote",
+            priceCurrency: "USD",
+            description: "Launch your first AI agent with voice agent, WhatsApp, and web chat channels.",
+            url: "https://theconverseai.com/pricing",
+          },
+          {
+            "@type": "Offer",
+            name: "Grow Plan",
+            price: "Custom quote",
+            priceCurrency: "USD",
+            description: "Multiple agent types, live chat, omni-channel inbox, and 100+ languages.",
+            url: "https://theconverseai.com/pricing",
+          },
+          {
+            "@type": "Offer",
+            name: "Scale Plan",
+            price: "Custom quote",
+            priceCurrency: "USD",
+            description: "Custom AI agents, agentic workflows, API integrations, and 24/7 support with SLA.",
+            url: "https://theconverseai.com/pricing",
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: FAQS.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <>
       <Helmet>
@@ -350,8 +440,40 @@ const Pricing = () => {
           name="description"
           content="Voice and agentic AI agents, built and run for you. Every plan is sized to your needs. Engage, Grow, and Scale plans with tailored custom quotes."
         />
-        <meta name="robots" content="index, follow" />
+        <meta
+          name="keywords"
+          content="AI agent pricing, AI voice bot pricing, WhatsApp chatbot cost, conversational AI pricing, custom AI agent cost, ConverseAI pricing"
+        />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <link rel="canonical" href="https://theconverseai.com/pricing" />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://theconverseai.com/pricing" />
+        <meta property="og:title" content="Pricing Built Around Your Business | ConverseAI" />
+        <meta
+          property="og:description"
+          content="Voice and agentic AI agents, built and run for you. Every plan is sized to your needs. Engage, Grow, and Scale plans with tailored custom quotes."
+        />
+        <meta property="og:image" content="https://theconverseai.com/og-image.svg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="ConverseAI Pricing - Voice & Agentic AI Plans" />
+        <meta property="og:site_name" content="ConverseAI" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://theconverseai.com/pricing" />
+        <meta name="twitter:title" content="Pricing Built Around Your Business | ConverseAI" />
+        <meta
+          name="twitter:description"
+          content="Voice and agentic AI agents, built and run for you. Every plan is sized to your needs. Engage, Grow, and Scale plans with tailored custom quotes."
+        />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.svg" />
+        <meta name="twitter:image:alt" content="ConverseAI Pricing - Voice & Agentic AI Plans" />
+
+        {/* Structured Data (JSON-LD) */}
+        <script type="application/ld+json">{JSON.stringify(schema)}</script>
       </Helmet>
 
       <div className="min-h-screen bg-[#fafafd] text-[#1f2937] pt-20 md:pt-24 font-sans selection:bg-[#9d00ff]/15 selection:text-[#9d00ff] overflow-x-hidden">
@@ -363,7 +485,7 @@ const Pricing = () => {
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <AnimatedSection>
-                <h1 className="text-3xl sm:5xl lg:text-6xl font-extrabold tracking-tight text-gray-950 mb-4 leading-[1.15]">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-950 mb-4 leading-[1.15]">
                   Pricing built around your business
                 </h1>
                 <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto mb-8 font-normal leading-relaxed">

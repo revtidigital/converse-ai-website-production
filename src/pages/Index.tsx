@@ -220,26 +220,8 @@ export default function Index() {
           </div>
         </section>
 
-        {/* ── Products ── */}
-        <section className="py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading
-              label="Products"
-              title="Everything You Need to Engage Customers"
-              description="From AI chatbots to WhatsApp commerce, we provide a complete suite of conversational tools for modern businesses."
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product, i) => (
-                <Link key={product.path} to={product.path} className="no-underline">
-                  <FeatureCard {...product} index={i} />
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ── AI & Agentic Services ── */}
-        <section className="py-24 bg-secondary/30 border-y border-border relative overflow-hidden">
+        <section id="services" className="py-24 bg-secondary/30 border-y border-border relative overflow-hidden">
           <div className="absolute top-20 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" aria-hidden="true" />
           <div className="absolute bottom-0 right-0 w-80 h-80 bg-violet/5 rounded-full blur-3xl" aria-hidden="true" />
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -290,6 +272,24 @@ export default function Index() {
                 Book a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </a>
             </motion.div>
+          </div>
+        </section>
+
+        {/* ── Products ── */}
+        <section id="products" className="py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading
+              label="Products"
+              title="Everything You Need to Engage Customers"
+              description="From AI chatbots to WhatsApp commerce, we provide a complete suite of conversational tools for modern businesses."
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product, i) => (
+                <Link key={product.path} to={product.path} className="no-underline">
+                  <FeatureCard {...product} index={i} />
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 

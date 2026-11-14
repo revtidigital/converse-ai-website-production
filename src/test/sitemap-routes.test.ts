@@ -11,13 +11,13 @@ const sitemapPaths = sitemapUrls.map((url) => url.pathname);
 
 describe("sitemap routes", () => {
   it("keeps every sitemap URL wired into the public route manifest", () => {
-    expect(sitemapPaths).toHaveLength(32);
+    expect(sitemapPaths).toHaveLength(35);
     expect(sitemapPaths).toEqual([...SITEMAP_ROUTES]);
   });
 
-  it("does not expose the public pricing URL", () => {
-    expect(SITEMAP_ROUTES).not.toContain("/pricing");
-    expect(sitemapPaths).not.toContain("/pricing");
+  it("exposes the public pricing URL in sitemap", () => {
+    expect(SITEMAP_ROUTES).toContain("/pricing");
+    expect(sitemapPaths).toContain("/pricing");
   });
 
   it("does not publish duplicate sitemap URLs", () => {

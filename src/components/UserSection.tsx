@@ -15,6 +15,7 @@ const clients = [
   { name: "Zapp Loans", logo: "/logos/zapp-loans.webp" },
   { name: "Readiprint Fashions", logo: "/logos/readiprint.svg" },
   { name: "Heritage Food Diary", logo: "/logos/heritage-food-diary.jpg" },
+  { name: "Zuuro", logo: "/logos/zuuro.webp" },
 ];
 
 const UserSection = () => {
