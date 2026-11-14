@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -14,6 +15,7 @@ import StatCard from '@/components/StatCard'
 import Footer from '@/components/Footer'
 import UserSection from '@/components/UserSection'
 import GetCallBackModal from '@/components/GetCallBackModal'
+import VoiceCallModal from '@/components/VoiceCallModal'
 
 const products = [
   { icon: Bot, title: 'AI Chatbot', description: 'Natural language understanding with 24/7 automated support, lead qualification, and smart handover to human agents.', path: '/chatbot' },
@@ -83,6 +85,8 @@ const industries = [
 ]
 
 export default function Index() {
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+
   return (
     <>
       <Helmet>
@@ -174,13 +178,13 @@ export default function Index() {
                     <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
                     Conversational AI + Agentic Systems
                   </span>
-                  <Link
-                    to="/voice-demos"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-sm transition-all hover:scale-105"
+                  <button
+                    onClick={() => setIsVoiceModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-sm transition-all hover:scale-105 cursor-pointer"
                   >
-                    <span>🎙️ Listen to Voice AI Demos</span>
+                    <span>🎙️ Try Voice AI Demo (Live Call)</span>
                     <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  </button>
                 </div>
                 <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">
                   AI Agents <span className="gradient-text">Built and Run</span> for Your Business
@@ -200,9 +204,12 @@ export default function Index() {
                   >
                     Get a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </a>
-                  <Link to="/voice-demos" className={buttonVariants({ variant: 'hero-outline', size: 'xl' })}>
-                    🎙️ Voice AI Demos
-                  </Link>
+                  <button
+                    onClick={() => setIsVoiceModalOpen(true)}
+                    className={`${buttonVariants({ variant: 'hero-outline', size: 'xl' })} cursor-pointer`}
+                  >
+                    🎙️ Voice AI Demo (Popup)
+                  </button>
                 </div>
               </motion.div>
 
@@ -424,6 +431,11 @@ export default function Index() {
 
         <Footer />
         <GetCallBackModal />
+        <VoiceCallModal
+          isOpen={isVoiceModalOpen}
+          onClose={() => setIsVoiceModalOpen(false)}
+          initialAgent="appointment"
+        />
       </div>
     </>
   )
