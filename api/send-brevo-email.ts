@@ -978,6 +978,276 @@ function buildHtmlTemplate(
 </html>`;
 }
 
+interface TeamAlertParams {
+  fullName: string;
+  firstName: string;
+  phone: string;
+  telNumber: string;
+  waDigits: string;
+  userEmail: string;
+  companyName: string;
+  product: string;
+  preferredTime: string;
+  message: string;
+  formSource: string;
+  isCallBack: boolean;
+  receivedAt: string;
+  directWhatsAppMsg: string;
+  optionBMsg: string;
+  pageUrl: string;
+}
+
+/**
+ * Builds high-priority internal lead alert email template for the ConverseAI team.
+ * Includes direct 1-tap Call, WhatsApp, and Option B (in-meeting / reschedule fallback).
+ */
+function buildTeamLeadAlertTemplate(data: TeamAlertParams): string {
+  const {
+    fullName,
+    firstName,
+    phone,
+    telNumber,
+    waDigits,
+    userEmail,
+    companyName,
+    product,
+    preferredTime,
+    message,
+    formSource,
+    isCallBack,
+    receivedAt,
+    directWhatsAppMsg,
+    optionBMsg,
+  } = data;
+
+  const encodedDirectWA = encodeURIComponent(directWhatsAppMsg);
+  const encodedOptionBWA = encodeURIComponent(optionBMsg);
+
+  const headerBadge = isCallBack ? "🚨 URGENT CALL BACK REQUEST" : "🔔 NEW INBOUND LEAD";
+  const headerBadgeBg = isCallBack ? "#DC2626" : "#4F46E5";
+  const headerTitle = isCallBack
+    ? `${fullName || "A prospect"} requested a call back`
+    : `New lead from ${fullName || "Website Visitor"}`;
+  const headerSubtitle = isCallBack
+    ? `Requested Slot: <strong>${preferredTime}</strong>`
+    : `Interested in: <strong>${product || "AI Solutions"}</strong>`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${headerBadge}</title>
+<style>
+  body { margin:0; padding:0; background:#0B0F19; -webkit-text-size-adjust:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+  table { border-collapse:collapse; }
+  a { text-decoration:none; }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#0B0F19;color:#0F172A;">
+
+<!-- Preheader preview text -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;">
+  [ACTION REQUIRED] ${fullName} (${phone}) requested a call back for ${preferredTime} — Topic: ${product}
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0B0F19">
+<tr><td align="center" style="padding:24px 12px;">
+
+  <table role="presentation" width="620" cellpadding="0" cellspacing="0" border="0" style="width:620px;max-width:620px;background:#FFFFFF;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.35);">
+
+    <!-- HEADER BAR -->
+    <tr>
+      <td bgcolor="#4C1D95" style="background:linear-gradient(135deg, #3B0764 0%, #6D28D9 100%);padding:28px 30px 24px 30px;color:#FFFFFF;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td>
+              <span style="display:inline-block;background:${headerBadgeBg};color:#FFFFFF;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:20px;text-transform:uppercase;">
+                ${headerBadge}
+              </span>
+              <h1 style="margin:14px 0 6px 0;font-size:24px;line-height:30px;font-weight:700;color:#FFFFFF;letter-spacing:-0.3px;">
+                ${headerTitle}
+              </h1>
+              <p style="margin:0;font-size:14px;line-height:20px;color:#DDD6FE;">
+                ${headerSubtitle}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- TIME & ALERT BANNER -->
+    <tr>
+      <td bgcolor="#FEF3C7" style="background:#FEF3C7;border-bottom:1px solid #FCD34D;padding:12px 30px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="font-size:13px;line-height:18px;color:#92400E;font-weight:600;">
+              ⏰ <strong>Call Window:</strong> ${preferredTime} &nbsp;|&nbsp; 📅 Received: ${receivedAt}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- LEAD DETAILS CARD -->
+    <tr>
+      <td style="padding:28px 30px 10px 30px;">
+        <h2 style="margin:0 0 16px 0;font-size:15px;font-weight:700;color:#1E293B;text-transform:uppercase;letter-spacing:0.8px;">
+          📋 Prospect Information
+        </h2>
+
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;">
+          <tr>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#64748B;width:140px;">
+              Full Name
+            </td>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:14px;font-weight:700;color:#0F172A;">
+              ${fullName || "N/A"}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#64748B;">
+              Phone Number
+            </td>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:16px;font-weight:700;color:#1D4ED8;">
+              <a href="tel:${telNumber}" style="color:#1D4ED8;text-decoration:underline;">
+                ${phone || "N/A"}
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#64748B;">
+              Preferred Call Time
+            </td>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;font-weight:700;color:#B45309;">
+              <span style="background:#FEF3C7;padding:3px 8px;border-radius:4px;display:inline-block;">
+                ⏱️ ${preferredTime}
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#64748B;">
+              Interested In
+            </td>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;font-weight:600;color:#6D28D9;">
+              ${product || "AI Solutions"}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#64748B;">
+              Work Email
+            </td>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#334155;">
+              ${userEmail !== "Not Provided" ? `<a href="mailto:${userEmail}" style="color:#2563EB;">${userEmail}</a>` : '<span style="color:#94A3B8;font-style:italic;">Not provided</span>'}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#64748B;">
+              Company
+            </td>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#334155;">
+              ${companyName || '<span style="color:#94A3B8;font-style:italic;">Not provided</span>'}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#64748B;">
+              Notes / Message
+            </td>
+            <td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;font-size:13px;color:#1E293B;line-height:18px;">
+              ${message || '<span style="color:#94A3B8;font-style:italic;">No custom message</span>'}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 18px;font-size:13px;color:#64748B;">
+              Source
+            </td>
+            <td style="padding:14px 18px;font-size:12px;color:#64748B;">
+              ${formSource}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- IMMEDIATE ACTION BUTTONS (ROW 1: CALL & WHATSAPP) -->
+    <tr>
+      <td style="padding:18px 30px 10px 30px;">
+        <h2 style="margin:0 0 12px 0;font-size:15px;font-weight:700;color:#1E293B;text-transform:uppercase;letter-spacing:0.8px;">
+          ⚡ Quick Actions
+        </h2>
+
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td width="48%" align="center" style="padding-right:6px;">
+              <a href="tel:${telNumber}" style="display:block;background:#16A34A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:14px 18px;border-radius:8px;text-align:center;box-shadow:0 2px 4px rgba(22,163,74,0.3);">
+                📞 Call ${firstName || "Lead"} Now
+              </a>
+            </td>
+            <td width="48%" align="center" style="padding-left:6px;">
+              <a href="https://wa.me/${waDigits}?text=${encodedDirectWA}" target="_blank" style="display:block;background:#25D366;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:14px 18px;border-radius:8px;text-align:center;box-shadow:0 2px 4px rgba(37,211,102,0.3);">
+                💬 Open WhatsApp Chat
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- OPTION B: BUSY / RESCHEDULE FALLBACK CARD -->
+    <tr>
+      <td style="padding:10px 30px 24px 30px;">
+        <div style="background:#FFFBEB;border:2px solid #F59E0B;border-radius:10px;padding:18px 20px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td>
+                <p style="margin:0 0 6px 0;font-size:14px;font-weight:700;color:#92400E;">
+                  ⏱️ Option B: Can't call right at this moment?
+                </p>
+                <p style="margin:0 0 12px 0;font-size:13px;line-height:19px;color:#78350F;">
+                  If you are currently in a meeting, with a client, or unavailable, tap below to instantly send a polite pre-written WhatsApp to <strong>${firstName}</strong> letting them know you will connect shortly or asking to reschedule:
+                </p>
+
+                <div style="margin:0 0 12px 0;">
+                  <a href="https://wa.me/${waDigits}?text=${encodedOptionBWA}" target="_blank" style="display:inline-block;background:#D97706;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:13px;padding:12px 22px;border-radius:6px;box-shadow:0 2px 4px rgba(217,119,6,0.3);">
+                    ⚡ Send "In Meeting / Reschedule" WhatsApp
+                  </a>
+                </div>
+
+                <div style="background:#FFFFFF;border:1px dashed #FCD34D;border-radius:6px;padding:10px 14px;font-size:12px;color:#78350F;line-height:17px;font-style:italic;">
+                  "Hi ${firstName}, thank you for requesting a call back from ConverseAI! I received your request for ${preferredTime}. I am currently in a client discussion right now — can I connect with you shortly, or would a later time today work better for you?"
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+
+    <!-- FOOTER -->
+    <tr>
+      <td bgcolor="#F8FAFC" style="background:#F8FAFC;border-top:1px solid #E2E8F0;padding:16px 30px;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#64748B;">
+          ConverseAI Internal Lead Alert &bull; Automated notification sent to team
+        </p>
+      </td>
+    </tr>
+
+  </table>
+
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -985,12 +1255,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { email, fullName, product, subject, extraFields, message, form_source } =
-      req.body || {};
-
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      return res.status(400).json({ error: "Valid email is required." });
-    }
+    const {
+      email,
+      phone,
+      countryName,
+      fullName,
+      product,
+      subject,
+      extraFields,
+      message,
+      form_source,
+      page_url,
+      hasValidUserEmail,
+    } = req.body || {};
 
     // Skip sending email for partial leads (abandoned forms on email blur)
     if (
@@ -1000,86 +1277,204 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ skipped: true, reason: "Partial lead" });
     }
 
+    // Must have at least an email or a phone number to process
+    if (!email && !phone) {
+      return res.status(400).json({ error: "Email or phone number is required." });
+    }
+
     // Extract first name cleanly
     const firstName = (fullName || "").trim().split(/\s+/)[0] || "there";
 
-    // Detect if demo booking / scheduling walkthrough was requested
+    // Clean phone numbers for tel: and WhatsApp wa.me/ links
+    const rawDigits = (phone || "").replace(/\D/g, "");
+    const waDigits = rawDigits.length === 10 ? `91${rawDigits}` : rawDigits;
+    const telNumber = (phone || "").replace(/[^\d+]/g, "");
+
+    // Detect if this is a Call Back request or general inquiry
     const formSource = (form_source || "").toLowerCase();
-    const rawInterest = (product || subject || message || "").toLowerCase();
+    const isCallBack =
+      formSource.includes("call back") ||
+      formSource.includes("callback") ||
+      Boolean(extraFields?.preferredCallTime) ||
+      (subject || "").toLowerCase().includes("call back");
 
-    const isDemoBooking =
-      formSource.includes("book demo") ||
-      formSource.includes("demo") ||
-      rawInterest.includes("book demo");
+    const preferredTime =
+      extraFields?.preferredCallTime ||
+      (isCallBack ? "Immediately (Within 15 mins)" : "N/A");
 
-    const isWhatsApp =
-      rawInterest.includes("whatsapp") ||
-      rawInterest.includes("shop") ||
-      rawInterest.includes("catalog") ||
-      rawInterest.includes("wa-");
+    const companyName = extraFields?.companyName || "";
 
-    let htmlContent: string;
-    let serviceSubject: string;
-    let campaignTag: string;
+    const userEmail = (hasValidUserEmail && email && !email.startsWith("lead_"))
+      ? email.trim()
+      : "Not Provided";
 
-    if (isDemoBooking) {
-      // 1. DEDICATED DEMO WALKTHROUGH SCHEDULING MASTER TEMPLATE (User clicks to pick slot on /book-demo)
-      htmlContent = buildDemoWalkthroughTemplate(firstName, product || "AI Solutions");
-      serviceSubject = "Your 1-on-1 Demo Walkthrough with ConverseAI";
-      campaignTag = "demo-walkthrough";
-    } else if (isWhatsApp) {
-      // 2. DEDICATED 7-SECTION WHATSAPP MASTER TEMPLATE
-      htmlContent = buildWhatsAppMasterTemplate(firstName);
-      serviceSubject = "Official Meta Cloud API WhatsApp AI Chatbots — ConverseAI";
-      campaignTag = "whatsapp-followup";
-    } else {
-      // 3. SPECIALIZED SERVICE PROFILE (VOICE AGENT / AUDIT / SALES AI / GENERAL)
-      const serviceConfig = getServiceConfig(rawInterest);
-      htmlContent = buildHtmlTemplate(firstName, serviceConfig);
-      serviceSubject = serviceConfig.subject;
-      campaignTag = serviceConfig.ctaCampaign;
-    }
-
-    const brevoPayload = {
-      sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
-      to: [{ email: email.trim(), name: fullName || firstName }],
-      replyTo: {
-        email: "contact@theconverseai.com",
-        name: "Converse AI Support",
-      },
-      subject: serviceSubject,
-      htmlContent,
-      tags: [campaignTag, "website-inbound-lead"],
-    };
-
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(brevoPayload),
+    const receivedAt = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      dateStyle: "medium",
+      timeStyle: "short",
     });
 
-    const result = await response.json().catch(() => ({}));
+    // WhatsApp messages for 1-tap actions
+    const directWhatsAppMsg = `Hi ${firstName}, this is from ConverseAI regarding your call back request for ${product || "AI Solutions"}. How can we assist you today?`;
+    const optionBMsg = `Hi ${firstName}, thank you for requesting a call back from ConverseAI! I received your request for ${preferredTime}. I am currently in a client discussion right now — can I connect with you shortly, or would a later time today work better for you?`;
 
-    if (!response.ok) {
-      console.error("Brevo API error:", result);
-      return res
-        .status(response.status)
-        .json({ error: "Brevo API call failed", details: result });
+    // -------------------------------------------------------------
+    // 1. DISPATCH INTERNAL TEAM LEAD ALERT (Option B Included)
+    // -------------------------------------------------------------
+    const TEAM_RECIPIENTS = [
+      { email: "contact@theconverseai.com", name: "ConverseAI Team" },
+      { email: "janvisethi773@gmail.com", name: "Janvi Sethi" },
+    ];
+
+    const teamHtmlContent = buildTeamLeadAlertTemplate({
+      fullName: fullName || "Website Lead",
+      firstName,
+      phone: phone || "Not Provided",
+      telNumber,
+      waDigits,
+      userEmail,
+      companyName,
+      product: product || "AI Solutions",
+      preferredTime,
+      message: message || "",
+      formSource: form_source || "Website Inbound",
+      isCallBack,
+      receivedAt,
+      directWhatsAppMsg,
+      optionBMsg,
+      pageUrl: page_url || "",
+    });
+
+    const teamSubject = isCallBack
+      ? `🚨 Urgent Call Back: ${fullName || "Lead"} (${preferredTime}) — ${product || "ConverseAI"}`
+      : `🔔 New Lead: ${fullName || "Website Lead"} — ${product || "Inquiry"}`;
+
+    const teamBrevoPayload = {
+      sender: { name: "ConverseAI Lead Alert", email: BREVO_SENDER_EMAIL },
+      to: TEAM_RECIPIENTS,
+      replyTo: (hasValidUserEmail && email && !email.startsWith("lead_"))
+        ? { email: email.trim(), name: fullName || "Lead" }
+        : { email: "contact@theconverseai.com", name: "Converse AI Team" },
+      subject: teamSubject,
+      htmlContent: teamHtmlContent,
+      tags: ["team-lead-alert", isCallBack ? "callback-request" : "inbound-inquiry"],
+    };
+
+    let teamMessageId: string | undefined;
+
+    if (BREVO_API_KEY) {
+      try {
+        const teamResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            "api-key": BREVO_API_KEY,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(teamBrevoPayload),
+        });
+        const teamResJson = await teamResponse.json().catch(() => ({}));
+        teamMessageId = (teamResJson as { messageId?: string }).messageId;
+        if (!teamResponse.ok) {
+          console.error("Team lead alert Brevo email error:", teamResJson);
+        }
+      } catch (teamErr) {
+        console.error("Failed to send team lead alert email:", teamErr);
+      }
+    } else {
+      console.warn("BREVO_API_KEY not configured. Skipping email dispatch.");
+    }
+
+    // -------------------------------------------------------------
+    // 2. DISPATCH VISITOR CONFIRMATION EMAIL (if visitor entered real email)
+    // -------------------------------------------------------------
+    let visitorMessageId: string | undefined;
+    let serviceSubject = "";
+    let campaignTag = "";
+
+    const shouldSendVisitorEmail = Boolean(
+      hasValidUserEmail &&
+      email &&
+      typeof email === "string" &&
+      email.includes("@") &&
+      !email.startsWith("lead_")
+    );
+
+    if (shouldSendVisitorEmail && BREVO_API_KEY) {
+      const rawInterest = (product || subject || message || "").toLowerCase();
+
+      const isDemoBooking =
+        formSource.includes("book demo") ||
+        formSource.includes("demo") ||
+        rawInterest.includes("book demo");
+
+      const isWhatsApp =
+        rawInterest.includes("whatsapp") ||
+        rawInterest.includes("shop") ||
+        rawInterest.includes("catalog") ||
+        rawInterest.includes("wa-");
+
+      let htmlContent: string;
+
+      if (isDemoBooking) {
+        htmlContent = buildDemoWalkthroughTemplate(firstName, product || "AI Solutions");
+        serviceSubject = "Your 1-on-1 Demo Walkthrough with ConverseAI";
+        campaignTag = "demo-walkthrough";
+      } else if (isWhatsApp) {
+        htmlContent = buildWhatsAppMasterTemplate(firstName);
+        serviceSubject = "Official Meta Cloud API WhatsApp AI Chatbots — ConverseAI";
+        campaignTag = "whatsapp-followup";
+      } else {
+        const serviceConfig = getServiceConfig(rawInterest);
+        htmlContent = buildHtmlTemplate(firstName, serviceConfig);
+        serviceSubject = serviceConfig.subject;
+        campaignTag = serviceConfig.ctaCampaign;
+      }
+
+      const visitorBrevoPayload = {
+        sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
+        to: [{ email: email.trim(), name: fullName || firstName }],
+        replyTo: {
+          email: "contact@theconverseai.com",
+          name: "Converse AI Support",
+        },
+        subject: serviceSubject,
+        htmlContent,
+        tags: [campaignTag, "website-inbound-lead"],
+      };
+
+      try {
+        const visitorResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            "api-key": BREVO_API_KEY,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(visitorBrevoPayload),
+        });
+
+        const visitorResJson = await visitorResponse.json().catch(() => ({}));
+        visitorMessageId = (visitorResJson as { messageId?: string }).messageId;
+        if (!visitorResponse.ok) {
+          console.error("Visitor Brevo email error:", visitorResJson);
+        }
+      } catch (visErr) {
+        console.error("Failed to send visitor Brevo email:", visErr);
+      }
     }
 
     return res.status(200).json({
       success: true,
-      serviceSent: serviceSubject,
-      campaign: campaignTag,
-      messageId: (result as { messageId?: string }).messageId,
+      teamAlertSent: Boolean(teamMessageId),
+      teamMessageId,
+      visitorEmailSent: Boolean(visitorMessageId),
+      visitorMessageId,
+      campaign: campaignTag || "team-lead-alert",
     });
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("Server error sending Brevo email:", errorMsg);
+    console.error("Server error in Brevo email handler:", errorMsg);
     return res.status(500).json({ error: "Internal server error", details: errorMsg });
   }
 }
