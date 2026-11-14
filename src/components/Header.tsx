@@ -71,8 +71,8 @@ const servicesMenu = [
 const navLinks = [
   { label: "Home", href: "/", isRoute: true },
   { label: "Features", href: "#features", isRoute: false, hasDropdown: "features" },
-  { label: "Agentic AI", href: "/services", isRoute: true, hasDropdown: "services" },
   { label: "Products", href: "#products", isRoute: false, hasDropdown: "products" },
+  { label: "Agentic AI", href: "/services", isRoute: true, hasDropdown: "services" },
   { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "Case Studies", href: "/case-studies", isRoute: true },
   { label: "Blog", href: "https://blog.theconverseai.com/", isRoute: false, isExternal: true },
@@ -529,17 +529,17 @@ const Header = () => {
                 )}
               </div>
 
-              {/* ── Services (flat accordion) ── */}
+              {/* ── Products (flat accordion) ── */}
               <div>
                 <AccordionRow
-                  label="Agentic AI"
-                  isOpen={openMobileTop === "services"}
-                  onToggle={() => toggleMobileTop("services")}
+                  label="Products"
+                  isOpen={openMobileTop === "products"}
+                  onToggle={() => toggleMobileTop("products")}
                   depth={0}
                 />
-                {openMobileTop === "services" && (
+                {openMobileTop === "products" && (
                   <div className="mt-0.5 flex flex-col gap-0.5 animate-fade-in">
-                    {servicesMenu.map((item) => (
+                    {productsMenu.map((item) => (
                       <LeafItem
                         key={item.label}
                         label={item.label}
@@ -552,17 +552,17 @@ const Header = () => {
                 )}
               </div>
 
-              {/* ── Products (flat accordion) ── */}
+              {/* ── Services (flat accordion) ── */}
               <div>
                 <AccordionRow
-                  label="Products"
-                  isOpen={openMobileTop === "products"}
-                  onToggle={() => toggleMobileTop("products")}
+                  label="Agentic AI"
+                  isOpen={openMobileTop === "services"}
+                  onToggle={() => toggleMobileTop("services")}
                   depth={0}
                 />
-                {openMobileTop === "products" && (
+                {openMobileTop === "services" && (
                   <div className="mt-0.5 flex flex-col gap-0.5 animate-fade-in">
-                    {productsMenu.map((item) => (
+                    {servicesMenu.map((item) => (
                       <LeafItem
                         key={item.label}
                         label={item.label}

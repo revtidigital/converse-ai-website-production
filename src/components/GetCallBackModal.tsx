@@ -36,7 +36,6 @@ const STORAGE_KEY_SUBMITTED = "converse_callback_submitted";
 
 export default function GetCallBackModal() {
   const [open, setOpen] = useState(false);
-  const [showFloatingPill, setShowFloatingPill] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
@@ -46,63 +45,52 @@ export default function GetCallBackModal() {
     email: "",
     company: "",
     category: "",
-    preferredTime: "Immediately / Within 15 mins",
+    preferredTime: "Immediately (Within 15 mins)",
     message: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const capturePartialLead = usePartialLeadCapture("Partial Lead – Get A Call Back Form");
   const hasStartedForm = useRef(false);
   const hasTriggeredScroll = useRef(false);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { toast } = useToast();
 
-  // Scroll detection: Trigger popup once user scrolls past hero banner (~450px)
+  // Scroll detection: Trigger popup smoothly only after user has properly scrolled into the page
   useEffect(() => {
-    // If already submitted in localStorage, do not auto-pop
-    if (typeof window !== "undefined") {
-      if (localStorage.getItem(STORAGE_KEY_SUBMITTED)) {
-        return;
-      }
-      if (sessionStorage.getItem(STORAGE_KEY_DISMISSED)) {
-        // User previously closed it in this session: show subtle floating pill instead
-        setShowFloatingPill(true);
-        return;
-      }
-    }
+    if (typeof window === "undefined") return;
+
+    // If already submitted or dismissed in this session, do not auto-popup
+    if (localStorage.getItem(STORAGE_KEY_SUBMITTED)) return;
+    if (sessionStorage.getItem(STORAGE_KEY_DISMISSED)) return;
 
     const handleScroll = () => {
       if (hasTriggeredScroll.current) return;
       const scrollPos = window.scrollY || document.documentElement.scrollTop;
-      if (scrollPos > 450) {
+
+      // Trigger threshold: after user has scrolled properly past hero into content (~950px)
+      const threshold = Math.max(950, window.innerHeight * 1.1);
+
+      if (scrollPos > threshold) {
         hasTriggeredScroll.current = true;
-        // Small graceful delay so it doesn't abruptly flash
-        setTimeout(() => {
+        // Smooth delay so the modal doesn't abruptly pop in mid-wheel movement
+        scrollTimerRef.current = setTimeout(() => {
           setOpen(true);
-          setShowFloatingPill(true);
-        }, 500);
+        }, 1200);
       }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Custom listener so banner or any other button can open this modal
-  useEffect(() => {
-    const handleOpenModal = () => {
-      setOpen(true);
-      setShowFloatingPill(true);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
     };
-    window.addEventListener("open-callback-modal", handleOpenModal);
-    return () => window.removeEventListener("open-callback-modal", handleOpenModal);
   }, []);
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
     if (!nextOpen) {
-      // Mark as dismissed in sessionStorage so it doesn't auto-pop again on every scroll
       if (typeof window !== "undefined" && !submitted) {
         sessionStorage.setItem(STORAGE_KEY_DISMISSED, "true");
-        setShowFloatingPill(true);
       }
     }
   };
@@ -116,16 +104,16 @@ export default function GetCallBackModal() {
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) {
-      newErrors.name = "Please enter your name";
+      newErrors.name = "Name is required";
     }
     if (!formData.phone.trim()) {
-      newErrors.phone = "Please enter your phone number";
+      newErrors.phone = "Phone is required";
     }
     if (!formData.category) {
-      newErrors.category = "Please select a product or service";
+      newErrors.category = "Please select an option";
     }
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = "Invalid email";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -186,245 +174,231 @@ export default function GetCallBackModal() {
   };
 
   return (
-    <>
-      {/* Floating Pill Button — stays visible if user closed without filling */}
-      {showFloatingPill && !open && (
-        <button
-          onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-6 z-40 hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground font-medium text-xs shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-          title="Request a Call Back from ConverseAI"
-          aria-label="Request a Call Back"
-        >
-          <PhoneCall className="w-3.5 h-3.5 animate-bounce" />
-          <span>Request a Call Back</span>
-        </button>
-      )}
-
-      {/* Main Call Back Dialog */}
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-[560px] max-h-[92vh] overflow-y-auto p-0 gap-0 bg-white rounded-2xl shadow-2xl border border-border/80">
-          {/* Header */}
-          <DialogHeader className="p-6 pb-4 bg-gradient-to-br from-primary/5 via-violet/5 to-transparent border-b border-border/60">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                <PhoneCall className="w-3.5 h-3.5" />
-                Quick Response Team
-              </span>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="w-[94vw] max-w-[480px] max-h-[86vh] overflow-y-auto p-0 gap-0 bg-white rounded-2xl shadow-2xl border border-border/80 transition-all duration-500 ease-out animate-in fade-in-0 zoom-in-95">
+        {/* Compact Clean Header */}
+        <DialogHeader className="px-5 py-3.5 bg-gradient-to-r from-primary/5 via-violet/5 to-transparent border-b border-border/60 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <PhoneCall className="w-4 h-4" />
             </div>
-            <DialogTitle className="text-2xl font-bold text-foreground tracking-tight">
-              Get a Call Back
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground mt-1">
-              Share your contact details — an AI specialist from ConverseAI will call you back within 15 minutes.
-            </DialogDescription>
-          </DialogHeader>
+            <div>
+              <DialogTitle className="text-lg font-bold text-foreground tracking-tight leading-tight">
+                Get a Call Back
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                Share your details — an AI specialist will call you within 15 minutes.
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
 
-          {/* Body */}
-          <div className="p-6">
-            {submitted ? (
-              <div className="py-8 text-center space-y-4">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-10 h-10" />
+        {/* Compact Form Body */}
+        <div className="p-4 sm:p-5">
+          {submitted ? (
+            <div className="py-6 text-center space-y-3">
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Request Received!</h3>
+              <p className="text-muted-foreground max-w-xs mx-auto text-xs leading-relaxed">
+                Thank you, <span className="font-semibold text-foreground">{formData.name}</span>. An AI specialist will call you at <span className="font-semibold text-foreground">{formData.phone}</span> shortly.
+              </p>
+              <div className="pt-2">
+                <Button
+                  onClick={() => setOpen(false)}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full px-5 text-xs"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} onFocus={handleFormFocus} className="space-y-3" noValidate>
+              {/* Row 1: Name & Phone */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-foreground block">
+                    Full Name <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. Rahul Sharma"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className={`h-9 text-xs sm:text-sm ${errors.name ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                  />
+                  {errors.name && <p className="text-[10px] text-destructive leading-tight">{errors.name}</p>}
                 </div>
-                <h3 className="text-2xl font-bold text-foreground">Request Received!</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto text-sm leading-relaxed">
-                  Thank you, <span className="font-semibold text-foreground">{formData.name}</span>. Our specialist is reviewing your interest in <span className="font-semibold text-foreground">{formData.category}</span> and will call you at <span className="font-semibold text-foreground">{formData.phone}</span> shortly.
-                </p>
-                <div className="pt-2">
-                  <Button
-                    onClick={() => setOpen(false)}
-                    variant="outline"
-                    className="rounded-full px-6"
-                  >
-                    Close
-                  </Button>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-foreground block">
+                    Phone Number <span className="text-destructive">*</span>
+                  </label>
+                  <PhoneInputField
+                    value={formData.phone}
+                    onChange={(phone, countryName) =>
+                      setFormData({ ...formData, phone, countryName })
+                    }
+                    error={errors.phone}
+                    variant="bordered"
+                    className="h-9 text-xs"
+                  />
                 </div>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} onFocus={handleFormFocus} className="space-y-4" noValidate>
-                {/* Name & Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">
-                      Full Name <span className="text-destructive">*</span>
-                    </label>
-                    <Input
-                      placeholder="e.g. Rahul Sharma"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className={`h-10 text-sm ${errors.name ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                    />
-                    {errors.name && <p className="text-[11px] text-destructive">{errors.name}</p>}
-                  </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">
-                      Phone Number <span className="text-destructive">*</span>
-                    </label>
-                    <PhoneInputField
-                      value={formData.phone}
-                      onChange={(phone, countryName) =>
-                        setFormData({ ...formData, phone, countryName })
-                      }
-                      error={errors.phone}
-                      variant="bordered"
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-
-                {/* Email & Company (Optional) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">
-                      Work Email <span className="text-muted-foreground font-normal">(Optional)</span>
-                    </label>
-                    <Input
-                      type="email"
-                      placeholder="name@company.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      onBlur={() =>
-                        capturePartialLead(formData.email || formData.phone, {
-                          fullName: formData.name,
-                          phone: formData.phone,
-                          countryName: formData.countryName,
-                          product: formData.category,
-                        })
-                      }
-                      className={`h-10 text-sm ${errors.email ? "border-destructive" : ""}`}
-                    />
-                    {errors.email && <p className="text-[11px] text-destructive">{errors.email}</p>}
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">
-                      Company Name <span className="text-muted-foreground font-normal">(Optional)</span>
-                    </label>
-                    <Input
-                      placeholder="e.g. Acme Corp"
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      className="h-10 text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Category (Products & Services Grouped Dropdown) */}
+              {/* Row 2: Email & Company (Optional) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
+                  <label className="text-[11px] font-semibold text-foreground block">
+                    Work Email <span className="text-muted-foreground font-normal">(Optional)</span>
+                  </label>
+                  <Input
+                    type="email"
+                    placeholder="name@company.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onBlur={() =>
+                      capturePartialLead(formData.email || formData.phone, {
+                        fullName: formData.name,
+                        phone: formData.phone,
+                        countryName: formData.countryName,
+                        product: formData.category,
+                      })
+                    }
+                    className={`h-9 text-xs ${errors.email ? "border-destructive" : ""}`}
+                  />
+                  {errors.email && <p className="text-[10px] text-destructive leading-tight">{errors.email}</p>}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-foreground block">
+                    Company Name <span className="text-muted-foreground font-normal">(Optional)</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. Acme Corp"
+                    value={formData.company}
+                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                    className="h-9 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Interested In & Preferred Call Time (Side by Side!) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-foreground block">
                     Interested In <span className="text-destructive">*</span>
                   </label>
                   <Select
                     value={formData.category}
                     onValueChange={(val) => setFormData({ ...formData, category: val })}
                   >
-                    <SelectTrigger className={`h-10 text-sm ${errors.category ? "border-destructive" : ""}`}>
-                      <SelectValue placeholder="Select a Product or Agentic Service" />
+                    <SelectTrigger className={`h-9 text-xs ${errors.category ? "border-destructive" : ""}`}>
+                      <SelectValue placeholder="Select topic" />
                     </SelectTrigger>
-                    <SelectContent className="max-h-72">
+                    <SelectContent className="max-h-60 text-xs">
                       <SelectGroup>
-                        <SelectLabel className="text-xs font-bold text-primary uppercase tracking-wider">
+                        <SelectLabel className="text-[10px] font-bold text-primary uppercase tracking-wider">
                           Products
                         </SelectLabel>
-                        <SelectItem value="AI Chatbot for Website">AI Chatbot for Website</SelectItem>
-                        <SelectItem value="WhatsApp Shop & Commerce">WhatsApp Shop & Commerce</SelectItem>
-                        <SelectItem value="WhatsApp Marketing & Broadcast">WhatsApp Marketing & Broadcast</SelectItem>
-                        <SelectItem value="Live Chat & Unified Inbox">Live Chat & Unified Inbox</SelectItem>
-                        <SelectItem value="AI Voice Agents">AI Voice Agents</SelectItem>
+                        <SelectItem value="AI Chatbot for Website" className="text-xs">AI Chatbot for Website</SelectItem>
+                        <SelectItem value="WhatsApp Shop & Commerce" className="text-xs">WhatsApp Shop & Commerce</SelectItem>
+                        <SelectItem value="WhatsApp Marketing & Broadcast" className="text-xs">WhatsApp Marketing & Broadcast</SelectItem>
+                        <SelectItem value="Live Chat & Unified Inbox" className="text-xs">Live Chat & Unified Inbox</SelectItem>
+                        <SelectItem value="AI Voice Agents" className="text-xs">AI Voice Agents</SelectItem>
                       </SelectGroup>
                       <SelectGroup>
-                        <SelectLabel className="text-xs font-bold text-violet uppercase tracking-wider mt-2">
+                        <SelectLabel className="text-[10px] font-bold text-violet uppercase tracking-wider mt-1.5">
                           Agentic AI Services
                         </SelectLabel>
-                        <SelectItem value="Custom AI Agent Development">Custom AI Agent Development</SelectItem>
-                        <SelectItem value="Agentic Systems & Process Automation">Agentic Systems & Automation</SelectItem>
-                        <SelectItem value="AI Integration Services">AI Integration Services</SelectItem>
-                        <SelectItem value="Document & Knowledge Intelligence">Document & Knowledge Intelligence</SelectItem>
-                        <SelectItem value="AI Strategy & Readiness Audit">AI Strategy & Readiness Audit</SelectItem>
-                        <SelectItem value="Sales Intelligence & Outreach">Sales Intelligence & Outreach</SelectItem>
+                        <SelectItem value="Custom AI Agent Development" className="text-xs">Custom AI Agent Development</SelectItem>
+                        <SelectItem value="Agentic Systems & Automation" className="text-xs">Agentic Systems & Automation</SelectItem>
+                        <SelectItem value="AI Integration Services" className="text-xs">AI Integration Services</SelectItem>
+                        <SelectItem value="Document & Knowledge Intelligence" className="text-xs">Knowledge Intelligence</SelectItem>
+                        <SelectItem value="AI Strategy & Readiness Audit" className="text-xs">AI Strategy & Audit</SelectItem>
+                        <SelectItem value="Sales Intelligence & Outreach" className="text-xs">Sales Intelligence</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {errors.category && <p className="text-[11px] text-destructive">{errors.category}</p>}
+                  {errors.category && <p className="text-[10px] text-destructive leading-tight">{errors.category}</p>}
                 </div>
 
-                {/* Preferred Call Time */}
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                    Best Time to Call
+                  <label className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-muted-foreground" />
+                    Call Time
                   </label>
                   <Select
                     value={formData.preferredTime}
                     onValueChange={(val) => setFormData({ ...formData, preferredTime: val })}
                   >
-                    <SelectTrigger className="h-10 text-sm">
-                      <SelectValue placeholder="Select preferred time" />
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue placeholder="Call time" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Immediately / Within 15 mins">Immediately / Within 15 mins</SelectItem>
-                      <SelectItem value="Morning (10:00 AM - 1:00 PM)">Morning (10:00 AM - 1:00 PM)</SelectItem>
-                      <SelectItem value="Afternoon (1:00 PM - 5:00 PM)">Afternoon (1:00 PM - 5:00 PM)</SelectItem>
-                      <SelectItem value="Evening (5:00 PM - 8:00 PM)">Evening (5:00 PM - 8:00 PM)</SelectItem>
+                    <SelectContent className="text-xs">
+                      <SelectItem value="Immediately (Within 15 mins)" className="text-xs">Within 15 mins</SelectItem>
+                      <SelectItem value="Morning (10:00 AM - 1:00 PM)" className="text-xs">Morning (10 AM - 1 PM)</SelectItem>
+                      <SelectItem value="Afternoon (1:00 PM - 5:00 PM)" className="text-xs">Afternoon (1 PM - 5 PM)</SelectItem>
+                      <SelectItem value="Evening (5:00 PM - 8:00 PM)" className="text-xs">Evening (5 PM - 8 PM)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                {/* Message (Optional) */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                    <MessageSquare className="w-3.5 h-3.5 text-muted-foreground" />
-                    Your Message / Requirement <span className="text-muted-foreground font-normal">(Optional)</span>
-                  </label>
-                  <Textarea
-                    placeholder="Tell us a little about what you are looking to automate or build..."
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    rows={2}
-                    className="text-sm resize-none"
-                  />
-                </div>
+              {/* Row 4: Message (Optional - Compact) */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-foreground flex items-center gap-1">
+                  <MessageSquare className="w-3 h-3 text-muted-foreground" />
+                  Your Message / Requirement <span className="text-muted-foreground font-normal">(Optional)</span>
+                </label>
+                <Textarea
+                  placeholder="Tell us a little about your requirement..."
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  rows={2}
+                  className="text-xs min-h-[50px] max-h-[70px] resize-none"
+                />
+              </div>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-11 text-sm font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/95 transition-all shadow-md hover:shadow-lg mt-2"
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full h-9 text-xs sm:text-sm font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/95 transition-all shadow-sm hover:shadow mt-1"
+              >
+                {isSubmitting ? "Requesting Call Back..." : "Request a Call Back"}
+                <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+              </Button>
+
+              {/* Direct WhatsApp Strip — Compact 1-line */}
+              <div className="pt-2 border-t border-border/50">
+                <a
+                  href={WHATSAPP_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/15 border border-[#25D366]/30 transition-all text-xs group"
                 >
-                  {isSubmitting ? "Requesting Call Back..." : "Request a Call Back"}
-                  <ArrowRight className="w-4 h-4 ml-1.5" />
-                </Button>
-
-                {/* WhatsApp Alternative Strip */}
-                <div className="pt-2 border-t border-border/60">
-                  <a
-                    href={WHATSAPP_LINK}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/15 border border-[#25D366]/30 transition-all text-xs group"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <span className="font-semibold text-foreground block">Prefer WhatsApp?</span>
-                        <span className="text-[11px] text-muted-foreground">Chat with us on {WHATSAPP_DISPLAY}</span>
-                      </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                      </svg>
                     </div>
-                    <span className="text-xs font-semibold text-[#128C7E] group-hover:underline">
-                      Chat Now →
+                    <span className="text-[11px] text-muted-foreground">
+                      Prefer WhatsApp? <strong className="text-foreground">{WHATSAPP_DISPLAY}</strong>
                     </span>
-                  </a>
-                </div>
-              </form>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+                  </div>
+                  <span className="text-[11px] font-semibold text-[#128C7E] group-hover:underline">
+                    Chat Now →
+                  </span>
+                </a>
+              </div>
+            </form>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
