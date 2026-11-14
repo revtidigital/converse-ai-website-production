@@ -97,7 +97,7 @@ export default function VoiceDemos() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Sarvam-style interactive voice demos. Click on any agent below to launch a live voice call in a popup. Speak with your mic or select quick questions in <strong>Hindi, UK English, US English, and European Spanish</strong> accents!
+            Sarvam-style interactive voice demos. Click on any agent below to launch a live voice call. Speak with your mic or select quick questions in <strong>Hindi, UK English, US English, and European Spanish</strong> accents!
           </p>
 
           {/* Quick CTA to start call immediately */}
@@ -107,7 +107,7 @@ export default function VoiceDemos() {
               className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm shadow-lg shadow-violet-600/30 transition-all hover:scale-105"
             >
               <PhoneCall className="w-4 h-4 text-emerald-300" />
-              <span>Start Interactive Voice Call (Popup) 🎙️</span>
+              <span>Start Interactive Voice Call 🎙️</span>
             </button>
 
             <a
@@ -130,7 +130,7 @@ export default function VoiceDemos() {
                 Select a Voice Agent to Test
               </h2>
               <p className="text-xs sm:text-sm text-slate-500">
-                Clicking any card opens the interactive 2-way call popup with distinct accents.
+                Clicking any card connects to an interactive 2-way call with distinct accents.
               </p>
             </div>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-200 text-slate-700">
@@ -183,7 +183,7 @@ export default function VoiceDemos() {
                   </div>
                 </div>
 
-                {/* Footer Button to open popup */}
+                {/* Footer Button to open voice call */}
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-[11px] font-medium text-slate-500">{agent.stats}</span>
                   <button
@@ -194,7 +194,7 @@ export default function VoiceDemos() {
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs shadow-sm transition-all"
                   >
                     <PhoneCall className="w-3 h-3" />
-                    <span>Talk in Popup ↗</span>
+                    <span>Talk to Agent 🎙️</span>
                   </button>
                 </div>
               </div>

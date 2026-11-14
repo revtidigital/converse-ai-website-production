@@ -208,7 +208,7 @@ export default function Index() {
                     onClick={() => setIsVoiceModalOpen(true)}
                     className={`${buttonVariants({ variant: 'hero-outline', size: 'xl' })} cursor-pointer`}
                   >
-                    🎙️ Voice AI Demo (Popup)
+                    🎙️ Try Voice AI Demo
                   </button>
                 </div>
               </motion.div>
