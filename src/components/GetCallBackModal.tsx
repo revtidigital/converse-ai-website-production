@@ -146,7 +146,7 @@ export default function GetCallBackModal() {
         .filter(Boolean)
         .join(" | ");
 
-      const result = await submitContactForm({
+      await submitContactForm({
         fullName: formData.name.trim(),
         email: formData.email.trim() || `lead_${Date.now()}@theconverseai.com`,
         phone: formData.phone.trim(),
@@ -162,19 +162,15 @@ export default function GetCallBackModal() {
         },
       });
 
-      if (result.success) {
-        setSubmitted(true);
-        if (typeof window !== "undefined") {
-          localStorage.setItem(STORAGE_KEY_SUBMITTED, "true");
-        }
-        trackFormSuccess("get_call_back_form");
-        toast({
-          title: "Request Received!",
-          description: "Our team will call you shortly. Thank you!",
-        });
-      } else {
-        throw new Error(result.error || "Failed to submit");
+      setSubmitted(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY_SUBMITTED, "true");
       }
+      trackFormSuccess("get_call_back_form");
+      toast({
+        title: "Request Received!",
+        description: "Our team will call you shortly. Thank you!",
+      });
     } catch {
       toast({
         title: "Submission Error",
