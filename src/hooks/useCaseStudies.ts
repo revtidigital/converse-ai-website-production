@@ -6,17 +6,6 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type CaseStudyRow = Tables<"case_studies">;
 
-// Temporarily hidden from the public listing (not deleted — data stays in Supabase).
-const HIDDEN_SLUGS = new Set([
-  "retail-brand-whatsapp-automation", // StyleMart
-  "fashion-ecommerce-whatsapp-support-automation", // Riya
-  "saas-billing-support-automation", // Ankit
-  "fintech-support-automation", // Neha
-  "real-estate-lead-automation", // Rajiv
-  "edtech-night-support-automation", // Priya
-  "gym-membership-inquiry-automation", // Vikram
-]);
-
 function rowToCaseStudy(row: CaseStudyRow): CaseStudy {
   return {
     id: row.id,
@@ -43,9 +32,7 @@ function rowToCaseStudy(row: CaseStudyRow): CaseStudy {
 }
 
 export function useCaseStudies() {
-  const [data, setData] = useState<CaseStudy[]>(
-    caseStudies.filter((cs) => !HIDDEN_SLUGS.has(cs.slug))
-  );
+  const [data, setData] = useState<CaseStudy[]>(caseStudies);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,11 +51,7 @@ export function useCaseStudies() {
       if (err) {
         setError(err.message);
       } else {
-        setData(
-          (rows ?? [])
-            .filter((row) => !HIDDEN_SLUGS.has(row.slug))
-            .map(rowToCaseStudy)
-        );
+        setData((rows ?? []).map(rowToCaseStudy));
       }
       setLoading(false);
     }

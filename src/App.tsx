@@ -29,7 +29,6 @@ import Services from "./pages/Services";
 import AIStrategyAudit from "./pages/AIStrategyAudit";
 import AIAuditIntake from "./pages/AIAuditIntake";
 import AIVoiceAgents from "./pages/AIVoiceAgents";
-import VoiceDemos from "./pages/VoiceDemos";
 import AgenticAutomation from "./pages/AgenticAutomation";
 import AIIntegration from "./pages/AIIntegration";
 import CustomAIAgents from "./pages/CustomAIAgents";
@@ -150,7 +149,6 @@ const staticRouteElements: Record<PublicStaticRoutePath, ReactNode> = {
   "/services/agentic-automation": <AgenticAutomation />,
   "/services/ai-integration": <AIIntegration />,
   "/services/ai-voice-agents": <AIVoiceAgents />,
-  "/voice-demos": <VoiceDemos />,
   "/services/custom-ai-agents": <CustomAIAgents />,
   "/services/knowledge-intelligence": <KnowledgeIntelligence />,
   "/services/sales-ai": <SalesAI />,

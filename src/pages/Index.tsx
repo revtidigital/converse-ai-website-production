@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -14,8 +13,6 @@ import SectionHeading from '@/components/SectionHeading'
 import StatCard from '@/components/StatCard'
 import Footer from '@/components/Footer'
 import UserSection from '@/components/UserSection'
-import GetCallBackModal from '@/components/GetCallBackModal'
-import VoiceCallModal from '@/components/VoiceCallModal'
 
 const products = [
   { icon: Bot, title: 'AI Chatbot', description: 'Natural language understanding with 24/7 automated support, lead qualification, and smart handover to human agents.', path: '/chatbot' },
@@ -85,8 +82,6 @@ const industries = [
 ]
 
 export default function Index() {
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-
   return (
     <>
       <Helmet>
@@ -173,19 +168,10 @@ export default function Index() {
                 transition={{ duration: 0.7 }}
                 className="text-center lg:text-left"
               >
-                <div className="flex flex-wrap items-center gap-2.5 justify-center lg:justify-start mb-6">
-                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                    <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
-                    Conversational AI + Agentic Systems
-                  </span>
-                  <button
-                    onClick={() => setIsVoiceModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-sm transition-all hover:scale-105 cursor-pointer"
-                  >
-                    <span>🎙️ Try Voice AI Demo (Live Call)</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                  <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
+                  Conversational AI + Agentic Systems
+                </span>
                 <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">
                   AI Agents <span className="gradient-text">Built and Run</span> for Your Business
                 </h1>
@@ -204,12 +190,9 @@ export default function Index() {
                   >
                     Get a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </a>
-                  <button
-                    onClick={() => setIsVoiceModalOpen(true)}
-                    className={`${buttonVariants({ variant: 'hero-outline', size: 'xl' })} cursor-pointer`}
-                  >
-                    🎙️ Try Voice AI Demo
-                  </button>
+                  <Link to="/services" className={buttonVariants({ variant: 'hero-outline', size: 'xl' })}>
+                    See What We Build
+                  </Link>
                 </div>
               </motion.div>
 
@@ -232,24 +215,6 @@ export default function Index() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, i) => (
                 <StatCard key={stat.label} {...stat} index={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Products ── */}
-        <section id="products" className="py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading
-              label="Products"
-              title="Everything You Need to Engage Customers"
-              description="From AI chatbots to WhatsApp commerce, we provide a complete suite of conversational tools for modern businesses."
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product, i) => (
-                <Link key={product.path} to={product.path} className="no-underline">
-                  <FeatureCard {...product} index={i} />
-                </Link>
               ))}
             </div>
           </div>
@@ -307,6 +272,24 @@ export default function Index() {
                 Book a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </a>
             </motion.div>
+          </div>
+        </section>
+
+        {/* ── Products ── */}
+        <section id="products" className="py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading
+              label="Products"
+              title="Everything You Need to Engage Customers"
+              description="From AI chatbots to WhatsApp commerce, we provide a complete suite of conversational tools for modern businesses."
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product, i) => (
+                <Link key={product.path} to={product.path} className="no-underline">
+                  <FeatureCard {...product} index={i} />
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -430,12 +413,6 @@ export default function Index() {
         </section>
 
         <Footer />
-        <GetCallBackModal />
-        <VoiceCallModal
-          isOpen={isVoiceModalOpen}
-          onClose={() => setIsVoiceModalOpen(false)}
-          initialAgent="appointment"
-        />
       </div>
     </>
   )

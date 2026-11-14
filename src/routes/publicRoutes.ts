@@ -14,7 +14,6 @@ export const SITEMAP_ROUTES = [
   "/services/agentic-automation",
   "/services/ai-integration",
   "/services/ai-voice-agents",
-  "/voice-demos",
   "/services/custom-ai-agents",
   "/services/knowledge-intelligence",
   "/services/sales-ai",

@@ -108,7 +108,6 @@ async function submitToZohoCRM(payload: ContactPayload, utm: Record<string, stri
 
 /**
  * Triggers serverless Brevo email dispatcher.
- * Sends user confirmation email (if valid email provided) and team lead alert email.
  * Non-blocking, isolated try-catch so it never disrupts form UX or sheet logging.
  */
 async function triggerBrevoEmail(payload: ContactPayload, subject: string): Promise<void> {
@@ -119,13 +118,9 @@ async function triggerBrevoEmail(payload: ContactPayload, subject: string): Prom
     return;
   }
 
-  // Detect whether the visitor provided an actual email address (not auto-generated fallback)
-  const hasValidUserEmail = Boolean(
-    payload.email &&
-    payload.email.includes("@") &&
-    !payload.email.startsWith("lead_") &&
-    payload.extraFields?.userEmailProvided !== "false"
-  );
+  if (!payload.email || !payload.email.includes("@")) {
+    return;
+  }
 
   try {
     await fetch("/api/send-brevo-email", {
@@ -133,16 +128,13 @@ async function triggerBrevoEmail(payload: ContactPayload, subject: string): Prom
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: payload.email,
-        phone: payload.phone,
-        countryName: payload.countryName,
         fullName: payload.fullName,
         product: payload.product,
         subject,
         message: payload.message,
         form_source: payload.form_source,
-        page_url: typeof window !== "undefined" ? window.location.href : "",
+        page_url: window.location.href,
         extraFields: payload.extraFields,
-        hasValidUserEmail,
       }),
     });
   } catch (err) {

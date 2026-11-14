@@ -17,7 +17,7 @@ const PUBLIC_STATIC_ROUTES = [
   "/", "/about-us", "/contact-us", "/book-demo", "/blog", "/blog-2",
   "/case-studies", "/solutions/ai-for-smb", "/services",
   "/services/ai-strategy-audit", "/services/agentic-automation",
-  "/services/ai-integration", "/services/ai-voice-agents", "/voice-demos",
+  "/services/ai-integration", "/services/ai-voice-agents",
   "/services/custom-ai-agents", "/services/knowledge-intelligence",
   "/services/sales-ai", "/chatbot", "/live-chat", "/pre-chat-forms",
   "/omni-channel", "/whatsapp-ai-chatbot", "/whatsapp-shop",

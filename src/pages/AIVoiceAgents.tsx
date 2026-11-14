@@ -511,15 +511,9 @@ const AIVoiceAgents = () => {
                     </div>
                     </>
                     )}
-                    <div className="flex flex-wrap items-center gap-4 mt-6">
-                      <Link to="/voice-demos" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm shadow-md transition-all">
-                        <span>🎙️ Explore Interactive Voice Demos</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-                      <a href="#sample-calls" className="text-primary font-semibold inline-flex items-center gap-2 hover:underline text-sm">
-                        Listen to sample calls ↓
-                      </a>
-                    </div>
+                    <a href="#sample-calls" className="mt-4 text-primary font-semibold inline-flex items-center gap-2 hover:underline text-sm">
+                      Listen to sample calls ↓
+                    </a>
                   </div>
                 </AnimatedSection>
                 <AnimatedSection delay={0.3}>
