@@ -31,7 +31,7 @@ const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponen
   "Hi, I would like to request a call back from ConverseAI."
 )}`;
 
-const STORAGE_KEY_DISMISSED = "converse_callback_dismissed";
+const STORAGE_KEY_DISMISSED = "converse_callback_v2_dismissed";
 const STORAGE_KEY_SUBMITTED = "converse_callback_submitted";
 
 export default function GetCallBackModal() {
@@ -55,31 +55,44 @@ export default function GetCallBackModal() {
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { toast } = useToast();
 
-  // Scroll detection: Trigger popup smoothly only after user has properly scrolled into the page
+  // Scroll detection: Trigger popup smoothly once user scrolls past the hero banner (~350px)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // If already submitted or dismissed in this session, do not auto-popup
+    // Clean up old stale dismissed key so it does not block testing
+    try {
+      sessionStorage.removeItem("converse_callback_dismissed");
+    } catch {
+      // ignore
+    }
+
+    // If already submitted in this browser, do not auto-popup
     if (localStorage.getItem(STORAGE_KEY_SUBMITTED)) return;
-    if (sessionStorage.getItem(STORAGE_KEY_DISMISSED)) return;
+
+    // If dismissed recently in this session (within 5 minutes), do not auto-popup
+    const lastDismissed = sessionStorage.getItem(STORAGE_KEY_DISMISSED);
+    if (lastDismissed && Date.now() - Number(lastDismissed) < 5 * 60 * 1000) {
+      return;
+    }
 
     const handleScroll = () => {
       if (hasTriggeredScroll.current) return;
       const scrollPos = window.scrollY || document.documentElement.scrollTop;
 
-      // Trigger threshold: after user has scrolled properly past hero into content (~950px)
-      const threshold = Math.max(950, window.innerHeight * 1.1);
-
-      if (scrollPos > threshold) {
+      // Trigger threshold: right after user scrolls past the hero banner (~350px)
+      if (scrollPos > 350) {
         hasTriggeredScroll.current = true;
-        // Smooth delay so the modal doesn't abruptly pop in mid-wheel movement
+        // Smooth 400ms delay for graceful entrance
         scrollTimerRef.current = setTimeout(() => {
           setOpen(true);
-        }, 1200);
+        }, 400);
       }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    // Also run once in case page loaded already scrolled
+    handleScroll();
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
@@ -90,7 +103,7 @@ export default function GetCallBackModal() {
     setOpen(nextOpen);
     if (!nextOpen) {
       if (typeof window !== "undefined" && !submitted) {
-        sessionStorage.setItem(STORAGE_KEY_DISMISSED, "true");
+        sessionStorage.setItem(STORAGE_KEY_DISMISSED, String(Date.now()));
       }
     }
   };
