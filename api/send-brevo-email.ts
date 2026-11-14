@@ -1323,7 +1323,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // -------------------------------------------------------------
     const TEAM_RECIPIENTS = [
       { email: "contact@theconverseai.com", name: "ConverseAI Team" },
-      { email: "janvisethi773@gmail.com", name: "Janvi Sethi" },
     ];
 
     const teamHtmlContent = buildTeamLeadAlertTemplate({
