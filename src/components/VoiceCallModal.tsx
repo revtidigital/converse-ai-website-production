@@ -426,6 +426,142 @@ interface VoiceCallModalProps {
   initialAgent?: AgentType;
 }
 
+/**
+ * Intelligent conversational response matcher.
+ * Handles natural pleasantries, greetings (hello/hi), small talk (how are you/who are you),
+ * polite affirmations, agent-specific domain intents, and off-topic fallback.
+ */
+function getAgentResponse(
+  query: string,
+  agent: AgentType,
+  lang: LanguageKey
+): string {
+  const q = query.toLowerCase().trim();
+  const cfg = AGENT_CONFIGS[agent];
+
+  // 1. Universal Greetings & Pleasantries ("hello", "hi", "hey", "namaste", "sun rahe ho", "can you hear me", "hello hello")
+  if (
+    /(hello|hi|hey|hiya|namaste|namaskar|pranam|hola|sun rhe|sun rahe|aawaz|awaz|can you hear|are you there|listening|good morning|good afternoon|good evening|kya haal)/i.test(
+      q
+    )
+  ) {
+    if (lang === "hindi") {
+      return "नमस्ते! जी हाँ, मैं आपको बिल्कुल साफ़ सुन रही हूँ। बताइए, आज मैं आपकी क्या सहायता करूँ?";
+    } else if (lang === "uk_english") {
+      return "Hello! Yes, I can hear you splendidly. How may I be of assistance to you today?";
+    } else if (lang === "us_english") {
+      return "Hey there! I hear you loud and clear. What can I help you out with today?";
+    } else {
+      return "¡Hola! Sí, le escucho con total claridad. ¿En qué le puedo colaborar hoy?";
+    }
+  }
+
+  // 2. "How are you?" / "Aap kaise ho?"
+  if (
+    /(how are you|how do you do|how's it going|kaise ho|aap kaise|kaisa chal|como estas|que tal)/i.test(
+      q
+    )
+  ) {
+    if (lang === "hindi") {
+      return "मैं बहुत बढ़िया हूँ, पूछने के लिए धन्यवाद! आप कैसे हैं? आज मैं आपकी क्या मदद करूँ?";
+    } else if (lang === "uk_english") {
+      return "I am doing splendidly, thank you ever so much for asking! How are you today, and how can I assist?";
+    } else if (lang === "us_english") {
+      return "I'm doing awesome, thanks for asking! How are you doing? What can I help you with today?";
+    } else {
+      return "¡Estoy excelente, gracias por preguntar! ¿Cómo se encuentra hoy y en qué puedo colaborarle?";
+    }
+  }
+
+  // 3. "Who are you?" / "What is your name?" / "Aap kaun ho?"
+  if (
+    /(who are you|your name|what are you|aap kaun|kaun ho|tum kaun|quien eres|introduce yourself)/i.test(
+      q
+    )
+  ) {
+    if (agent === "appointment") {
+      if (lang === "hindi")
+        return "मैं Aria हूँ, Converse AI की अपॉइंटमेंट शेड्यूलर। मैं डॉक्टर और कंसल्टेशन अपॉइंटमेंट बुक या रीशेड्यूल करने में मदद करती हूँ। आप किस दिन का समय चाहते हैं?";
+      if (lang === "uk_english")
+        return "I am Aria, your ConverseAI scheduling specialist. I can assist you with booking or rescheduling consultations. What date suits you best?";
+      if (lang === "us_english")
+        return "I'm Aria, your ConverseAI appointment coordinator. I'm here to lock in your booking or consultation slot. When would you like to schedule?";
+      return "Soy Aria, asistente de citas de ConverseAI. Puedo gestionar o reprogramar su consulta cuando desee.";
+    } else if (agent === "support") {
+      if (lang === "hindi")
+        return "मैं Rohan हूँ, Converse AI कस्टमर सपोर्ट असिस्टेंट। मैं आपकी ऑर्डर ट्रैकिंग, रिफंड और किसी भी समस्या के समाधान में सहायता करता हूँ।";
+      if (lang === "uk_english")
+        return "I am Rohan, your ConverseAI customer care specialist. I handle package tracking, returns, and support escalation. How can I help with your order?";
+      if (lang === "us_english")
+        return "I'm Rohan with ConverseAI Customer Care! I can track your packages, process returns, or connect you with a live rep. What's on your mind?";
+      return "Soy Rohan, del equipo de soporte de ConverseAI. Gestiono pedidos, reembolsos y atención al cliente.";
+    } else {
+      if (lang === "hindi")
+        return "मैं Maya हूँ, Converse AI सॉल्यूशंस एडवाइजर। हम आपके बिज़नेस के लिए AI Voice Agents, WhatsApp Chatbots और ऑटोमेशन बनाते हैं।";
+      if (lang === "uk_english")
+        return "I am Maya, solutions advisor at ConverseAI. We build real-time voice bots, WhatsApp chatbots, and enterprise workflows.";
+      if (lang === "us_english")
+        return "I'm Maya from ConverseAI Solutions. We create human-parity voice AI agents and WhatsApp bots for your business!";
+      return "Soy Maya, asesora de soluciones de ConverseAI. Diseñamos agentes de voz e integraciones inteligentes.";
+    }
+  }
+
+  // 4. "Thank you" / "Thanks" / "Dhanyawad"
+  if (/(thank|thanks|thx|dhanyawad|shukriya|gracias)/i.test(q)) {
+    if (lang === "hindi") {
+      return "आपका बहुत-बहुत स्वागत है! अगर कोई और भी सवाल हो, तो बेझिझक पूछिए।";
+    } else if (lang === "uk_english") {
+      return "You are most welcome! Do let me know if there is anything else I can take care of for you.";
+    } else if (lang === "us_english") {
+      return "You got it! You're very welcome. Let me know if you need any other help.";
+    } else {
+      return "¡De nada! Ha sido un verdadero placer. ¿Desea consultar algo más?";
+    }
+  }
+
+  // 5. "Yes / Okay / Sure / Theek hai / Haan"
+  if (
+    /^(ok|okay|yes|yeah|yep|sure|fine|alright|theek hai|thik hai|haan|accha|achha|sahi hai|vale|si)\b/i.test(
+      q
+    )
+  ) {
+    if (lang === "hindi") {
+      return "जी बिल्कुल! कृपया अपनी आवश्यकता या सवाल बताइए, मैं तुरंत समाधान कर देती हूँ।";
+    } else if (lang === "uk_english") {
+      return "Splendid! Please go ahead and share the details so I can assist you.";
+    } else if (lang === "us_english") {
+      return "Awesome! Go right ahead and tell me what you need.";
+    } else {
+      return "¡Perfecto! Cuénteme los detalles y le asisto con mucho gusto.";
+    }
+  }
+
+  // 6. "Bye / Goodbye / Alvida"
+  if (/(bye|goodbye|see you|take care|alvida|tata|adios|hasta luego)/i.test(q)) {
+    if (lang === "hindi") {
+      return "अलविदा! Converse AI से बात करने के लिए धन्यवाद। आपका दिन बहुत शुभ हो!";
+    } else if (lang === "uk_english") {
+      return "Cheerio and goodbye! Thank you for contacting ConverseAI. Have a delightful day!";
+    } else if (lang === "us_english") {
+      return "Goodbye! Thanks for connecting with ConverseAI. Have a great day!";
+    } else {
+      return "¡Hasta luego! Muchas gracias por comunicarse con ConverseAI. ¡Que tenga un feliz día!";
+    }
+  }
+
+  // 7. Check Agent-Specific Intents
+  const intentList = cfg.intents[lang] || [];
+  for (const intent of intentList) {
+    const isMatch = intent.keywords.some((kw) => q.includes(kw.toLowerCase()));
+    if (isMatch) {
+      return intent.answer;
+    }
+  }
+
+  // 8. If nothing matched and query is truly off-topic, return polite fallback
+  return cfg.fallbackResponses[lang];
+}
+
 export default function VoiceCallModal({
   isOpen,
   onClose,
@@ -661,7 +797,7 @@ export default function VoiceCallModal({
     }
   };
 
-  // Agent response matcher with pre-defined answers + polite fallback
+  // Agent response matcher with conversational small-talk, universal pleasantries, and polite off-topic fallback
   const handleUserSpeechOrInput = (userQuery: string) => {
     if (!userQuery.trim()) return;
 
@@ -678,22 +814,8 @@ export default function VoiceCallModal({
     setMessages((prev) => [...prev, userMsg]);
     setInputText("");
 
-    // Find intent in knowledge base
-    const lowerQuery = trimmed.toLowerCase();
-    const intentList = currentConfig.intents[selectedLanguage] || [];
-
-    let matchedAnswer: string | null = null;
-
-    for (const intent of intentList) {
-      const isMatch = intent.keywords.some((kw) => lowerQuery.includes(kw.toLowerCase()));
-      if (isMatch) {
-        matchedAnswer = intent.answer;
-        break;
-      }
-    }
-
-    // If query is not relevant / off-topic, speak the polite fallback!
-    const finalAnswer = matchedAnswer || currentConfig.fallbackResponses[selectedLanguage];
+    // Determine smart agent response (small-talk, domain intents, or polite off-topic fallback)
+    const finalAnswer = getAgentResponse(trimmed, selectedAgent, selectedLanguage);
 
     // Artificial thinking pause for human realism
     setTimeout(() => {
@@ -705,7 +827,7 @@ export default function VoiceCallModal({
       };
       setMessages((prev) => [...prev, agentMsg]);
       speakText(finalAnswer, selectedLanguage);
-    }, 500);
+    }, 450);
   };
 
   // Web Speech Recognition for Real Microphone interaction
