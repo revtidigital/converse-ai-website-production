@@ -235,7 +235,7 @@ function buildDemoWalkthroughTemplate(
     <tr>
       <td class="pad" style="padding:24px 12px 10px 12px;">
         <p style="margin:0 0 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#6B6890;text-align:center;">
-          <a href="mailto:contact@theconverseai.com" style="color:#6B6890;">contact@theconverseai.com</a> &nbsp;|&nbsp; <a href="https://wa.me/917891331221" style="color:#6B6890;text-decoration:none;">+91 78913 31221</a>
+          <a href="mailto:contact@theconverseai.com" style="color:#6B6890;">contact@theconverseai.com</a> &nbsp;|&nbsp; +91-9982323333
         </p>
         <p style="margin:0 0 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#6B6890;text-align:center;">
           <a href="https://www.linkedin.com/company/theconverseai" style="color:#7C3AED;">LinkedIn</a> &nbsp;|&nbsp;
@@ -594,7 +594,7 @@ function buildWhatsAppMasterTemplate(firstName: string): string {
     <tr>
       <td class="pad" style="padding:24px 12px 10px 12px;">
         <p style="margin:0 0 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#6B6890;text-align:center;">
-          <a href="mailto:contact@theconverseai.com" style="color:#6B6890;">contact@theconverseai.com</a> &nbsp;|&nbsp; <a href="https://wa.me/917891331221" style="color:#6B6890;text-decoration:none;">+91 78913 31221</a>
+          <a href="mailto:contact@theconverseai.com" style="color:#6B6890;">contact@theconverseai.com</a> &nbsp;|&nbsp; +91-9982323333
         </p>
         <p style="margin:0 0 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#6B6890;text-align:center;">
           <a href="https://www.linkedin.com/company/theconverseai" style="color:#7C3AED;text-decoration:none;">LinkedIn</a> &nbsp;|&nbsp;
@@ -954,7 +954,7 @@ function buildHtmlTemplate(
     <tr>
       <td class="pad" style="padding:24px 12px 10px 12px;">
         <p style="margin:0 0 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#6B6890;text-align:center;">
-          <a href="mailto:contact@theconverseai.com" style="color:#6B6890;">contact@theconverseai.com</a> &nbsp;|&nbsp; <a href="https://wa.me/917891331221" style="color:#6B6890;text-decoration:none;">+91 78913 31221</a>
+          <a href="mailto:contact@theconverseai.com" style="color:#6B6890;">contact@theconverseai.com</a> &nbsp;|&nbsp; +91-9982323333
         </p>
         <p style="margin:0 0 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#6B6890;text-align:center;">
           <a href="https://www.linkedin.com/company/theconverseai" style="color:#7C3AED;text-decoration:none;">LinkedIn</a> &nbsp;|&nbsp;

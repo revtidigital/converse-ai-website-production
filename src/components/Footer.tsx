@@ -189,14 +189,12 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
                 contact@theconverseai.com
               </a>
               <a 
-                href="https://wa.me/917891331221?text=Hi%2C%20I%27m%20interested%20in%20ConverseAI" 
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                className="text-sm text-footer-text hover:text-emerald-400 transition-colors block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-footer rounded"
-                aria-label="Chat with us on WhatsApp at +91 78913 31221"
-                title="WhatsApp: +91 78913 31221"
+                href="tel:+919982323333" 
+                className="text-sm text-footer-text hover:text-primary transition-colors block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-footer rounded"
+                aria-label="Call us at +91 99823 23333"
+                title="Call +91 99823 23333"
               >
-                +91 78913 31221 (WhatsApp)
+                +91-9982323333
               </a>
               <a 
                 href="tel:+917023084065" 
