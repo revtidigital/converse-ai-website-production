@@ -325,7 +325,7 @@ export const generateAuditReportPdf = async (input: AuditInput): Promise<Uint8Ar
     x += linkText(page, "contact@theconverseai.com", x, fy, 8, "mailto:contact@theconverseai.com", BRAND.primary);
     page.drawText(sep, { x, y: fy, size: 8, font, color: BRAND.muted });
     x += font.widthOfTextAtSize(sep, 8);
-    linkText(page, "+91 99823 23333", x, fy, 8, "tel:+919982323333", BRAND.primary);
+    linkText(page, "+91 78913 31221", x, fy, 8, "https://wa.me/917891331221", BRAND.primary);
     page.drawText(`Page ${n}`, { x: W - M - 34, y: fy, size: 8, font, color: BRAND.muted });
   };
 

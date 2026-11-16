@@ -119,7 +119,7 @@ const TermsAndConditions = () => {
             </p>
             <ul>
               <li>Email: <a href="mailto:contact@theconverseai.com" className="text-primary hover:underline">contact@theconverseai.com</a></li>
-              <li>Phone: <a href="tel:+919982323333" className="text-primary hover:underline">+91-9982323333</a></li>
+              <li>Phone & WhatsApp: <a href="https://wa.me/917891331221" className="text-primary hover:underline">+91 78913 31221</a></li>
               <li>Address: F-21, Madhuban Colony, Barkat Nagar, Tonk Phatak, Jaipur, Rajasthan 302015</li>
             </ul>
 

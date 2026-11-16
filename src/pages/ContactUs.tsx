@@ -357,14 +357,16 @@ const ContactUs = () => {
                       <Phone className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Phone</h4>
+                      <h4 className="font-semibold text-foreground mb-1">Phone & WhatsApp</h4>
                       <div className="flex flex-col gap-1">
                         <a 
-                          href="tel:+919982323333" 
-                          title="Call ConverseAI at +91 99823 23333"
-                          className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                          href="https://wa.me/917891331221?text=Hi%2C%20I%27m%20interested%20in%20ConverseAI" 
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                          title="Chat with ConverseAI on WhatsApp at +91 78913 31221"
+                          className="text-muted-foreground text-sm hover:text-emerald-500 transition-colors"
                         >
-                          +91-9982323333
+                          +91 78913 31221 (WhatsApp)
                         </a>
                         <a 
                           href="tel:+917023084065" 
