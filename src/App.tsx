@@ -139,6 +139,7 @@ const staticRouteElements: Record<PublicStaticRoutePath, ReactNode> = {
   "/about-us": <AboutUs />,
   "/contact-us": <ContactUs />,
   "/book-demo": <BookDemo />,
+  "/pricing": <Pricing />,
   "/blog": <BlogRedirect />,
   "/blog-2": <Blog2 />,
   "/case-studies": <CaseStudies />,
@@ -198,7 +199,6 @@ const AnimatedRoutes = () => {
         <Route path="/blog-2/:slug" element={<PageTransition><BlogPost2 /></PageTransition>} />
         <Route path="/case-studies/:slug" element={<PageTransition><CaseStudyDetail /></PageTransition>} />
         <Route path="/teams-2" element={<Navigate to="/teams" replace />} />
-        <Route path="/pricing" element={<PageTransition><MainSiteOnly><Pricing /></MainSiteOnly></PageTransition>} />
 
         {/* Admin routes — no page transition, no public header */}
         <Route path="/admin/login" element={<AdminLogin />} />
