@@ -163,7 +163,7 @@ export default function Index() {
 
               {/* Left — text */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
                 className="text-center lg:text-left"
@@ -198,7 +198,7 @@ export default function Index() {
 
               {/* Right — ChatbotMockup */}
               <motion.div
-                initial={{ opacity: 0, x: 30 }}
+                initial={false}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
                 className="relative lg:pl-8"

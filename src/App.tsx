@@ -177,7 +177,7 @@ const AnimatedRoutes = () => {
   const location = useLocation();
   
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <Suspense fallback={<div className="min-h-screen bg-background" />}>
       <Routes location={location} key={location.pathname}>
         {PUBLIC_STATIC_ROUTES.map((path) => {
@@ -380,7 +380,7 @@ const App = ({ Router = BrowserRouter, helmetContext = {} }: AppProps) => {
     <HelmetProvider context={helmetContext}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             {isLoading && <LoadingScreen key="loading" />}
           </AnimatePresence>
           <Toaster />

@@ -32,7 +32,7 @@ const pageTransition = {
 const PageTransition = ({ children }: PageTransitionProps) => {
   return (
     <motion.div
-      initial="initial"
+      initial={false}
       animate="animate"
       exit="exit"
       variants={pageVariants}
@@ -41,7 +41,7 @@ const PageTransition = ({ children }: PageTransitionProps) => {
     >
       {/* Page reveal overlay */}
       <motion.div
-        initial={{ scaleY: 1 }}
+        initial={false}
         animate={{ scaleY: 0 }}
         exit={{ scaleY: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
