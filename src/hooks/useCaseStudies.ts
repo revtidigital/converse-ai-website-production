@@ -8,7 +8,6 @@ type CaseStudyRow = Tables<"case_studies">;
 
 // Temporarily hidden from the public listing (not deleted — data stays in Supabase).
 const HIDDEN_SLUGS = new Set([
-  "retail-brand-whatsapp-automation", // StyleMart
   "fashion-ecommerce-whatsapp-support-automation", // Riya
   "saas-billing-support-automation", // Ankit
   "fintech-support-automation", // Neha
