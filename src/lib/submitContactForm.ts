@@ -182,7 +182,7 @@ export const submitContactForm = async (payload: ContactPayload): Promise<void> 
   const finalPayload: Record<string, string> = {
     fullName: payload.fullName || "",
     email: payload.email || "",
-    phone: payload.phone || "",
+    phone: payload.phone ? payload.phone.replace(/^\+/, "") : "",
     countryName: payload.countryName || "N/A",
     product: payload.product || "N/A",
     subject,
