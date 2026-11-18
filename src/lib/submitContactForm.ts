@@ -129,6 +129,8 @@ async function triggerBrevoEmail(payload: ContactPayload, subject: string): Prom
       body: JSON.stringify({
         email: payload.email,
         fullName: payload.fullName,
+        phone: payload.phone,
+        countryName: payload.countryName,
         product: payload.product,
         subject,
         message: payload.message,

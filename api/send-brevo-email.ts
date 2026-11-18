@@ -3,6 +3,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
 const BREVO_SENDER_EMAIL = "hello@theconverseai.com";
 const BREVO_SENDER_NAME = "Converse AI";
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || "himanshu@theconverseai.com";
 
 interface ServiceEmailConfig {
   serviceTitle: string;
@@ -978,6 +979,123 @@ function buildHtmlTemplate(
 </html>`;
 }
 
+function buildAdminNotificationTemplate({
+  fullName,
+  email,
+  phone,
+  countryName,
+  product,
+  subject,
+  message,
+  form_source,
+  page_url,
+}: {
+  fullName?: string;
+  email: string;
+  phone?: string;
+  countryName?: string;
+  product?: string;
+  subject?: string;
+  message?: string;
+  form_source?: string;
+  page_url?: string;
+}): string {
+  const escapeHtml = (str?: string) =>
+    (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  const formattedMessage = (message || "N/A")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      if (line.startsWith("—") && line.endsWith("—")) {
+        return `<div style="font-weight:bold;color:#5B21B6;margin-top:14px;margin-bottom:8px;font-size:14px;border-bottom:1px solid #E9D5FF;padding-bottom:4px;">${escapeHtml(line)}</div>`;
+      }
+      const colonIdx = line.indexOf(":");
+      if (colonIdx > 0) {
+        const key = line.slice(0, colonIdx).trim();
+        const val = line.slice(colonIdx + 1).trim();
+        return `<div style="margin:5px 0;font-size:13px;line-height:1.5;"><strong style="color:#1F2937;">${escapeHtml(key)}:</strong> <span style="color:#4B5563;">${escapeHtml(val)}</span></div>`;
+      }
+      return `<div style="margin:5px 0;font-size:13px;color:#4B5563;">${escapeHtml(line)}</div>`;
+    })
+    .join("");
+
+  const cleanPhone = (phone || "").replace(/[^0-9+]/g, "");
+  const waUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace(/^\+/, "")}` : null;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Lead Notification</title>
+</head>
+<body style="margin:0;padding:24px;background:#F3F4F6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1F2937;">
+  <div style="max-width:620px;margin:0 auto;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.06);border:1px solid #E5E7EB;">
+    <div style="background:linear-gradient(135deg, #7C3AED 0%, #9D00FF 100%);padding:24px 28px;color:#FFFFFF;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#DDD6FE;margin-bottom:4px;">ConverseAI Website Lead Alert</div>
+      <h1 style="margin:0;font-size:22px;font-weight:700;color:#FFFFFF;line-height:1.3;">New Inbound Lead: ${escapeHtml(fullName || "Website Visitor")}</h1>
+      <div style="font-size:13px;color:#F5F3FF;margin-top:6px;">Form Source: <strong>${escapeHtml(form_source || "Website Form")}</strong></div>
+    </div>
+
+    <div style="padding:28px;">
+      <div style="background:#FAF5FF;border-left:4px solid #7C3AED;border-radius:6px;padding:16px 20px;margin-bottom:24px;">
+        <h2 style="margin:0 0 12px;font-size:15px;color:#5B21B6;text-transform:uppercase;letter-spacing:0.5px;">Contact Information</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <tr>
+            <td style="padding:5px 0;width:130px;color:#6B7280;font-weight:500;">Full Name:</td>
+            <td style="padding:5px 0;color:#111827;font-weight:600;">${escapeHtml(fullName || "N/A")}</td>
+          </tr>
+          <tr>
+            <td style="padding:5px 0;color:#6B7280;font-weight:500;">Email:</td>
+            <td style="padding:5px 0;"><a href="mailto:${escapeHtml(email)}" style="color:#7C3AED;font-weight:600;text-decoration:none;">${escapeHtml(email)}</a></td>
+          </tr>
+          <tr>
+            <td style="padding:5px 0;color:#6B7280;font-weight:500;">Phone:</td>
+            <td style="padding:5px 0;color:#111827;">${phone ? `<a href="tel:${escapeHtml(phone)}" style="color:#7C3AED;text-decoration:none;font-weight:600;">${escapeHtml(phone)}</a>` : "N/A"}</td>
+          </tr>
+          ${countryName && countryName !== "N/A" ? `
+          <tr>
+            <td style="padding:5px 0;color:#6B7280;font-weight:500;">Region / Country:</td>
+            <td style="padding:5px 0;color:#111827;">${escapeHtml(countryName)}</td>
+          </tr>` : ""}
+          ${product && product !== "N/A" ? `
+          <tr>
+            <td style="padding:5px 0;color:#6B7280;font-weight:500;">Service/Product:</td>
+            <td style="padding:5px 0;color:#111827;font-weight:600;">${escapeHtml(product)}</td>
+          </tr>` : ""}
+        </table>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <a href="mailto:${escapeHtml(email)}?subject=Re: ${encodeURIComponent(subject || "ConverseAI Inquiry")}" style="display:inline-block;padding:10px 18px;background:#7C3AED;color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600;margin-right:10px;">Reply via Email &rarr;</a>
+        ${waUrl ? `<a href="${waUrl}" target="_blank" style="display:inline-block;padding:10px 18px;background:#25D366;color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600;">Chat on WhatsApp &rarr;</a>` : ""}
+      </div>
+
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:18px 20px;margin-bottom:20px;">
+        <h3 style="margin:0 0 10px;font-size:14px;color:#374151;text-transform:uppercase;letter-spacing:0.5px;">Form Submission Details</h3>
+        <div>
+          ${formattedMessage}
+        </div>
+      </div>
+
+      <div style="font-size:12px;color:#9CA3AF;border-top:1px solid #E5E7EB;padding-top:16px;">
+        <div><strong>Subject:</strong> ${escapeHtml(subject || "N/A")}</div>
+        ${page_url ? `<div style="margin-top:4px;"><strong>Submitted From:</strong> <a href="${escapeHtml(page_url)}" style="color:#6B7280;">${escapeHtml(page_url)}</a></div>` : ""}
+        <div style="margin-top:4px;"><strong>Timestamp:</strong> ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -985,7 +1103,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { email, fullName, product, subject, extraFields, message, form_source } =
+    const { email, fullName, phone, countryName, product, subject, extraFields, message, form_source, page_url } =
       req.body || {};
 
     if (!email || typeof email !== "string" || !email.includes("@")) {
@@ -1040,6 +1158,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       campaignTag = serviceConfig.ctaCampaign;
     }
 
+    // 1. Visitor confirmation payload
     const brevoPayload = {
       sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
       to: [{ email: email.trim(), name: fullName || firstName }],
@@ -1052,28 +1171,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       tags: [campaignTag, "website-inbound-lead"],
     };
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json",
+    // 2. Admin lead alert payload (sent directly to himanshu@theconverseai.com)
+    const adminSubject = `[New Lead Alert] ${product || form_source || "Inquiry"} — ${fullName || email.trim()}`;
+    const adminPayload: Record<string, unknown> = {
+      sender: { name: "ConverseAI Lead Alert", email: BREVO_SENDER_EMAIL },
+      to: [{ email: ADMIN_NOTIFICATION_EMAIL, name: "Himanshu" }],
+      replyTo: {
+        email: email.trim(),
+        name: fullName || firstName,
       },
-      body: JSON.stringify(brevoPayload),
-    });
+      subject: adminSubject,
+      htmlContent: buildAdminNotificationTemplate({
+        fullName,
+        email: email.trim(),
+        phone,
+        countryName,
+        product,
+        subject,
+        message,
+        form_source,
+        page_url,
+      }),
+      tags: ["admin-lead-alert", campaignTag],
+    };
 
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      console.error("Brevo API error:", result);
-      return res
-        .status(response.status)
-        .json({ error: "Brevo API call failed", details: result });
+    // If PDF was generated during AI Readiness Audit, attach it directly to the admin email
+    if (extraFields?.pdf_base64 && extraFields?.pdf_filename) {
+      adminPayload.attachment = [
+        {
+          name: extraFields.pdf_filename,
+          content: extraFields.pdf_base64,
+        },
+      ];
     }
+
+    const sendBrevo = async (payload: Record<string, unknown>) => {
+      const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "api-key": BREVO_API_KEY,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      return resp.json().catch(() => ({}));
+    };
+
+    const [userRes, adminRes] = await Promise.allSettled([
+      sendBrevo(brevoPayload),
+      sendBrevo(adminPayload),
+    ]);
+
+    const result = userRes.status === "fulfilled" ? userRes.value : {};
 
     return res.status(200).json({
       success: true,
       serviceSent: serviceSubject,
+      adminAlertSent: adminRes.status === "fulfilled",
       campaign: campaignTag,
       messageId: (result as { messageId?: string }).messageId,
     });
