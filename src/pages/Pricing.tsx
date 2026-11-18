@@ -303,11 +303,13 @@ const FAQS = [
 const Pricing = () => {
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [selectedPlanForDemo, setSelectedPlanForDemo] = useState<string>("Grow");
+  const [modalType, setModalType] = useState<"demo" | "quote">("demo");
 
-  const openDemoModal = (planName?: string) => {
+  const openDemoModal = (planName?: string, type: "demo" | "quote" = "demo") => {
     if (planName) {
       setSelectedPlanForDemo(planName);
     }
+    setModalType(type);
     setIsDemoModalOpen(true);
   };
 
@@ -502,7 +504,7 @@ const Pricing = () => {
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => openDemoModal("Grow")}
+                    onClick={() => openDemoModal("Grow", "demo")}
                     variant="outline"
                     size="lg"
                     className="border-2 border-[#9d00ff]/40 text-[#9d00ff] bg-white hover:bg-[#9d00ff] hover:text-white hover:border-[#9d00ff] font-semibold px-7 py-2.5 h-11 rounded-xl transition-all duration-300 ease-out hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_10px_30px_-6px_rgba(157,0,255,0.35)] active:scale-100 active:translate-y-0 cursor-pointer"
@@ -551,14 +553,15 @@ const Pricing = () => {
                       {/* Stacked CTA Buttons */}
                       <div className="flex flex-col gap-2.5 mb-7">
                         <Button
-                          asChild
-                          className="w-full bg-[#9d00ff] hover:bg-[#8800e0] text-white font-semibold py-2.5 h-10 rounded-xl transition-all duration-300 ease-out shadow-sm shadow-[#9d00ff]/20 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_10px_30px_-6px_rgba(157,0,255,0.45)] active:scale-100 active:translate-y-0"
+                          type="button"
+                          onClick={() => openDemoModal(plan.name, "quote")}
+                          className="w-full bg-[#9d00ff] hover:bg-[#8800e0] text-white font-semibold py-2.5 h-10 rounded-xl transition-all duration-300 ease-out shadow-sm shadow-[#9d00ff]/20 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_10px_30px_-6px_rgba(157,0,255,0.45)] active:scale-100 active:translate-y-0 cursor-pointer"
                         >
-                          <Link to={plan.ctaPrimaryHref}>{plan.ctaPrimary}</Link>
+                          {plan.ctaPrimary}
                         </Button>
                         <Button
                           type="button"
-                          onClick={() => openDemoModal(plan.name)}
+                          onClick={() => openDemoModal(plan.name, "demo")}
                           variant="outline"
                           className="w-full border-2 border-[#9d00ff]/35 text-[#9d00ff] bg-white hover:bg-[#9d00ff] hover:text-white hover:border-[#9d00ff] font-semibold py-2.5 h-10 rounded-xl transition-all duration-300 ease-out hover:scale-[1.03] hover:-translate-y-1 hover:shadow-md hover:shadow-[#9d00ff]/25 active:scale-100 active:translate-y-0 cursor-pointer"
                         >
@@ -896,7 +899,7 @@ const Pricing = () => {
                       </Button>
                       <Button
                         type="button"
-                        onClick={() => openDemoModal("Grow")}
+                        onClick={() => openDemoModal("Grow", "demo")}
                         variant="outline"
                         size="lg"
                         className="border-2 border-white/70 text-white bg-white/10 hover:bg-white hover:text-[#9d00ff] hover:border-white font-bold px-7 py-3 h-12 rounded-xl backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.25)] active:scale-100 active:translate-y-0 cursor-pointer"
@@ -904,12 +907,13 @@ const Pricing = () => {
                         Book a live demo
                       </Button>
                       <Button
-                        asChild
+                        type="button"
+                        onClick={() => openDemoModal("Grow", "quote")}
                         variant="outline"
                         size="lg"
-                        className="border-2 border-white/70 text-white bg-white/10 hover:bg-white hover:text-[#9d00ff] hover:border-white font-bold px-7 py-3 h-12 rounded-xl backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.25)] active:scale-100 active:translate-y-0"
+                        className="border-2 border-white/70 text-white bg-white/10 hover:bg-white hover:text-[#9d00ff] hover:border-white font-bold px-7 py-3 h-12 rounded-xl backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.25)] active:scale-100 active:translate-y-0 cursor-pointer"
                       >
-                        <Link to="/contact-us">Get a custom quote</Link>
+                        Get a custom quote
                       </Button>
                     </div>
                   </div>
@@ -926,6 +930,7 @@ const Pricing = () => {
         isOpen={isDemoModalOpen}
         onClose={() => setIsDemoModalOpen(false)}
         initialPlan={selectedPlanForDemo}
+        modalType={modalType}
       />
     </>
   );

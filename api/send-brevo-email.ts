@@ -989,6 +989,7 @@ function buildAdminNotificationTemplate({
   message,
   form_source,
   page_url,
+  extraFields,
 }: {
   fullName?: string;
   email: string;
@@ -999,6 +1000,7 @@ function buildAdminNotificationTemplate({
   message?: string;
   form_source?: string;
   page_url?: string;
+  extraFields?: Record<string, string>;
 }): string {
   const escapeHtml = (str?: string) =>
     (str || "")
@@ -1088,6 +1090,13 @@ function buildAdminNotificationTemplate({
       <div style="font-size:12px;color:#9CA3AF;border-top:1px solid #E5E7EB;padding-top:16px;">
         <div><strong>Subject:</strong> ${escapeHtml(subject || "N/A")}</div>
         ${page_url ? `<div style="margin-top:4px;"><strong>Submitted From:</strong> <a href="${escapeHtml(page_url)}" style="color:#6B7280;">${escapeHtml(page_url)}</a></div>` : ""}
+        ${extraFields?.utm_source && extraFields.utm_source !== "N/A" ? `
+        <div style="margin-top:8px;padding:10px 14px;background:#EDE9FE;border:1px solid #DDD6FE;border-radius:6px;color:#5B21B6;font-size:12px;line-height:1.6;">
+          <strong style="color:#4C1D95;">UTM Attribution:</strong><br/>
+          Source: <strong>${escapeHtml(extraFields.utm_source)}</strong> | Medium: <strong>${escapeHtml(extraFields.utm_medium || "N/A")}</strong> | Campaign: <strong>${escapeHtml(extraFields.utm_campaign || "N/A")}</strong>
+          ${extraFields.utm_term && extraFields.utm_term !== "N/A" ? ` | Term: <strong>${escapeHtml(extraFields.utm_term)}</strong>` : ""}
+          ${extraFields.utm_content && extraFields.utm_content !== "N/A" ? ` | Content: <strong>${escapeHtml(extraFields.utm_content)}</strong>` : ""}
+        </div>` : ""}
         <div style="margin-top:4px;"><strong>Timestamp:</strong> ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</div>
       </div>
     </div>
@@ -1171,11 +1180,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       tags: [campaignTag, "website-inbound-lead"],
     };
 
-    // 2. Admin lead alert payload (sent directly to himanshu@theconverseai.com)
+    // 2. Admin lead alert payload (sent directly to himanshu@theconverseai.com & theconverseai@gmail.com)
     const adminSubject = `[New Lead Alert] ${product || form_source || "Inquiry"} — ${fullName || email.trim()}`;
+    const adminNotificationRecipients = [
+      { email: ADMIN_NOTIFICATION_EMAIL, name: "Himanshu" },
+      { email: "theconverseai@gmail.com", name: "ConverseAI Team" },
+    ];
     const adminPayload: Record<string, unknown> = {
       sender: { name: "ConverseAI Lead Alert", email: BREVO_SENDER_EMAIL },
-      to: [{ email: ADMIN_NOTIFICATION_EMAIL, name: "Himanshu" }],
+      to: adminNotificationRecipients,
       replyTo: {
         email: email.trim(),
         name: fullName || firstName,
@@ -1191,6 +1204,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message,
         form_source,
         page_url,
+        extraFields,
       }),
       tags: ["admin-lead-alert", campaignTag],
     };

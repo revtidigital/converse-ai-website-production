@@ -110,7 +110,11 @@ async function submitToZohoCRM(payload: ContactPayload, utm: Record<string, stri
  * Triggers serverless Brevo email dispatcher.
  * Non-blocking, isolated try-catch so it never disrupts form UX or sheet logging.
  */
-async function triggerBrevoEmail(payload: ContactPayload, subject: string): Promise<void> {
+async function triggerBrevoEmail(
+  payload: ContactPayload,
+  subject: string,
+  utm?: Record<string, string>
+): Promise<void> {
   if (
     payload.extraFields?.partial_lead === "true" ||
     payload.extraFields?.send_user_email === "false"
@@ -136,7 +140,15 @@ async function triggerBrevoEmail(payload: ContactPayload, subject: string): Prom
         message: payload.message,
         form_source: payload.form_source,
         page_url: window.location.href,
-        extraFields: payload.extraFields,
+        extraFields: {
+          ...payload.extraFields,
+          utm_source: utm?.utm_source || "Direct",
+          utm_medium: utm?.utm_medium || "N/A",
+          utm_campaign: utm?.utm_campaign || "N/A",
+          utm_term: utm?.utm_term || "N/A",
+          utm_content: utm?.utm_content || "N/A",
+          utm_id: utm?.utm_id || "N/A",
+        },
       }),
     });
   } catch (err) {
@@ -147,14 +159,23 @@ async function triggerBrevoEmail(payload: ContactPayload, subject: string): Prom
 export const submitContactForm = async (payload: ContactPayload): Promise<void> => {
   const token = await getCaptchaToken("contact_form") ?? "";
 
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const utm = {
-    utm_source: localStorage.getItem("utm_source") || "Direct",
-    utm_medium: localStorage.getItem("utm_medium") || "N/A",
-    utm_campaign: localStorage.getItem("utm_campaign") || "N/A",
-    utm_term: localStorage.getItem("utm_term") || "N/A",
-    utm_content: localStorage.getItem("utm_content") || "N/A",
-    utm_id: localStorage.getItem("utm_id") || "N/A",
+    utm_source: searchParams?.get("utm_source") || (typeof localStorage !== "undefined" ? localStorage.getItem("utm_source") : null) || "Direct",
+    utm_medium: searchParams?.get("utm_medium") || (typeof localStorage !== "undefined" ? localStorage.getItem("utm_medium") : null) || "N/A",
+    utm_campaign: searchParams?.get("utm_campaign") || (typeof localStorage !== "undefined" ? localStorage.getItem("utm_campaign") : null) || "N/A",
+    utm_term: searchParams?.get("utm_term") || (typeof localStorage !== "undefined" ? localStorage.getItem("utm_term") : null) || "N/A",
+    utm_content: searchParams?.get("utm_content") || (typeof localStorage !== "undefined" ? localStorage.getItem("utm_content") : null) || "N/A",
+    utm_id: searchParams?.get("utm_id") || (typeof localStorage !== "undefined" ? localStorage.getItem("utm_id") : null) || "N/A",
   };
+
+  // Persist live UTM parameters to localStorage for attribution across the session
+  if (typeof window !== "undefined" && typeof localStorage !== "undefined" && searchParams) {
+    ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"].forEach((key) => {
+      const val = searchParams.get(key);
+      if (val) localStorage.setItem(key, val);
+    });
+  }
 
   const subject = getDefaultSubject(payload);
 
@@ -198,6 +219,6 @@ export const submitContactForm = async (payload: ContactPayload): Promise<void> 
       body: params.toString(),
     }),
     submitToZohoCRM(payload, utm, subject),
-    triggerBrevoEmail(payload, subject),
+    triggerBrevoEmail(payload, subject, utm),
   ]);
 };
