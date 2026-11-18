@@ -270,13 +270,20 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
   </div>
 
   {/* Right */}
-  <p className="text-sm text-footer-text md:justify-self-end flex flex-wrap items-center gap-x-3 gap-y-1 justify-center md:justify-end">
-    <Link to="/terms-and-conditions" title="Terms & Conditions" className="hover:text-primary transition-colors">Terms &amp; Conditions</Link>
-    <span aria-hidden="true">·</span>
-    <Link to="/privacy-policy" title="Privacy Policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-    <span aria-hidden="true">·</span>
-    © {new Date().getFullYear()} ConverseAI. All rights reserved.
-  </p>
+  <div className="text-sm text-footer-text md:justify-self-end flex flex-col items-center md:items-end gap-1 text-center md:text-right">
+    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 justify-center md:justify-end">
+      <Link to="/terms-and-conditions" title="Terms & Conditions" className="hover:text-primary transition-colors">Terms &amp; Conditions</Link>
+      <span aria-hidden="true">·</span>
+      <Link to="/privacy-policy" title="Privacy Policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+      <span aria-hidden="true">·</span>
+      © {new Date().getFullYear()} ConverseAI. All rights reserved.
+    </p>
+    <p className="text-[11px] text-footer-text/60">
+      This site is protected by reCAPTCHA and the Google{" "}
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Privacy Policy</a> and{" "}
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Terms of Service</a> apply.
+    </p>
+  </div>
 
 </div>
       </div>

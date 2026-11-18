@@ -492,3 +492,10 @@ body[data-scroll-locked] {
     transform: translateX(-50%);
   }
 }
+
+/* Hide Google reCAPTCHA v3 floating badge to avoid overlap with WhatsApp button */
+.grecaptcha-badge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
