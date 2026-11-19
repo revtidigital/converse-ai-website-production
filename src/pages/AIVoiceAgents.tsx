@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, Phone, Mic, Volume2, Play, Square } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
 import Footer from "@/components/Footer";
-import VoiceAgentShowcase from "@/components/VoiceAgentShowcase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -603,9 +602,6 @@ const AIVoiceAgents = () => {
               </div>
             </div>
           </section>
-
-          {/* Interactive Neural Voice Agent Demos (Matching showcase with Hindi, Hinglish, UK/US English, German, Spanish) */}
-          <VoiceAgentShowcase />
 
           <section id="sample-calls" className="py-12 md:py-16">
             <div className="container-tight">
