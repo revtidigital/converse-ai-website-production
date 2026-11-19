@@ -46,13 +46,10 @@
 
    
     <!-- Google Analytics 4 -->
-      <!-- Google Analytics 4 -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-CSF8XLD87H"></script>
-      <script>
+    <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config','G-CSF8XLD87H',{
         linker:{
           domains:[
@@ -60,20 +57,28 @@
           ]
         }
       });
-      </script>
-    <!-- <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-CSF8XLD87H', {
-        linker: {
-          domains: [
-            'linen-spoonbill-814762.hostingersite.com',
-            'talkeasy-ai-flow.lovable.app'
-          ]
+
+      // Defer gtag script load to avoid competing with initial paint
+      (function() {
+        var gtagLoaded = false;
+        function loadGtag() {
+          if (gtagLoaded) return;
+          gtagLoaded = true;
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = "https://www.googletagmanager.com/gtag/js?id=G-CSF8XLD87H";
+          document.head.appendChild(s);
         }
-      });
-    </script> -->
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadGtag, { timeout: 4000 });
+        } else {
+          window.addEventListener('load', function() { setTimeout(loadGtag, 2500); });
+        }
+        ['touchstart', 'scroll', 'pointerdown'].forEach(function(evt) {
+          window.addEventListener(evt, loadGtag, { once: true, passive: true });
+        });
+      })();
+    </script>
     <!-- End Google Analytics 4 -->
 
     <!-- Non-blocking Analytics & Tracking (Clarity & Meta Pixel) -->
@@ -112,10 +117,10 @@
         }
 
         if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadTrackers, { timeout: 2500 });
+          requestIdleCallback(loadTrackers, { timeout: 6000 });
         } else {
           window.addEventListener('load', function() {
-            setTimeout(loadTrackers, 1500);
+            setTimeout(loadTrackers, 4000);
           });
         }
         ['touchstart', 'scroll', 'pointerdown', 'keydown'].forEach(function(evt) {
@@ -162,7 +167,7 @@
       src="https://www.facebook.com/tr?id=1477034076305247&ev=PageView&noscript=1" /></noscript>
     <div id="root"></div>
 
-    <!-- Optimized On-Demand reCAPTCHA loader (saves 701 KiB during initial load) -->
+    <!-- On-Demand reCAPTCHA loader (loads only when user interacts with forms/CTAs, saving 700+ KiB on initial load) -->
     <script>
       (function() {
         var loaded = false;
@@ -175,17 +180,16 @@
           s.defer = true;
           document.head.appendChild(s);
         }
-        // Preload on first user interaction with a form field or idle fallback
+        // Load on first interaction with a form field or CTA button
         document.addEventListener('focusin', function(e) {
           if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
             loadReCaptcha();
           }
         }, { once: true, passive: true });
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadReCaptcha, { timeout: 4500 });
-        } else {
-          setTimeout(loadReCaptcha, 4000);
-        }
+        document.addEventListener('pointerdown', function(e) {
+          var t = e.target && e.target.closest ? e.target.closest('button, a[href*="demo"], a[href*="contact"]') : null;
+          if (t) loadReCaptcha();
+        }, { once: true, passive: true });
       })();
     </script>
     

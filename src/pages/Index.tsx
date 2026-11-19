@@ -147,7 +147,7 @@ export default function Index() {
         })}</script>
       </Helmet>
 
-      <div className="min-h-screen bg-background pt-16 md:pt-20">
+      <main id="main-content" className="min-h-screen bg-background pt-16 md:pt-20">
 
         {/* ── Hero ── */}
         <section
@@ -332,7 +332,7 @@ export default function Index() {
                 transition={{ duration: 0.6 }}
                 className="glass-card p-8"
               >
-                <div className="flex items-center gap-2 mb-4" aria-label="5 star rating">
+                <div className="flex items-center gap-2 mb-4" role="img" aria-label="5 star rating">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" aria-hidden="true" />
                   ))}
@@ -411,9 +411,9 @@ export default function Index() {
             </motion.div>
           </div>
         </section>
+      </main>
 
-        <Footer />
-      </div>
+      <Footer />
     </>
   )
 }

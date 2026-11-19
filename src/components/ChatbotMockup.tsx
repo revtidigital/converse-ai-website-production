@@ -46,7 +46,7 @@ const ChatbotMockup = memo(() => {
             <Bot className="w-5 h-5 text-primary-foreground" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="font-semibold text-primary-foreground" id="chatbot-title">ConverseAI Assistant</h3>
+            <p className="font-semibold text-primary-foreground text-base" id="chatbot-title">ConverseAI Assistant</p>
             <div className="flex items-center gap-2 text-sm text-primary-foreground/80">
               <span className="w-2 h-2 rounded-full bg-mint animate-pulse" aria-hidden="true" />
               <span>Online • Typically replies instantly</span>

@@ -288,10 +288,10 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
       <span aria-hidden="true">·</span>
       © {new Date().getFullYear()} ConverseAI. All rights reserved.
     </p>
-    <p className="text-[11px] text-footer-text/60">
+    <p className="text-[11px] text-footer-text/90">
       This site is protected by reCAPTCHA and the Google{" "}
-      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Privacy Policy</a> and{" "}
-      <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Terms of Service</a> apply.
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-white" aria-label="Google Privacy Policy (opens in new tab)">Privacy Policy</a> and{" "}
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-white" aria-label="Google Terms of Service (opens in new tab)">Terms of Service</a> apply.
     </p>
   </div>
 
