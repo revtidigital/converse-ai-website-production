@@ -114,7 +114,17 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
                       className="hover:scale-100 transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-footer rounded-full inline-block"
                       aria-label={`Visit our ${social.label} page`}
                     >
-                      <img src={social.icon} alt={social.label} title={social.label} className="w-10 h-10" aria-hidden="true" />
+                      <img
+                        src={social.icon}
+                        alt={social.label}
+                        title={social.label}
+                        width="40"
+                        height="40"
+                        loading="lazy"
+                        decoding="async"
+                        className="w-10 h-10"
+                        aria-hidden="true"
+                      />
                     </a>
                   </li>
                 ))}

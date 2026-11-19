@@ -85,6 +85,9 @@ const UserSection = () => {
                 src={client.logo}
                 alt={client.name}
                 loading="lazy"
+                width="160"
+                height="64"
+                decoding="async"
                 className={`max-h-16 max-w-full object-contain md:max-h-20 ${client.invert ? "invert" : ""}`}
               />
             </li>
@@ -108,6 +111,9 @@ const UserSection = () => {
                     src={client.logo}
                     alt={client.name}
                     loading="lazy"
+                    width="160"
+                    height="64"
+                    decoding="async"
                     className={`max-h-16 max-w-full object-contain ${client.invert ? "invert" : ""}`}
                   />
                 </div>

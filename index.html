@@ -162,12 +162,32 @@
       src="https://www.facebook.com/tr?id=1477034076305247&ev=PageView&noscript=1" /></noscript>
     <div id="root"></div>
 
-     <!-- ✅ reCAPTCHA (FOOTER placement) -->
-  <script 
-    src="https://www.google.com/recaptcha/api.js?render=6Ld6E40sAAAAAAayjrv2wh-ZInD0yK12mVNWlmpH"
-    async
-    defer
-  ></script>
+    <!-- Optimized On-Demand reCAPTCHA loader (saves 701 KiB during initial load) -->
+    <script>
+      (function() {
+        var loaded = false;
+        function loadReCaptcha() {
+          if (loaded) return;
+          loaded = true;
+          var s = document.createElement('script');
+          s.src = "https://www.google.com/recaptcha/api.js?render=6Ld6E40sAAAAAAayjrv2wh-ZInD0yK12mVNWlmpH";
+          s.async = true;
+          s.defer = true;
+          document.head.appendChild(s);
+        }
+        // Preload on first user interaction with a form field or idle fallback
+        document.addEventListener('focusin', function(e) {
+          if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
+            loadReCaptcha();
+          }
+        }, { once: true, passive: true });
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadReCaptcha, { timeout: 4500 });
+        } else {
+          setTimeout(loadReCaptcha, 4000);
+        }
+      })();
+    </script>
     
     <script type="module" src="/src/main.tsx"></script>
   </body>
