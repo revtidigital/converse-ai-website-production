@@ -7,7 +7,7 @@
   },
   "entries": [
     {
-      "identifier": "urn:ai:theconverseai.com:service:ai-agents",
+      "identifier": "urn:air:theconverseai.com:service:ai-agents",
       "displayName": "ConverseAI Custom AI Agents & Workflows",
       "type": "text/markdown",
       "url": "https://theconverseai.com/llms.txt",

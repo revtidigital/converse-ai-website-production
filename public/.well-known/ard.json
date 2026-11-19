@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agenticresourcediscovery.org/schemas/ard.schema.json",
+  "publisher": "theconverseai.com",
+  "updatedAt": "2026-11-19T00:00:00Z",
+  "entries": [
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:theconverseai.com:service:ai-agents",
+      "displayName": "ConverseAI Custom AI Agents & Workflows",
+      "type": "text/markdown",
+      "url": "https://theconverseai.com/llms.txt",
+      "description": "Enterprise-grade conversational AI systems, custom AI voice agents, and agentic workflows built and maintained by ConverseAI.",
+      "representativeQueries": [
+        "custom AI voice agents for businesses",
+        "WhatsApp AI chatbot automation",
+        "agentic AI workflow automation",
+        "customer support AI automation"
+      ],
+      "tags": ["ai-agents", "voice-agents", "automation", "whatsapp-ai"]
+    }
+  ]
+}

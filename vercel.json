@@ -32,7 +32,11 @@
     { "handle": "filesystem" },
 
     {
-      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|css|js|woff|woff2))",
+      "src": "/.well-known/(.*)",
+      "dest": "/.well-known/$1"
+    },
+    {
+      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|css|js|woff|woff2|json|txt|xml))",
       "dest": "/$1"
     },
 
