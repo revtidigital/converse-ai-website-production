@@ -14,6 +14,9 @@ const TermsAndConditions = () => {
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://theconverseai.com/terms-and-conditions" />
+              <meta property="og:url" content="https://theconverseai.com/terms-and-conditions" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       {/* Hero */}

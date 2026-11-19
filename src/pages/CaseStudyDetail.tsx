@@ -100,6 +100,7 @@ const CaseStudyDetail = () => {
         <meta name="robots" content="index, follow" />
         <meta property="og:title" content={`${caseStudy.company} | ConverseAI Case Study`} />
         <meta property="og:description" content={caseStudy.excerpt} />
+        <meta property="og:url" content={`https://theconverseai.com/case-studies/${caseStudy.slug}`} />
         <meta property="og:image" content={DEFAULT_OG_IMAGE_URL} />
         <meta name="twitter:image" content={DEFAULT_OG_IMAGE_URL} />
         <link

@@ -15,6 +15,9 @@ const PrivateNotes = () => {
         <meta property="og:title" content="Private Notes for Team Collaboration | ConverseAI" />
         <meta property="og:description" content="Collaborate better with ConverseAI Private Notes. Add internal notes, tag teammates, and resolve customer issues faster as a team." />
         <link rel="canonical" href="https://theconverseai.com/private-notes" />
+              <meta property="og:url" content="https://theconverseai.com/private-notes" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="pt-16 md:pt-20">

@@ -457,7 +457,7 @@ const Pricing = () => {
           property="og:description"
           content="Voice and agentic AI agents, built and run for you. Every plan is sized to your needs. Engage, Grow, and Scale plans with tailored custom quotes."
         />
-        <meta property="og:image" content="https://theconverseai.com/og-image.svg" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="ConverseAI Pricing - Voice & Agentic AI Plans" />
@@ -471,7 +471,7 @@ const Pricing = () => {
           name="twitter:description"
           content="Voice and agentic AI agents, built and run for you. Every plan is sized to your needs. Engage, Grow, and Scale plans with tailored custom quotes."
         />
-        <meta name="twitter:image" content="https://theconverseai.com/og-image.svg" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
         <meta name="twitter:image:alt" content="ConverseAI Pricing - Voice & Agentic AI Plans" />
 
         {/* Structured Data (JSON-LD) */}

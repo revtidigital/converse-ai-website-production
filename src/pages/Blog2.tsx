@@ -292,7 +292,7 @@ const Blog2 = () => {
           property="og:description"
           content="Explore the latest insights on generative AI, voice agents, agentic automation, and customer experience strategies."
         />
-        <link rel="canonical" href="https://www.theconverseai.com/blog-2" />
+        <link rel="canonical" href="https://theconverseai.com/blog-2" />
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
           .blog-page * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
@@ -311,6 +311,9 @@ const Blog2 = () => {
             .blog-hero-title { font-size: 30px !important; }
           }
         `}</style>
+              <meta property="og:url" content="https://theconverseai.com/blog-2" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <div className="blog-page" style={{ background: "#FAFAFC", minHeight: "100vh" }}>

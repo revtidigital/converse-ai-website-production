@@ -112,6 +112,9 @@ const BookDemo = () => {
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://theconverseai.com/book-demo" />
+              <meta property="og:url" content="https://theconverseai.com/book-demo" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main id="main-content" className="min-h-screen bg-background pt-24">

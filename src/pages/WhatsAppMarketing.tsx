@@ -57,6 +57,9 @@ const WhatsAppMarketing = () => {
         <meta property="og:title" content="WhatsApp Marketing Automation Platform | ConverseAI" />
         <meta property="og:description" content="Run high-converting WhatsApp campaigns with ConverseAI. Automate broadcast messages, drip sequences, and boost customer engagement." />
         <link rel="canonical" href="https://theconverseai.com/whatsapp-marketing" />
+              <meta property="og:url" content="https://theconverseai.com/whatsapp-marketing" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="min-h-screen bg-background pt-16 md:pt-20">

@@ -52,6 +52,9 @@ const WhatsAppShop = () => {
         <meta property="og:title" content="WhatsApp Shop for Ecommerce & Product Catalogs | ConverseAI" />
         <meta property="og:description" content="Sell directly on WhatsApp with ConverseAI WhatsApp Shop. Create product catalogs, automate orders, and convert conversations into sales." />
         <link rel="canonical" href="https://theconverseai.com/whatsapp-shop" />
+              <meta property="og:url" content="https://theconverseai.com/whatsapp-shop" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="min-h-screen bg-background pt-16 md:pt-20">

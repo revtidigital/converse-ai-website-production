@@ -15,6 +15,9 @@ const AgentReports = () => {
         <meta property="og:title" content="Agent Performance Reports & Analytics | ConverseAI" />
         <meta property="og:description" content="Analyze agent productivity and performance with ConverseAI Agent Reports. Gain insights into individual contributions and trends." />
         <link rel="canonical" href="https://theconverseai.com/agent-reports" />
+              <meta property="og:url" content="https://theconverseai.com/agent-reports" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="min-h-screen bg-background pt-16 md:pt-20">

@@ -32,6 +32,9 @@ const CaseStudies = () => {
           content="See how ConverseAI helped real businesses grow with AI chatbots, WhatsApp automation, and omnichannel support."
         />
         <link rel="canonical" href="https://theconverseai.com/case-studies" />
+              <meta property="og:url" content="https://theconverseai.com/case-studies" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <div className="min-h-screen bg-background pt-16 md:pt-20">

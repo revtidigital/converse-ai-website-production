@@ -15,6 +15,9 @@ const Teams = () => {
         <meta property="og:title" content="Team Management & Collaboration Platform | ConverseAI" />
         <meta property="og:description" content="Organize support agents into efficient teams with ConverseAI. Automate assignments, track performance, and streamline team collaboration." />
         <link rel="canonical" href="https://theconverseai.com/teams" />
+              <meta property="og:url" content="https://theconverseai.com/teams" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="pt-16 md:pt-20">

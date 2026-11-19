@@ -317,6 +317,9 @@ const AgenticAutomation = () => {
         />
         <link rel="canonical" href="https://theconverseai.com/services/agentic-automation" />
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
+              <meta property="og:url" content="https://theconverseai.com/services/agentic-automation" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <div className="min-h-screen bg-background pt-16 md:pt-20">

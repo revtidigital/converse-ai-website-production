@@ -93,6 +93,9 @@ const AboutUs = () => {
         <title>About ConverseAI | AI Customer Engagement Platform</title>
         <meta name="description" content="Learn about ConverseAI, our mission, vision, and how we help businesses grow using AI-powered chatbots, live chat, and WhatsApp automation." />
         <link rel="canonical" href="https://theconverseai.com/about-us" />
+              <meta property="og:url" content="https://theconverseai.com/about-us" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
       
       <div className="min-h-screen bg-background pt-16 md:pt-20">

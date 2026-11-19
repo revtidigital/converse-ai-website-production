@@ -134,6 +134,9 @@ const ContactUs = () => {
         <meta property="og:title" content="Contact Us | ConverseAI" />
         <meta property="og:description" content="Contact the ConverseAI team to explore AI chatbot and WhatsApp solutions for your business. We respond within 24 hours." />
         <link rel="canonical" href="https://theconverseai.com/contact-us" />
+              <meta property="og:url" content="https://theconverseai.com/contact-us" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
       
       {/* Hero Section */}

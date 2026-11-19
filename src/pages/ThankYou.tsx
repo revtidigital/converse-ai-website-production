@@ -14,8 +14,12 @@ const ThankYou = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background pt-16 md:pt-20">
       <Helmet>
+        <link rel="canonical" href="https://theconverseai.com/thank-you" />
         <title>Thank You | ConverseAI</title>
         <meta name="robots" content="noindex, follow" />
+              <meta property="og:url" content="https://theconverseai.com/thank-you" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="flex-grow flex flex-col items-center justify-center py-20 px-4">

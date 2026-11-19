@@ -492,7 +492,9 @@ const BlogPost = () => {
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDesc} />
-        <meta property="og:image" content={absoluteImageUrl(post.hero_image)} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={absoluteImageUrl(post.hero_image) || "https://theconverseai.com/og-image.png"} />
+        <meta name="twitter:image" content={absoluteImageUrl(post.hero_image) || "https://theconverseai.com/og-image.png"} />
         <meta property="og:type" content="article" />
         <link rel="canonical" href={canonical} />
         <style>{`

@@ -41,8 +41,10 @@ const BlogPost2 = () => {
         <meta name="description" content={post.excerpt} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt} />
-        <meta property="og:image" content={post.image} />
-        <link rel="canonical" href={`https://www.theconverseai.com/blog-2/${post.slug}`} />
+        <meta property="og:url" content={`https://theconverseai.com/blog-2/${post.slug}`} />
+        <meta property="og:image" content={post.image || "https://theconverseai.com/og-image.png"} />
+        <meta name="twitter:image" content={post.image || "https://theconverseai.com/og-image.png"} />
+        <link rel="canonical" href={`https://theconverseai.com/blog-2/${post.slug}`} />
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
           .blogpost-page * { font-family: 'Inter', sans-serif; box-sizing: border-box; }

@@ -15,6 +15,9 @@ const InboxReports = () => {
         <meta property="og:title" content="Inbox Reports & Conversation Analytics | ConverseAI" />
         <meta property="og:description" content="Analyze inbox performance with real-time reporting using ConverseAI Inbox Reports. Track resolution time, volume, and team workload." />
         <link rel="canonical" href="https://theconverseai.com/inbox-reports" />
+              <meta property="og:url" content="https://theconverseai.com/inbox-reports" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="min-h-screen bg-background pt-16 md:pt-20">

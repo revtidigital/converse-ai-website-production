@@ -348,6 +348,7 @@ const Blog = () => {
             .wp-blog-hero { min-height: 360px; padding: 60px 20px; }
           }
         `}</style>
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <div className="wp-blog">

@@ -15,6 +15,9 @@ const LiveView = () => {
         <meta property="og:title" content="Live View & Real-Time Agent Monitoring | ConverseAI" />
         <meta property="og:description" content="Monitor conversations and agent activity in real time with ConverseAI Live View. Track availability, workload, and performance instantly." />
         <link rel="canonical" href="https://theconverseai.com/live-view" />
+              <meta property="og:url" content="https://theconverseai.com/live-view" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="pt-16 md:pt-20">

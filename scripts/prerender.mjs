@@ -58,12 +58,21 @@ function stripDuplicateSeoDefaults(html, head) {
   return stripped;
 }
 
-function injectRenderedHtml(template, { appHtml, head }) {
+function injectRenderedHtml(template, { appHtml, head }, route) {
   let html = template.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`);
 
   if (head) {
     html = stripDuplicateSeoDefaults(html, head);
     html = html.replace("</head>", `<!-- Prerendered route metadata -->\n${head}\n</head>`);
+  }
+
+  // Ensure og:url matches each page's own URL
+  const routeCanonical = `https://theconverseai.com${route === "/" ? "/" : route}`;
+  if (!head || !head.includes('property="og:url"')) {
+    html = html.replace(
+      /<meta\s+property=["']og:url["']\s+content=["'][^"']*["']\s*\/?>/i,
+      `<meta property="og:url" content="${routeCanonical}" />`
+    );
   }
 
   return html;
@@ -79,6 +88,6 @@ for (const route of routes) {
   const rendered = render(route);
   const file = routeToFile(route);
   await mkdir(path.dirname(file), { recursive: true });
-  await writeFile(file, injectRenderedHtml(template, rendered));
+  await writeFile(file, injectRenderedHtml(template, rendered, route));
   console.log(`prerendered ${route}`);
 }

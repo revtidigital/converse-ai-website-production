@@ -15,7 +15,7 @@
 //           content="Measure and improve customer satisfaction with ConverseAI CSAT Reports. Automate surveys and analyze feedback easily." 
 //         />
 //         <meta name="robots" content="index, follow" />
-//         <link rel="canonical" href="https://converseai.com/csat-report" />
+//         <link rel="canonical" href="https://theconverseai.com/csat-report" />
 //       </Helmet>
 
 //       <main className="min-h-screen bg-background pt-16 md:pt-20">
@@ -300,6 +300,9 @@ const CSATReport = () => {
           content="Measure and improve customer satisfaction with ConverseAI CSAT Reports."
         />
         <link rel="canonical" href="https://theconverseai.com/csat-report" />
+        <meta property="og:url" content="https://theconverseai.com/csat-report" />
+        <meta property="og:image" content="https://theconverseai.com/og-image.png" />
+        <meta name="twitter:image" content="https://theconverseai.com/og-image.png" />
       </Helmet>
 
       <main className="min-h-screen bg-background pt-16 md:pt-20 overflow-x-hidden">
@@ -496,7 +499,7 @@ export default CSATReport;
 //           content="Measure and improve customer satisfaction with ConverseAI CSAT Reports. Automate surveys and analyze feedback easily." 
 //         />
 //         <meta name="robots" content="index, follow" />
-//         <link rel="canonical" href="https://converseai.com/csat-report" />
+//         <link rel="canonical" href="https://theconverseai.com/csat-report" />
 //       </Helmet>
 
 //       {/* ✅ FIX 1 → stop horizontal overflow */}
