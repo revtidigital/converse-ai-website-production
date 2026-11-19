@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, Phone, Mic, Volume2, Play, Square } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
 import Footer from "@/components/Footer";
+import VoiceAgentShowcase from "@/components/VoiceAgentShowcase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -24,14 +25,14 @@ const sampleCalls = [
   },
   {
     id: "hindi-appointment",
-    title: "Hindi — Appointment booking for a clinic",
+    title: "Hindi — Appointment booking & service confirmation",
     description: "Collects symptoms, suggests slots, and confirms appointment details in Hindi.",
     lang: "hi-IN",
-    audioSrc: "/audio/Hindi (2).mp3",
+    audioSrc: "/audio/hindi-automotive-female.mp3",
     script:
-      "नमस्ते, मैं Converse AI की तरफ से HealthCare Clinic के लिए बोल रही हूं। क्या मैं आपसे दो मिनट बात कर सकती हूं? आपने हमारी वेबसाइट पर appointment request भेजी थी। आप किस doctor से मिलना चाहते हैं? General Physician के लिए हमारे पास गुरुवार दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का slot available है। कौन सा आपके लिए सुविधाजनक रहेगा? बहुत अच्छा। मैं गुरुवार 3 बजे आपका appointment confirm कर देती हूं। आपका नाम और date of birth confirm कर सकती हूं? धन्यवाद। आपके registered number पर Converse AI के माध्यम से appointment confirmation SMS आ जाएगा। कोई और सहायता चाहिए?",
+      "नमस्ते, मैं Converse AI की तरफ से बात कर रही हूं। आपकी रिक्वेस्ट हमें मिली है। जनरल कंसल्टेशन के लिए हमारे पास गुरुवार दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का स्लॉट उपलब्ध है। कौन सा आपके लिए सुविधाजनक रहेगा? बहुत अच्छा। मैं आपका स्लॉट कन्फर्म कर देती हूं।",
     transcript:
-      "Agent greets in Hindi, confirms appointment request, asks for doctor preference, offers two available slots, collects confirmation details, and sends SMS confirmation. Polite and efficient tone.",
+      "Agent greets in Hindi, confirms appointment request, offers two available slots, and sends SMS confirmation. Polite and efficient tone.",
     languageSchema: "hi",
   },
   {
@@ -48,15 +49,39 @@ const sampleCalls = [
   },
   {
     id: "hinglish-d2c",
-    title: "Hinglish — D2C order status and escalation",
-    description: "Natural code-switching for order tracking, ETA updates, and quick resolution.",
+    title: "Hinglish — Lead qualification & consultation booking (Male Voice)",
+    description: "Natural code-switching for qualification, intent discovery, and scheduling in Hinglish.",
     lang: "en-IN",
-    audioSrc: "/audio/Hinglish (2).mp3",
+    audioSrc: "/audio/Hindi (2).mp3",
     script:
-      "Hello! Main Converse AI ki taraf se ShopEase ke liye Shubh bol raha hoon. Aapne hamare helpline pe call kiya tha regarding your order. Order number DO-7742 ke baare mein pooch rahi hain aap? Let me check that for you. Okay, so aapka order kal, yaani Wednesday ko 10 AM se 2 PM ke beech deliver hoga. Delivery partner ka naam Rakesh hai, aur unka number aapke registered mobile pe Converse AI ke through message ho jayega. Koi aur problem hai? Return ya exchange chahiye toh Converse AI aapke liye request raise kar sakta hai right now. Great. Is there anything else I can help you with? Have a nice day!",
+      "नमस्ते, मैं Converse AI की तरफ से बोल रहा हूँ। क्या मैं आपसे दो मिनट बात कर सकता हूँ? आपने हमारी वेबसाइट पर appointment request भेजी थी। आपके लिए कौन सा समय सबसे सुविधाजनक रहेगा? बहुत अच्छा। मैं आपका स्लॉट तुरंत कन्फर्म कर देता हूँ।",
     transcript:
-      "Agent seamlessly switches between Hindi and English, confirms order details, shares ETA, offers escalation options. Natural Hinglish tone matching how urban Indian customers actually speak.",
+      "Agent seamlessly switches between Hindi and English, confirms customer details, shares timing, and confirms consultation booking in natural urban Hinglish.",
     languageSchema: "en-IN",
+  },
+  {
+    id: "uk-english-auto",
+    title: "UK English — Automotive test drive & service scheduling",
+    description: "British RP accent for dealership bookings, service reminders, and customer care.",
+    lang: "en-GB",
+    audioSrc: "/audio/uk-english-auto.mp3",
+    script:
+      "Good afternoon! This is Oliver from ConverseAI Automotive. I'm following up on your interest in booking a test drive for the new SUV this weekend. We have slots available on Saturday at 11 AM or Sunday at 2 PM. Which one would suit you better?",
+    transcript:
+      "Agent greets caller with authentic British RP cadence, identifies interest in the vehicle, and offers weekend test-drive appointment slots.",
+    languageSchema: "en-GB",
+  },
+  {
+    id: "german-logistics",
+    title: "German — Logistics & automated order dispatch alerts",
+    description: "Native German cadence for delivery coordination, customs, and address verification.",
+    lang: "de-DE",
+    audioSrc: "/audio/german-logistics.mp3",
+    script:
+      "Guten Tag! Hier ist der automatisierte Logistik-Assistent von ConverseAI bezüglich Ihrer Sendung. Ihr Paket ist im Zustellzentrum eingetroffen und wird morgen zwischen 10 und 14 Uhr zugestellt. Möchten Sie die Zustellzeit anpassen oder die Sendungsverfolgung per WhatsApp erhalten?",
+    transcript:
+      "Agent verifies delivery ETA, coordinates recipient timing, and offers WhatsApp tracking options in native German.",
+    languageSchema: "de",
   },
   {
     id: "spanish-real-estate",
@@ -578,6 +603,9 @@ const AIVoiceAgents = () => {
               </div>
             </div>
           </section>
+
+          {/* Interactive Neural Voice Agent Demos (Matching showcase with Hindi, Hinglish, UK/US English, German, Spanish) */}
+          <VoiceAgentShowcase />
 
           <section id="sample-calls" className="py-12 md:py-16">
             <div className="container-tight">
