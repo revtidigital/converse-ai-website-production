@@ -46,9 +46,9 @@ const CARDS_DATA: ShowcaseCard[] = [
         langCode: "hinglish",
         flag: "IN",
         gender: "male",
-        voiceName: "Aman",
-        audioSrc: "/audio/Hindi (2).mp3", // As requested: Hindi demo used for Hinglish Male
-        durationLabel: "0:36",
+        voiceName: "Madhur",
+        audioSrc: "/audio/real-estate-hinglish-male.mp3",
+        durationLabel: "0:25",
         scenario:
           "High-intent buyer qualification (2BHK vs 3BHK, budget, possession) and weekend site visit booking in Hinglish.",
       },
@@ -57,9 +57,9 @@ const CARDS_DATA: ShowcaseCard[] = [
         langCode: "hinglish",
         flag: "IN",
         gender: "female",
-        voiceName: "Riya",
-        audioSrc: "/audio/hinglish-d2c.mp3",
-        durationLabel: "0:30",
+        voiceName: "Aria",
+        audioSrc: "/audio/real-estate-hinglish-female.mp3",
+        durationLabel: "0:28",
         scenario:
           "Residential property inquiry qualification, price estimation, and callback scheduling in conversational Hinglish.",
       },
@@ -163,8 +163,8 @@ const CARDS_DATA: ShowcaseCard[] = [
         langCode: "hindi",
         flag: "IN",
         gender: "male",
-        voiceName: "Amit",
-        audioSrc: "/audio/hindi-logistics-male.mp3",
+        voiceName: "Madhur",
+        audioSrc: "/audio/automotive-hindi-male.mp3",
         durationLabel: "0:22",
         scenario:
           "शोरूम विजिट स्लॉट एवं नई एसयूवी मॉडल टेस्ट ड्राइव की जानकारी एवं कन्फर्मेशन।",
@@ -258,8 +258,8 @@ const CARDS_DATA: ShowcaseCard[] = [
         langCode: "hindi",
         flag: "IN",
         gender: "male",
-        voiceName: "Amit",
-        audioSrc: "/audio/hindi-logistics-male.mp3",
+        voiceName: "Madhur",
+        audioSrc: "/audio/logistics-hindi-male.mp3",
         durationLabel: "0:23",
         scenario:
           "COD address verification, delivery time slot confirmation, and customer dispatch update in Hindi.",

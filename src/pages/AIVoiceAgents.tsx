@@ -25,14 +25,14 @@ const sampleCalls = [
   },
   {
     id: "hindi-appointment",
-    title: "Hindi — Appointment booking & service confirmation",
+    title: "Hindi — Clinic appointment booking (Swara — Female Voice)",
     description: "Collects symptoms, suggests slots, and confirms appointment details in Hindi.",
     lang: "hi-IN",
-    audioSrc: "/audio/hindi-automotive-female.mp3",
+    audioSrc: "/audio/Hindi (2).mp3",
     script:
-      "नमस्ते, मैं Converse AI की तरफ से बात कर रही हूं। आपकी रिक्वेस्ट हमें मिली है। जनरल कंसल्टेशन के लिए हमारे पास गुरुवार दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का स्लॉट उपलब्ध है। कौन सा आपके लिए सुविधाजनक रहेगा? बहुत अच्छा। मैं आपका स्लॉट कन्फर्म कर देती हूं।",
+      "नमस्ते! मैं ConverseAI की तरफ से स्वरा बात कर रही हूँ। हेल्थकेयर क्लीनिक और डॉक्टर अपॉइंटमेंट शेड्यूलिंग के लिए हमारे पास कल दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का स्लॉट उपलब्ध है। कौन सा समय आपके लिए सबसे सही रहेगा?",
     transcript:
-      "Agent greets in Hindi, confirms appointment request, offers two available slots, and sends SMS confirmation. Polite and efficient tone.",
+      "Agent greets in Hindi, confirms appointment request, offers two available slots, and sends SMS confirmation in Swara's natural studio voice.",
     languageSchema: "hi",
   },
   {
@@ -49,14 +49,14 @@ const sampleCalls = [
   },
   {
     id: "hinglish-d2c",
-    title: "Hinglish — Lead qualification & consultation booking (Male Voice)",
+    title: "Hinglish — Lead qualification & consultation booking (Madhur — Male Voice)",
     description: "Natural code-switching for qualification, intent discovery, and scheduling in Hinglish.",
     lang: "en-IN",
-    audioSrc: "/audio/Hindi (2).mp3",
+    audioSrc: "/audio/Hinglish (2).mp3",
     script:
-      "नमस्ते, मैं Converse AI की तरफ से बोल रहा हूँ। क्या मैं आपसे दो मिनट बात कर सकता हूँ? आपने हमारी वेबसाइट पर appointment request भेजी थी। आपके लिए कौन सा समय सबसे सुविधाजनक रहेगा? बहुत अच्छा। मैं आपका स्लॉट तुरंत कन्फर्म कर देता हूँ।",
+      "Hello! Main ConverseAI ki taraf se Madhur bol raha hoon. Aapne hamari website pe lead qualification aur AI voice agent ke liye inquiry submit ki thi. Kya main aapke team ke liye ek 20-minute product demo schedule kar sakta hoon?",
     transcript:
-      "Agent seamlessly switches between Hindi and English, confirms customer details, shares timing, and confirms consultation booking in natural urban Hinglish.",
+      "Agent seamlessly switches between Hindi and English, confirms customer details, shares timing, and confirms consultation booking in Madhur's natural urban Hinglish voice.",
     languageSchema: "en-IN",
   },
   {
