@@ -51,6 +51,12 @@
     <priority>0.8</priority>
   </url>
 
+  <url>
+    <loc>https://theconverseai.com/sitemap</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Solutions -->
   <url>
     <loc>https://theconverseai.com/solutions/ai-for-smb</loc>
@@ -113,7 +119,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Features -->
+  <!-- Features & Communication -->
   <url>
     <loc>https://theconverseai.com/chatbot</loc>
     <changefreq>monthly</changefreq>
@@ -181,7 +187,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Reports -->
+  <!-- Reports & Analytics -->
   <url>
     <loc>https://theconverseai.com/agent-reports</loc>
     <changefreq>monthly</changefreq>
@@ -204,6 +210,31 @@
     <loc>https://theconverseai.com/inbox-reports</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+
+  <!-- Case Studies -->
+  <url>
+    <loc>https://theconverseai.com/case-studies/retail-brand-whatsapp-automation</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://theconverseai.com/case-studies/edtech-startup-chatbot-lead-generation</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://theconverseai.com/case-studies/healthcare-clinic-omnichannel-support</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://theconverseai.com/case-studies/hrtech-ai-interview-agent-automation</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <!-- Legal -->

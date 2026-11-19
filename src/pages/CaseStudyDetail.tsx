@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
@@ -53,7 +53,9 @@ const shareLinks = (url: string, title: string) => ({
 
 /* ─── Component ───────────────────────────────────────────── */
 const CaseStudyDetail = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: routeSlug } = useParams<{ slug: string }>();
+  const location = useLocation();
+  const slug = routeSlug || location.pathname.split("/").filter(Boolean).pop();
   const navigate = useNavigate();
 
   const { data: caseStudy, loading, error } = useCaseStudy(slug);

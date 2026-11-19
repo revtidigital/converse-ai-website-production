@@ -31,6 +31,7 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
       { label: "Pricing", href: "/pricing", isRoute: true },
       { label: "Case Studies", href: "/case-studies", isRoute: true },
       { label: "Contact Us", href: "/contact-us", isRoute: true },
+      { label: "HTML Sitemap", href: "/sitemap", isRoute: true },
       { label: "Terms & Conditions", href: "/terms-and-conditions", isRoute: true },
       { label: "Privacy Policy", href: "/privacy-policy", isRoute: true },
     ],
@@ -282,9 +283,11 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
   {/* Right */}
   <div className="text-sm text-footer-text md:justify-self-end flex flex-col items-center md:items-end gap-1 text-center md:text-right">
     <p className="flex flex-wrap items-center gap-x-3 gap-y-1 justify-center md:justify-end">
-      <Link to="/terms-and-conditions" title="Terms & Conditions" className="hover:text-primary transition-colors">Terms &amp; Conditions</Link>
+      <SmartLink to="/sitemap" title="HTML Sitemap" className="hover:text-primary transition-colors">Sitemap</SmartLink>
       <span aria-hidden="true">·</span>
-      <Link to="/privacy-policy" title="Privacy Policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+      <SmartLink to="/terms-and-conditions" title="Terms & Conditions" className="hover:text-primary transition-colors">Terms &amp; Conditions</SmartLink>
+      <span aria-hidden="true">·</span>
+      <SmartLink to="/privacy-policy" title="Privacy Policy" className="hover:text-primary transition-colors">Privacy Policy</SmartLink>
       <span aria-hidden="true">·</span>
       © {new Date().getFullYear()} ConverseAI. All rights reserved.
     </p>

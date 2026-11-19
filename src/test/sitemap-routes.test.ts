@@ -11,7 +11,7 @@ const sitemapPaths = sitemapUrls.map((url) => url.pathname);
 
 describe("sitemap routes", () => {
   it("keeps every sitemap URL wired into the public route manifest", () => {
-    expect(sitemapPaths).toHaveLength(35);
+    expect(sitemapPaths).toHaveLength(40);
     expect(sitemapPaths).toEqual([...SITEMAP_ROUTES]);
   });
 

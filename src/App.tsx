@@ -62,6 +62,7 @@ import CaseStudyDetail from "./pages/CaseStudyDetail";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Pricing from "./pages/Pricing";
+import SitemapPage from "./pages/SitemapPage";
 // Admin pages are lazy-loaded so their heavy deps (TipTap editor, etc.) are
 // code-split out of the public bundle — a blog/site visitor never downloads them.
 // NOTE: no vite manualChunks (that reordered CSS and broke the design); this
@@ -143,6 +144,7 @@ const staticRouteElements: Record<PublicStaticRoutePath, ReactNode> = {
   "/blog": <BlogRedirect />,
   "/blog-2": <Blog2 />,
   "/case-studies": <CaseStudies />,
+  "/sitemap": <SitemapPage />,
   "/solutions/ai-for-smb": <AIForSMB />,
   "/services": <Services />,
   "/services/ai-strategy-audit": <AIStrategyAudit />,
@@ -168,6 +170,10 @@ const staticRouteElements: Record<PublicStaticRoutePath, ReactNode> = {
   "/csat-report": <CSATReport />,
   "/team-reports": <TeamReports />,
   "/inbox-reports": <InboxReports />,
+  "/case-studies/retail-brand-whatsapp-automation": <CaseStudyDetail />,
+  "/case-studies/edtech-startup-chatbot-lead-generation": <CaseStudyDetail />,
+  "/case-studies/healthcare-clinic-omnichannel-support": <CaseStudyDetail />,
+  "/case-studies/hrtech-ai-interview-agent-automation": <CaseStudyDetail />,
   "/terms-and-conditions": <TermsAndConditions />,
   "/privacy-policy": <PrivacyPolicy />,
   "/thank-you": <ThankYou />,

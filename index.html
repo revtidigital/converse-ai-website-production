@@ -49,6 +49,47 @@
     <meta name="twitter:image:alt" content="ConverseAI - AI conversations that feel human" />
 
    
+    <!-- Structured data (JSON-LD) for the homepage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://theconverseai.com/#organization",
+          "name": "ConverseAI",
+          "alternateName": "Converse AI",
+          "url": "https://theconverseai.com/",
+          "logo": "https://theconverseai.com/logo.png",
+          "email": "contact@theconverseai.com",
+          "telephone": "+91-9982323333",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "F-21, Madhuban Colony, Barkat Nagar, Tonk Phatak",
+            "addressLocality": "Jaipur",
+            "addressRegion": "Rajasthan",
+            "postalCode": "302015",
+            "addressCountry": "IN"
+          },
+          "sameAs": [
+            "https://www.linkedin.com/company/theconverseai",
+            "https://www.instagram.com/theconverseai/",
+            "https://www.youtube.com/@theconverseai",
+            "https://www.facebook.com/61564130560658/"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://theconverseai.com/#website",
+          "name": "ConverseAI",
+          "alternateName": ["Converse AI", "theconverseai"],
+          "url": "https://theconverseai.com/",
+          "publisher": { "@id": "https://theconverseai.com/#organization" }
+        }
+      ]
+    }
+    </script>
+
     <!-- Google Analytics 4 -->
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -62,7 +103,7 @@
         }
       });
 
-      // Defer gtag script load to avoid competing with initial paint
+      // Defer gtag script load to avoid competing with initial paint and Lighthouse TBT
       (function() {
         var gtagLoaded = false;
         function loadGtag() {
@@ -73,14 +114,13 @@
           s.src = "https://www.googletagmanager.com/gtag/js?id=G-CSF8XLD87H";
           document.head.appendChild(s);
         }
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadGtag, { timeout: 4000 });
-        } else {
-          window.addEventListener('load', function() { setTimeout(loadGtag, 2500); });
+        var interactionEvents = ['touchstart', 'scroll', 'pointerdown', 'keydown', 'mousemove'];
+        function onInteract() {
+          loadGtag();
+          interactionEvents.forEach(function(e) { window.removeEventListener(e, onInteract); });
         }
-        ['touchstart', 'scroll', 'pointerdown'].forEach(function(evt) {
-          window.addEventListener(evt, loadGtag, { once: true, passive: true });
-        });
+        interactionEvents.forEach(function(e) { window.addEventListener(e, onInteract, { once: true, passive: true }); });
+        setTimeout(loadGtag, 10000);
       })();
     </script>
     <!-- End Google Analytics 4 -->
@@ -100,7 +140,7 @@
       fbq('init', '1477034076305247');
       fbq('track', 'PageView');
 
-      // Defer external tracking script downloads until browser is idle or after first interaction
+      // Defer external tracking script downloads until user interaction or idle fallback
       (function() {
         var loaded = false;
         function loadTrackers() {
@@ -120,16 +160,13 @@
           document.head.appendChild(fbScript);
         }
 
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadTrackers, { timeout: 6000 });
-        } else {
-          window.addEventListener('load', function() {
-            setTimeout(loadTrackers, 4000);
-          });
+        var interactionEvents = ['touchstart', 'scroll', 'pointerdown', 'keydown', 'mousemove'];
+        function onInteract() {
+          loadTrackers();
+          interactionEvents.forEach(function(e) { window.removeEventListener(e, onInteract); });
         }
-        ['touchstart', 'scroll', 'pointerdown', 'keydown'].forEach(function(evt) {
-          window.addEventListener(evt, loadTrackers, { once: true, passive: true });
-        });
+        interactionEvents.forEach(function(e) { window.addEventListener(e, onInteract, { once: true, passive: true }); });
+        setTimeout(loadTrackers, 10000);
       })();
     </script>
     <!-- End Analytics & Tracking -->

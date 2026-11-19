@@ -7,6 +7,7 @@ export const SITEMAP_ROUTES = [
   "/blog",
   "/blog-2",
   "/case-studies",
+  "/sitemap",
   "/solutions/ai-for-smb",
   "/services",
   "/services/ai-strategy-audit",
@@ -32,6 +33,10 @@ export const SITEMAP_ROUTES = [
   "/csat-report",
   "/team-reports",
   "/inbox-reports",
+  "/case-studies/retail-brand-whatsapp-automation",
+  "/case-studies/edtech-startup-chatbot-lead-generation",
+  "/case-studies/healthcare-clinic-omnichannel-support",
+  "/case-studies/hrtech-ai-interview-agent-automation",
   "/terms-and-conditions",
   "/privacy-policy",
 ] as const;
