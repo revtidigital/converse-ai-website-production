@@ -24,14 +24,14 @@ const sampleCalls = [
   },
   {
     id: "hindi-appointment",
-    title: "Hindi — Clinic appointment booking (Swara — Female Voice)",
+    title: "Hindi — Appointment booking for a clinic",
     description: "Collects symptoms, suggests slots, and confirms appointment details in Hindi.",
     lang: "hi-IN",
     audioSrc: "/audio/Hindi (2).mp3",
     script:
-      "नमस्ते! मैं ConverseAI की तरफ से स्वरा बात कर रही हूँ। हेल्थकेयर क्लीनिक और डॉक्टर अपॉइंटमेंट शेड्यूलिंग के लिए हमारे पास कल दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का स्लॉट उपलब्ध है। कौन सा समय आपके लिए सबसे सही रहेगा?",
+      "नमस्ते, मैं Converse AI की तरफ से HealthCare Clinic के लिए बोल रही हूं। क्या मैं आपसे दो मिनट बात कर सकती हूं? आपने हमारी वेबसाइट पर appointment request भेजी थी। आप किस doctor से मिलना चाहते हैं? General Physician के लिए हमारे पास गुरुवार दोपहर 3 बजे और शुक्रवार सुबह 11 बजे का slot available है। कौन सा आपके लिए सुविधाजनक रहेगा? बहुत अच्छा। मैं गुरुवार 3 बजे आपका appointment confirm कर देती हूं। आपका नाम और date of birth confirm कर सकती हूं? धन्यवाद। आपके registered number पर Converse AI के माध्यम से appointment confirmation SMS आ जाएगा। कोई और सहायता चाहिए?",
     transcript:
-      "Agent greets in Hindi, confirms appointment request, offers two available slots, and sends SMS confirmation in Swara's natural studio voice.",
+      "Agent greets in Hindi, confirms appointment request, asks for doctor preference, offers two available slots, collects confirmation details, and sends SMS confirmation. Polite and efficient tone.",
     languageSchema: "hi",
   },
   {
@@ -48,14 +48,14 @@ const sampleCalls = [
   },
   {
     id: "hinglish-d2c",
-    title: "Hinglish — Lead qualification & consultation booking (Madhur — Male Voice)",
-    description: "Natural code-switching for qualification, intent discovery, and scheduling in Hinglish.",
+    title: "Hinglish — D2C order status and escalation",
+    description: "Natural code-switching for order tracking, ETA updates, and quick resolution.",
     lang: "en-IN",
     audioSrc: "/audio/Hinglish (2).mp3",
     script:
-      "Hello! Main ConverseAI ki taraf se Madhur bol raha hoon. Aapne hamari website pe lead qualification aur AI voice agent ke liye inquiry submit ki thi. Kya main aapke team ke liye ek 20-minute product demo schedule kar sakta hoon?",
+      "Hello! Main Converse AI ki taraf se ShopEase ke liye Shubh bol raha hoon. Aapne hamare helpline pe call kiya tha regarding your order. Order number DO-7742 ke baare mein pooch rahi hain aap? Let me check that for you. Okay, so aapka order kal, yaani Wednesday ko 10 AM se 2 PM ke beech deliver hoga. Delivery partner ka naam Rakesh hai, aur unka number aapke registered mobile pe Converse AI ke through message ho jayega. Koi aur problem hai? Return ya exchange chahiye toh Converse AI aapke liye request raise kar sakta hai right now. Great. Is there anything else I can help you with? Have a nice day!",
     transcript:
-      "Agent seamlessly switches between Hindi and English, confirms customer details, shares timing, and confirms consultation booking in Madhur's natural urban Hinglish voice.",
+      "Agent seamlessly switches between Hindi and English, confirms order details, shares ETA, offers escalation options. Natural Hinglish tone matching how urban Indian customers actually speak.",
     languageSchema: "en-IN",
   },
   {
