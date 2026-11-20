@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +21,23 @@ import { usePartialLeadCapture } from "@/lib/usePartialLeadCapture";
 import PhoneInputField from "@/components/ui/PhoneInputField";
 import { trackFormError, trackFormStart, trackFormSubmitClick, trackFormSuccess, trackFormView, trackDemoBooked } from "@/lib/tracking";
 
+const services = [
+  "AI Strategy & Audit",
+  "AI Voice Agents",
+  "Agentic Automation",
+  "AI Integration",
+  "Custom AI Agents",
+  "Knowledge Intelligence",
+  "Sales AI",
+  "Conversational AI Chatbot",
+  "WhatsApp AI Chatbot",
+  "Live Chat",
+  "Omni Channel",
+  "Pre-Chat Forms",
+  "WhatsApp Marketing",
+  "Other",
+];
+
 const BookDemo = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -39,9 +56,42 @@ const BookDemo = () => {
   const { toast } = useToast();
   const hasStartedForm = useRef(false);
 
+  const location = useLocation();
+
   useEffect(() => {
     trackFormView("book_demo_page_form", { form_location: "book_demo_page" });
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const serviceParam = params.get("service") || params.get("product");
+    const nameParam = params.get("name");
+    const emailParam = params.get("email");
+    const phoneParam = params.get("phone");
+
+    setFormData((prev) => {
+      let matchedService = prev.product;
+      if (serviceParam) {
+        const matched = services.find(
+          (s) =>
+            s.toLowerCase().replace(/[\s&]+/g, "-") === serviceParam.toLowerCase() ||
+            s.toLowerCase().replace(/\s+/g, "-") === serviceParam.toLowerCase() ||
+            s.toLowerCase() === serviceParam.toLowerCase()
+        );
+        if (matched) {
+          matchedService = matched;
+        }
+      }
+
+      return {
+        ...prev,
+        product: matchedService || prev.product,
+        name: nameParam || prev.name,
+        email: emailParam || prev.email,
+        phone: phoneParam || prev.phone,
+      };
+    });
+  }, [location.search]);
 
   const handleFormStart = () => {
     if (hasStartedForm.current) return;
@@ -201,16 +251,11 @@ const BookDemo = () => {
                         <SelectValue placeholder="Choose a product" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="ai-agent">AI Agent</SelectItem>
-                        <SelectItem value="services">Agentic AI</SelectItem>
-                        <SelectItem value="ai-voice-agents">AI Voice Agents</SelectItem>
-                        <SelectItem value="conversational-ai-chatbot">Conversational AI Chatbot</SelectItem>
-                        <SelectItem value="whatsapp-ai-chatbot">WhatsApp AI Chatbot</SelectItem>
-                        <SelectItem value="live-chat">Live Chat</SelectItem>
-                        <SelectItem value="omni-channel">Omni Channel</SelectItem>
-                        <SelectItem value="pre-chat-forms">Pre-Chat Forms</SelectItem>
-                        <SelectItem value="whatsapp-marketing">WhatsApp Marketing</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        {services.map((service) => (
+                          <SelectItem key={service} value={service}>
+                            {service}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     {errors.product && <p className="text-xs text-destructive">{errors.product}</p>}

@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, Plug, Globe, Zap, RefreshCw } from "lucide-react";
+import { ToolLogo } from "@/components/icons/ToolLogos";
 import AnimatedSection from "@/components/AnimatedSection";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -42,35 +43,28 @@ const mcpBenefits = [
 
 const toolGroups = [
   {
-    title: "CRM & sales",
-    items: ["Salesforce", "HubSpot", "Zoho CRM", "Pipedrive", "LeadSquared"],
+    title: "CRMs & Sales Platforms",
+    items: ["Salesforce", "HubSpot", "Zoho CRM", "LeadSquared", "Pipedrive", "Freshsales"],
   },
   {
-    title: "Helpdesk & CX",
+    title: "ERPs & Accounting",
+    items: ["SAP", "Oracle", "NetSuite", "Microsoft Dynamics 365", "Tally", "QuickBooks"],
+  },
+  {
+    title: "Data Warehouses & Databases",
+    items: ["Snowflake", "BigQuery", "PostgreSQL", "Databricks"],
+  },
+  {
+    title: "Communication & Productivity",
+    items: ["Slack", "Microsoft Teams", "Google Workspace", "Microsoft 365"],
+  },
+  {
+    title: "Helpdesk & Customer Support",
     items: ["Zendesk", "Freshdesk", "Intercom", "ServiceNow", "Jira Service Management"],
   },
   {
-    title: "ERP & finance",
-    items: ["SAP", "Oracle", "NetSuite", "Dynamics", "Tally", "Zoho Books", "QuickBooks", "Xero"],
-  },
-  {
-    title: "Data & collab",
-    items: [
-      "Snowflake",
-      "BigQuery",
-      "Postgres",
-      "Slack",
-      "Teams",
-      "Google Workspace",
-      "Microsoft 365",
-      "Notion",
-      "Confluence",
-      "SharePoint",
-    ],
-  },
-  {
-    title: "Plus whatever you already run",
-    items: ["Legacy, on-prem, homegrown tools", "Excel-driven workflows"],
+    title: "Custom & Legacy Systems",
+    items: ["Legacy on-prem & homegrown tools", "Custom REST & GraphQL APIs", "Excel & Sheets-driven pipelines"],
   },
 ];
 
@@ -462,11 +456,11 @@ const AIIntegration = () => {
                   <AnimatedSection key={group.title} delay={index * 0.1}>
                     <div className="rounded-2xl border border-border/60 bg-white/90 p-6 h-full">
                       <h3 className="text-xl font-semibold mb-4">{group.title}</h3>
-                      <ul className="space-y-2 text-muted-foreground">
+                      <ul className="space-y-3 text-muted-foreground">
                         {group.items.map((item) => (
-                          <li key={item} className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-primary mt-1" />
-                            {item}
+                          <li key={item} className="flex items-center gap-3">
+                            <ToolLogo name={item} className="w-5 h-5 shrink-0" />
+                            <span className="text-foreground text-sm font-medium">{item}</span>
                           </li>
                         ))}
                       </ul>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import {
   Bot, MessageCircle, Smartphone, BarChart3, Users, Shield,
   Globe, Zap, ArrowRight, Star,
-  Cpu, Mic, Network, FileText, TrendingUp, Target
+  Cpu, Mic, Network, FileText, TrendingUp, Target, Calendar
 } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import ChatbotMockup from '@/components/ChatbotMockup'
@@ -13,6 +13,7 @@ import SectionHeading from '@/components/SectionHeading'
 import StatCard from '@/components/StatCard'
 import Footer from '@/components/Footer'
 import UserSection from '@/components/UserSection'
+import SarvamVoiceDemoSection from '@/components/SarvamVoiceDemoSection'
 
 const products = [
   { icon: Bot, title: 'AI Chatbot', description: 'Natural language understanding with 24/7 automated support, lead qualification, and smart handover to human agents.', path: '/chatbot' },
@@ -24,10 +25,10 @@ const products = [
 ]
 
 const stats = [
-  { value: '50+', label: 'Growing Businesses' },
-  { value: '98%', label: 'WhatsApp Open Rate' },
-  { value: '60%', label: 'Faster Response Times' },
-  { value: '24/7', label: 'Always On Support' },
+  { value: '50+', label: 'Customer Conversations Handled' },
+  { value: '70%', label: 'Operational Cost Saved' },
+  { value: '3x', label: 'Faster Lead Response' },
+  { value: '24/7', label: 'Instant Customer Engagement' },
 ]
 
 const services = [
@@ -271,6 +272,42 @@ export default function Index() {
               >
                 Book a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </a>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ── Interactive AI Voice Demos Showcase ── */}
+        <SarvamVoiceDemoSection />
+
+        {/* ── Voice Demo CTA ── */}
+        <section className="py-16 md:py-20 relative overflow-hidden bg-gradient-to-b from-background via-violet-950/5 to-background border-b border-border">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="glass-card rounded-3xl p-8 sm:p-12 border border-primary/20 shadow-xl bg-gradient-to-br from-white/95 via-violet-50/40 to-white/90 dark:from-zinc-900/95 dark:via-violet-950/30 dark:to-zinc-900/90"
+            >
+              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
+                <Mic className="w-3.5 h-3.5" aria-hidden="true" /> Custom AI Voice Agent
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
+                Ready to Experience AI Voice Agents for Your Business?
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
+                Get a customized interactive voice demo configured for your industry, inbound/outbound workflows, and regional language preferences.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link
+                  to="/book-demo?service=ai-voice-agents"
+                  className={buttonVariants({ variant: 'hero', size: 'xl' })}
+                >
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Get a Demo
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </div>
             </motion.div>
           </div>
         </section>

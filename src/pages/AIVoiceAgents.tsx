@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, Phone, Mic, Volume2, Play, Square } from "lucide-react";
@@ -11,18 +11,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 const sampleCalls = [
   {
-    id: "english-sdr",
-    title: "English — SDR qualifying an inbound lead for a B2B SaaS",
-    description: "Qualification, budget fit, and next-step booking for a SaaS demo.",
-    lang: "en-US",
-    audioSrc: "/audio/english-sdr.mp3",
-    script:
-      "Hi there, this is Aria from ConverseAI. I can see you recently filled out our contact form — thanks for reaching out! I just have a couple of quick questions so I can point you to the right team. Are you looking to automate customer support conversations, or is the priority more on the sales side? Great. And roughly how many support or sales interactions does your team handle per month? Perfect — that puts you right in our sweet spot. I'd love to set up a 20-minute demo with one of our solutions engineers. Do you have availability Thursday at 2 PM, or would Friday morning work better for you? Fantastic. I'll send a calendar invite to the email on file. Looking forward to showing you what we can do. Have a great rest of your day!",
-    transcript:
-      "Agent greets the caller, confirms product interest from the form submission, asks two qualification questions (use case and volume), then books a demo slot. Warm, conversational tone throughout.",
-    languageSchema: "en",
-  },
-  {
     id: "hindi-appointment",
     title: "Hindi — Appointment booking for a clinic",
     description: "Collects symptoms, suggests slots, and confirms appointment details in Hindi.",
@@ -33,18 +21,6 @@ const sampleCalls = [
     transcript:
       "Agent greets in Hindi, confirms appointment request, asks for doctor preference, offers two available slots, collects confirmation details, and sends SMS confirmation. Polite and efficient tone.",
     languageSchema: "hi",
-  },
-  {
-    id: "tamil-collections",
-    title: "Tamil — Loan collections (early bucket, DLT-compliant)",
-    description: "Gentle reminder call with compliant language and payment-link follow-up.",
-    lang: "ta-IN",
-    audioSrc: "/audio/tamil-collections.mp3",
-    script:
-      "வணக்கம், நான் FinCare-ஐ சார்ந்த Priya பேசுகிறேன். நான் உங்களிடம் ஒரு முக்கியமான விஷயம் பற்றி பேச விரும்புகிறேன். உங்கள் loan account-ல் இந்த மாதத்தின் EMI payment இன்னும் pending-ஆக இருக்கிறது. தொகை 4,500 ரூபாய். நீங்கள் இன்று அல்லது நாளை payment செய்ய முடியுமா? நாங்கள் UPI, net banking அல்லது payment link மூலம் ஏற்றுக்கொள்கிறோம். உங்கள் registered mobile-க்கு payment link அனுப்பட்டுமா? நன்றி. Link-ஐ 24 மணி நேரத்திற்குள் use செய்யுங்கள். வேறு ஏதாவது உதவி வேண்டுமா?",
-    transcript:
-      "Agent identifies caller, states the pending EMI amount, offers payment options, and sends a payment link. Compliant, non-aggressive tone as required for early-bucket collections.",
-    languageSchema: "ta",
   },
   {
     id: "hinglish-d2c",
@@ -59,28 +35,28 @@ const sampleCalls = [
     languageSchema: "en-IN",
   },
   {
-    id: "uk-english-auto",
-    title: "UK English — Automotive test drive & service scheduling",
-    description: "British RP accent for dealership bookings, service reminders, and customer care.",
-    lang: "en-GB",
-    audioSrc: "/audio/uk-english-auto.mp3",
+    id: "tamil-collections",
+    title: "Tamil — Loan collections (early bucket, DLT-compliant)",
+    description: "Gentle reminder call with compliant language and payment-link follow-up.",
+    lang: "ta-IN",
+    audioSrc: "/audio/tamil-collections.mp3",
     script:
-      "Good afternoon! This is Oliver from ConverseAI Automotive. I'm following up on your interest in booking a test drive for the new SUV this weekend. We have slots available on Saturday at 11 AM or Sunday at 2 PM. Which one would suit you better?",
+      "வணக்கம், நான் FinCare-ஐ சார்ந்த Priya பேசுகிறேன். நான் உங்களிடம் ஒரு முக்கியமான விஷயம் பற்றி பேச விரும்புகிறேன். உங்கள் loan account-ல் இந்த மாதத்தின் EMI payment இன்னும் pending-ஆக இருக்கிறது. தொகை 4,500 ரூபாய். நீங்கள் இன்று அல்லது நாளை payment செய்ய முடியுமா? நாங்கள் UPI, net banking அல்லது payment link மூலம் ஏற்றுக்கொள்கிறோம். உங்கள் registered mobile-க்கு payment link அனுப்பட்டுமா? நன்றி. Link-ஐ 24 மணி நேரத்திற்குள் use செய்யுங்கள். வேறு ஏதாவது உதவி வேண்டுமா?",
     transcript:
-      "Agent greets caller with authentic British RP cadence, identifies interest in the vehicle, and offers weekend test-drive appointment slots.",
-    languageSchema: "en-GB",
+      "Agent identifies caller, states the pending EMI amount, offers payment options, and sends a payment link. Compliant, non-aggressive tone as required for early-bucket collections.",
+    languageSchema: "ta",
   },
   {
-    id: "german-logistics",
-    title: "German — Logistics & automated order dispatch alerts",
-    description: "Native German cadence for delivery coordination, customs, and address verification.",
-    lang: "de-DE",
-    audioSrc: "/audio/german-logistics.mp3",
+    id: "english-sdr",
+    title: "English — SDR qualifying an inbound lead for a B2B SaaS",
+    description: "Qualification, budget fit, and next-step booking for a SaaS demo.",
+    lang: "en-US",
+    audioSrc: "/audio/english-sdr.mp3",
     script:
-      "Guten Tag! Hier ist der automatisierte Logistik-Assistent von ConverseAI bezüglich Ihrer Sendung. Ihr Paket ist im Zustellzentrum eingetroffen und wird morgen zwischen 10 und 14 Uhr zugestellt. Möchten Sie die Zustellzeit anpassen oder die Sendungsverfolgung per WhatsApp erhalten?",
+      "Hi there, this is Aria from ConverseAI. I can see you recently filled out our contact form — thanks for reaching out! I just have a couple of quick questions so I can point you to the right team. Are you looking to automate customer support conversations, or is the priority more on the sales side? Great. And roughly how many support or sales interactions does your team handle per month? Perfect — that puts you right in our sweet spot. I'd love to set up a 20-minute demo with one of our solutions engineers. Do you have availability Thursday at 2 PM, or would Friday morning work better for you? Fantastic. I'll send a calendar invite to the email on file. Looking forward to showing you what we can do. Have a great rest of your day!",
     transcript:
-      "Agent verifies delivery ETA, coordinates recipient timing, and offers WhatsApp tracking options in native German.",
-    languageSchema: "de",
+      "Agent greets the caller, confirms product interest from the form submission, asks two qualification questions (use case and volume), then books a demo slot. Warm, conversational tone throughout.",
+    languageSchema: "en",
   },
   {
     id: "spanish-real-estate",
@@ -93,6 +69,54 @@ const sampleCalls = [
     transcript:
       "Agent qualifies the lead (buy vs rent, zone, budget), matches to listings, and books a weekend viewing. Natural, friendly Spanish tone with a clear close.",
     languageSchema: "es",
+  },
+  {
+    id: "uk-inbound-qualification",
+    title: "UK English — Inbound qualification & platform walkthrough",
+    description: "Qualifies business requirements, assesses support deflection goals, and books a live platform demo in British English.",
+    lang: "en-GB",
+    audioSrc: "/audio/voice-demos/uk-converse-voice.mp3",
+    script:
+      "Good afternoon! This is Oliver from ConverseAI. Thanks for requesting a walkthrough. To tailor the session, could you share what your primary deflection target is for customer support calls? Fantastic, I'll book your demo with our UK enterprise team.",
+    transcript:
+      "Agent qualifies business requirements with authentic British RP cadence, identifies support volume and deflection targets, and confirms calendar demo invite.",
+    languageSchema: "en-GB",
+  },
+  {
+    id: "us-voice-architecture",
+    title: "US English — Support workflows & voice architecture consultation",
+    description: "Assesses phone workflow automation, clarifies inbound support use cases, and arranges an architecture walkthrough in neutral US English.",
+    lang: "en-US",
+    audioSrc: "/audio/voice-demos/us-converse-voice.mp3",
+    script:
+      "Hi there, this is Marcus from ConverseAI Voice Solutions. I'm following up on your inquiry about automating phone workflows. Are you looking to integrate directly with your PBX or CRM? We can schedule an architecture walkthrough this Friday at 10 AM EST.",
+    transcript:
+      "Agent discusses telephony PBX integration, clarifies tier-1 support deflection goals, and schedules an engineering consultation in neutral US English.",
+    languageSchema: "en-US",
+  },
+  {
+    id: "german-logistics-customs",
+    title: "German — Logistics dispatch & customs clearance",
+    description: "Handles consignment tracking, Frankfurt customs clearance, and delivery dispatch in German.",
+    lang: "de-DE",
+    audioSrc: "/audio/voice-demos/german-logistics.mp3",
+    script:
+      "Guten Tag, hier ist der automatische Versanddienst von Express Logistics. Ihre Sendung aus Frankfurt befindet sich derzeit in der Zollabfertigung. Bitte bestätigen Sie Ihre Lieferadresse für die Zustellung morgen.",
+    transcript:
+      "Agent delivers shipment tracking status in native German, confirms Frankfurt customs clearance stage, and verifies delivery window.",
+    languageSchema: "de",
+  },
+  {
+    id: "french-hospitality-vip",
+    title: "French — Hospitality concierge & VIP reservation",
+    description: "Confirms prestige suite booking, airport chauffeur, and dining arrangements in French.",
+    lang: "fr-FR",
+    audioSrc: "/audio/voice-demos/french-hospitality.mp3",
+    script:
+      "Bonjour, je suis le concierge virtuel de l'Hôtel Le Grand. Je vous contacte pour confirmer votre réservation de suite prestige ainsi que votre transfert avec chauffeur privé depuis l'aéroport. Souhaitez-vous également une table au restaurant étoilé ce soir ?",
+    transcript:
+      "Agent confirms VIP suite reservation, airport private transport, and Michelin-star dining arrangements in refined French.",
+    languageSchema: "fr",
   },
 ];
 
@@ -363,7 +387,27 @@ const VoicePlayer = ({ script, lang, audioSrc }: { script: string; lang: string;
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  useEffect(() => {
+    const handleStopOther = () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setPlaying(false);
+    };
+    window.addEventListener("converse-stop-all-audio", handleStopOther);
+    return () => {
+      window.removeEventListener("converse-stop-all-audio", handleStopOther);
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
   const play = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("converse-stop-all-audio"));
     if (audioSrc) {
       if (!audioRef.current) {
         audioRef.current = new Audio(audioSrc);
@@ -372,7 +416,7 @@ const VoicePlayer = ({ script, lang, audioSrc }: { script: string; lang: string;
       }
       setPlaying(true);
       audioRef.current.currentTime = 0;
-      audioRef.current.play();
+      audioRef.current.play().catch(() => setPlaying(false));
       return;
     }
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -391,7 +435,7 @@ const VoicePlayer = ({ script, lang, audioSrc }: { script: string; lang: string;
   const stop = useCallback(() => {
     if (audioSrc && audioRef.current) {
       audioRef.current.pause();
-    } else {
+    } else if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
     setPlaying(false);
@@ -612,7 +656,7 @@ const AIVoiceAgents = () => {
                 <div className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Sample calls</h2>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    5 × 45-second clips, playable inline, with transcript toggle.
+                    Multilingual sample clips, playable inline, with transcript toggle.
                   </p>
                 </div>
               </AnimatedSection>
