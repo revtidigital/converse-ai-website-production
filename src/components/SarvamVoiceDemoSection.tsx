@@ -1,19 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Play,
   Pause,
   Volume2,
   Calendar,
-  Sparkles,
-  ChevronDown,
   Building,
   Car,
   Truck,
   HeartPulse,
   TrendingUp,
   Receipt,
-  CheckCircle,
 } from "lucide-react";
 
 type Gender = "female" | "male";
@@ -31,7 +28,6 @@ interface LanguageVariant {
   female: VoiceConfig;
   male: VoiceConfig;
   context: string;
-  script: string;
 }
 
 interface DemoCardConfig {
@@ -64,51 +60,70 @@ const DEMO_CARDS: DemoCardConfig[] = [
         code: "hinglish",
         label: "Hinglish",
         flag: "🇮🇳",
-        female: { voiceName: "Aria", badge: "Studio Neural HD", audioUrl: "/audio/voice-demos/appointment-hinglish.mp3?v=3" },
-        male: { voiceName: "Madhur", badge: "Neural Low-Latency", audioUrl: "/audio/voice-demos/sales-hinglish-male.mp3?v=4" },
+        female: { voiceName: "Aria", badge: "Studio Neural HD", audioUrl: "/audio/voice-demos/appointment-hinglish-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Neural Low-Latency", audioUrl: "/audio/voice-demos/appointment-hinglish-male.mp3" },
         context: "Patient calling to schedule a general physician consultation in fluid conversational Hinglish.",
-        script: "नमस्ते! HealthCare Clinic से Converse AI बात कर रहा हूँ। डॉक्टर शर्मा के पास गुरुवार दोपहर 3 बजे और शुक्रवार सुबह 11 बजे स्लॉट्स उपलब्ध हैं। कौन सा टाइम आपके लिए बेस्ट रहेगा?",
       },
       {
         code: "hindi",
         label: "Hindi",
         flag: "🇮🇳",
-        female: { voiceName: "Swara", badge: "Studio Neural HD", audioUrl: "/audio/voice-demos/appointment-hindi.mp3?v=3" },
-        male: { voiceName: "Madhur", badge: "Neural Low-Latency", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3?v=4" },
+        female: { voiceName: "Swara", badge: "Studio Neural HD", audioUrl: "/audio/voice-demos/appointment-hindi-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Neural Low-Latency", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3" },
         context: "क्लीनिक अपॉइंटमेंट बुकिंग और डॉक्टर उपलब्धता की जानकारी शुद्ध हिंदी में।",
-        script: "नमस्ते, मैं Converse AI क्लिनिक सपोर्ट से बात कर रही हूँ। आपकी सुविधानुसार गुरुवार 3 बजे का समय निश्चित कर दिया गया है। आपके मोबाइल पर SMS कन्फर्मेशन भेज दिया गया है।",
       },
       {
         code: "us_english",
         label: "US English",
         flag: "🇺🇸",
-        female: { voiceName: "Aria", badge: "Natural Conversational", audioUrl: "/audio/voice-demos/sales-english.mp3" },
-        male: { voiceName: "Marcus", badge: "Professional Neural", audioUrl: "/audio/voice-demos/appointment-us-male.mp3" },
+        female: { voiceName: "Aria", badge: "Natural Conversational", audioUrl: "/audio/voice-demos/appointment-us-female.mp3" },
+        male: { voiceName: "Marcus", badge: "Healthcare & Prior Auth", audioUrl: "/audio/voice-demos/appointment-us-male.mp3" },
         context: "Inbound clinic inquiry confirming symptoms, insurance coverage, and specialist doctor booking.",
-        script: "Hi there! This is Aria from HealthCare Clinic. I see you requested an appointment. Dr. Sharma has openings this Thursday at 3 PM or Friday at 11 AM. Which works best for you?",
       },
       {
         code: "uk_english",
         label: "UK English",
         flag: "🇬🇧",
-        female: { voiceName: "Sarah", badge: "British RP", audioUrl: "/audio/voice-demos/uk-converse-voice.mp3" },
-        male: { voiceName: "Oliver", badge: "British RP", audioUrl: "/audio/voice-demos/uk-wealth-advisory.mp3" },
+        female: { voiceName: "Sarah", badge: "British RP", audioUrl: "/audio/voice-demos/appointment-uk-female.mp3" },
+        male: { voiceName: "Oliver", badge: "British RP", audioUrl: "/audio/voice-demos/appointment-uk-male.mp3" },
         context: "Private clinic specialist consultation scheduling with polite British RP cadence.",
-        script: "Good afternoon. Thank you for contacting our clinic. I would be delighted to arrange your consultation. Would Thursday afternoon at 3 PM suit your schedule?",
       },
       {
         code: "french",
         label: "French",
         flag: "🇫🇷",
-        female: { voiceName: "Sophie", badge: "Parisian Neural", audioUrl: "/audio/voice-demos/french-hospitality.mp3" },
+        female: { voiceName: "Sophie", badge: "Parisian Neural", audioUrl: "/audio/voice-demos/appointment-french-female.mp3" },
         male: { voiceName: "Marc", badge: "Natural Native", audioUrl: "/audio/voice-demos/appointment-french-male.mp3" },
         context: "Prise de rendez-vous médical et confirmation instantanée en français.",
-        script: "Bonjour, je suis l'assistant vocal de la clinique. Nous avons des créneaux disponibles ce jeudi à 15 heures. Souhaitez-vous confirmer cette réservation ?",
+      },
+      {
+        code: "german",
+        label: "German",
+        flag: "🇩🇪",
+        female: { voiceName: "Greta", badge: "Klinik Service", audioUrl: "/audio/voice-demos/appointment-german-female.mp3" },
+        male: { voiceName: "Klaus", badge: "Fachberatung", audioUrl: "/audio/voice-demos/appointment-german-male.mp3" },
+        context: "Arzttermin- und Fachberatungsbuchung auf Deutsch.",
+      },
+      {
+        code: "spanish",
+        label: "Spanish",
+        flag: "🇪🇸",
+        female: { voiceName: "Sofía", badge: "Citas Médicas", audioUrl: "/audio/voice-demos/appointment-spanish-female.mp3" },
+        male: { voiceName: "Carlos", badge: "Atención Clínica", audioUrl: "/audio/voice-demos/appointment-spanish-male.mp3" },
+        context: "Reserva de citas médicas y atención ambulatoria en español.",
+      },
+      {
+        code: "tamil",
+        label: "Tamil",
+        flag: "🇮🇳",
+        female: { voiceName: "Priya", badge: "மருத்துவ சேவை", audioUrl: "/audio/voice-demos/appointment-tamil-female.mp3" },
+        male: { voiceName: "Karthik", badge: "ஆலோசனை", audioUrl: "/audio/voice-demos/appointment-tamil-male.mp3" },
+        context: "தமிழ் மருத்துவ ஆலோசனை மற்றும் முன்பதிவு.",
       },
     ],
   },
 
-  // Card 2: Sales Discovery
+  // Card 2: Sales Discovery & Qualification
   {
     id: "sales-discovery",
     title: "Sales Discovery & Qualification",
@@ -124,51 +139,70 @@ const DEMO_CARDS: DemoCardConfig[] = [
         code: "english",
         label: "English",
         flag: "🌐",
-        female: { voiceName: "Aria", badge: "Warm SDR", audioUrl: "/audio/voice-demos/sales-english.mp3" },
-        male: { voiceName: "Marcus", badge: "Executive SDR", audioUrl: "/audio/voice-demos/us-converse-voice.mp3" },
+        female: { voiceName: "Aria", badge: "Warm SDR", audioUrl: "/audio/voice-demos/sales-english-female.mp3" },
+        male: { voiceName: "Marcus", badge: "Executive SDR", audioUrl: "/audio/voice-demos/sales-english-male.mp3" },
         context: "Qualifying B2B SaaS demo requests on tech stack, monthly chat volume, and decision timeline.",
-        script: "Hi there, this is Aria from ConverseAI! How many monthly customer interactions does your team currently handle? That puts you right in our sweet spot for automated resolution.",
       },
       {
         code: "hinglish",
         label: "Hinglish",
         flag: "🇮🇳",
-        female: { voiceName: "Aria", badge: "Natural Indian", audioUrl: "/audio/voice-demos/sales-hinglish.mp3?v=3" },
-        male: { voiceName: "Madhur", badge: "Conversational Pro", audioUrl: "/audio/voice-demos/sales-hinglish-male.mp3?v=4" },
+        female: { voiceName: "Aria", badge: "Natural Indian", audioUrl: "/audio/voice-demos/sales-hinglish-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Conversational Pro", audioUrl: "/audio/voice-demos/sales-hinglish-male.mp3" },
         context: "Fast-growth Indian startup sales discovery call with natural language code-switching.",
-        script: "Hello! Converse AI से बात कर रहा हूँ। क्या आपका team support automation ढूंढ रहा है या sales outreach? हम 20-minute live pilot setup कर सकते हैं।",
       },
       {
         code: "us_english",
         label: "US English",
         flag: "🇺🇸",
-        female: { voiceName: "Aria", badge: "US West Coast", audioUrl: "/audio/voice-demos/sales-english.mp3" },
-        male: { voiceName: "Marcus", badge: "US Standard", audioUrl: "/audio/voice-demos/us-converse-voice.mp3" },
+        female: { voiceName: "Aria", badge: "US West Coast", audioUrl: "/audio/voice-demos/sales-english-female.mp3" },
+        male: { voiceName: "Marcus", badge: "US Architecture", audioUrl: "/audio/voice-demos/sales-english-male.mp3" },
         context: "Inbound SaaS lead discovery, ROI justification, and calendar invite dispatch.",
-        script: "Awesome. I'd love to set up a 20-minute tailored walkthrough with our solutions team. Would Friday at 10 AM EST work for your calendar?",
       },
       {
         code: "uk_english",
         label: "UK English",
         flag: "🇬🇧",
-        female: { voiceName: "Sarah", badge: "British RP", audioUrl: "/audio/voice-demos/uk-converse-voice.mp3" },
-        male: { voiceName: "Oliver", badge: "Executive Tone", audioUrl: "/audio/voice-demos/uk-wealth-advisory.mp3" },
+        female: { voiceName: "Sarah", badge: "British RP", audioUrl: "/audio/voice-demos/sales-uk-female.mp3" },
+        male: { voiceName: "Oliver", badge: "Executive Tone", audioUrl: "/audio/voice-demos/sales-uk-male.mp3" },
         context: "Enterprise discovery for EMEA market with native business accent.",
-        script: "Good afternoon. We help mid-market teams automate 80% of routine workflows while reducing operational cost. Shall we book a brief consultation?",
       },
       {
         code: "german",
         label: "German",
         flag: "🇩🇪",
-        female: { voiceName: "Greta", badge: "Native Business", audioUrl: "/audio/voice-demos/sales-german.mp3" },
-        male: { voiceName: "Klaus", badge: "Enterprise Native", audioUrl: "/audio/voice-demos/german-logistics.mp3" },
+        female: { voiceName: "Greta", badge: "Native Business", audioUrl: "/audio/voice-demos/sales-german-female.mp3" },
+        male: { voiceName: "Klaus", badge: "Enterprise Native", audioUrl: "/audio/voice-demos/sales-german-male.mp3" },
         context: "B2B Vertriebsqualifizierung und Terminvereinbarung auf Deutsch.",
-        script: "Guten Tag! Ich bin der KI-Assistent von ConverseAI. Wie viele Supportanfragen verarbeitet Ihr Unternehmen monatlich? Wir automatisieren wiederkehrende Anfragen nahtlos.",
+      },
+      {
+        code: "french",
+        label: "French",
+        flag: "🇫🇷",
+        female: { voiceName: "Sophie", badge: "SDR Paris", audioUrl: "/audio/voice-demos/sales-french-female.mp3" },
+        male: { voiceName: "Marc", badge: "Consultant B2B", audioUrl: "/audio/voice-demos/sales-french-male.mp3" },
+        context: "Qualification commerciale B2B et démonstration logicielle en français.",
+      },
+      {
+        code: "spanish",
+        label: "Spanish",
+        flag: "🇪🇸",
+        female: { voiceName: "Sofía", badge: "Ventas B2B", audioUrl: "/audio/voice-demos/sales-spanish-female.mp3" },
+        male: { voiceName: "Carlos", badge: "Ejecutivo SDR", audioUrl: "/audio/voice-demos/sales-spanish-male.mp3" },
+        context: "Calificación de prospectos B2B y agendamiento de demostraciones en español.",
+      },
+      {
+        code: "hindi",
+        label: "Hindi",
+        flag: "🇮🇳",
+        female: { voiceName: "Swara", badge: "B2B सेल्स", audioUrl: "/audio/voice-demos/appointment-hindi-female.mp3" },
+        male: { voiceName: "Madhur", badge: "बिज़नेस कंसल्टेंट", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3" },
+        context: "बिज़नेस सॉफ्टवेयर समाधान और ऑटोमेशन पूछताछ हिंदी में।",
       },
     ],
   },
 
-  // Card 3: EMI Collection & Support
+  // Card 3: EMI Reminder & Collections
   {
     id: "emi-collection",
     title: "EMI Reminder & Collections",
@@ -184,46 +218,65 @@ const DEMO_CARDS: DemoCardConfig[] = [
         code: "hindi",
         label: "Hindi",
         flag: "🇮🇳",
-        female: { voiceName: "Swara", badge: "Polite DLT", audioUrl: "/audio/voice-demos/appointment-hindi.mp3?v=3" },
-        male: { voiceName: "Madhur", badge: "Compliant Tone", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3?v=4" },
+        female: { voiceName: "Swara", badge: "Polite DLT", audioUrl: "/audio/voice-demos/emi-hindi-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Compliant Tone", audioUrl: "/audio/voice-demos/emi-hindi-male.mp3" },
         context: "सहानुभूतिपूर्ण और RBI/DLT-compliant भाषा में सुरक्षित ऋण भुगतान अनुस्मारक।",
-        script: "नमस्ते, मैं FinCare की तरफ से बात कर रही हूँ। आपके लोन अकाउंट में इस महीने की ईएमआई भुगतान तिथि नजदीक है। क्या मैं आपके रजिस्टर्ड नंबर पर UPI लिंक भेज दूँ?",
       },
       {
         code: "tamil",
         label: "Tamil",
         flag: "🇮🇳",
-        female: { voiceName: "Priya", badge: "DLT-Compliant", audioUrl: "/audio/voice-demos/emi-tamil.mp3" },
+        female: { voiceName: "Priya", badge: "DLT-Compliant", audioUrl: "/audio/voice-demos/emi-tamil-female.mp3" },
         male: { voiceName: "Karthik", badge: "Polite Tone", audioUrl: "/audio/voice-demos/emi-tamil-male.mp3" },
         context: "கடன் தவணை நினைவூட்டல் மற்றும் பாதுகாப்பான கட்டண இணைப்பு அனுப்புதல்.",
-        script: "வணக்கம், FinCare சார்பாக பிரியா பேசுகிறேன். உங்கள் மாத தவணை தொகையை செலுத்த UPI லிங்க் உங்கள் வாட்ஸ்அப் எண்ணிற்கு அனுப்பட்டுமா?",
       },
       {
         code: "spanish",
         label: "Spanish",
         flag: "🇪🇸",
-        female: { voiceName: "Sofía", badge: "Compliant BFSI", audioUrl: "/audio/voice-demos/emi-spanish.mp3" },
+        female: { voiceName: "Sofía", badge: "Compliant BFSI", audioUrl: "/audio/voice-demos/emi-spanish-female.mp3" },
         male: { voiceName: "Carlos", badge: "Professional Tone", audioUrl: "/audio/voice-demos/emi-spanish-male.mp3" },
         context: "Recordatorio de cuota financiera con opciones de pago en línea inmediato.",
-        script: "Hola, me comunico de FinCare para recordarle el pago de su cuota mensual. ¿Desea que le enviemos el enlace seguro para realizar el pago ahora?",
       },
       {
         code: "us_english",
         label: "US English",
         flag: "🇺🇸",
-        female: { voiceName: "Aria", badge: "Financial Care", audioUrl: "/audio/voice-demos/sales-english.mp3" },
-        male: { voiceName: "Marcus", badge: "Direct & Clear", audioUrl: "/audio/voice-demos/us-converse-voice.mp3" },
+        female: { voiceName: "Aria", badge: "Financial Care", audioUrl: "/audio/voice-demos/sales-english-female.mp3" },
+        male: { voiceName: "Marcus", badge: "Direct & Clear", audioUrl: "/audio/voice-demos/sales-english-male.mp3" },
         context: "Early-bucket customer payment reminder with secure digital payment processing.",
-        script: "Hello, this is a courteous reminder regarding your account balance with FinCare. We can send a secure one-click payment link directly to your mobile number.",
       },
       {
         code: "uk_english",
         label: "UK English",
         flag: "🇬🇧",
-        female: { voiceName: "Sarah", badge: "Gentle Reminder", audioUrl: "/audio/voice-demos/uk-converse-voice.mp3" },
-        male: { voiceName: "Oliver", badge: "Formal & Clear", audioUrl: "/audio/voice-demos/uk-wealth-advisory.mp3" },
+        female: { voiceName: "Sarah", badge: "Gentle Reminder", audioUrl: "/audio/voice-demos/sales-uk-female.mp3" },
+        male: { voiceName: "Oliver", badge: "Formal & Clear", audioUrl: "/audio/voice-demos/sales-uk-male.mp3" },
         context: "Compliant financial reminder adhering strictly to consumer credit guidelines.",
-        script: "Good afternoon. I am calling from FinCare Customer Support regarding your upcoming payment schedule. Would you like me to send a payment link to your email?",
+      },
+      {
+        code: "hinglish",
+        label: "Hinglish",
+        flag: "🇮🇳",
+        female: { voiceName: "Aria", badge: "Payment Support", audioUrl: "/audio/voice-demos/emi-hinglish-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Friendly Officer", audioUrl: "/audio/voice-demos/emi-hinglish-male.mp3" },
+        context: "Courteous EMI reminder and digital payment link dispatch in conversational Hinglish.",
+      },
+      {
+        code: "german",
+        label: "German",
+        flag: "🇩🇪",
+        female: { voiceName: "Greta", badge: "Finanzwesen", audioUrl: "/audio/voice-demos/sales-german-female.mp3" },
+        male: { voiceName: "Klaus", badge: "Zahlungsservice", audioUrl: "/audio/voice-demos/sales-german-male.mp3" },
+        context: "Diskrete Zahlungserinnerung mit sicherem Zahlungslink auf Deutsch.",
+      },
+      {
+        code: "french",
+        label: "French",
+        flag: "🇫🇷",
+        female: { voiceName: "Sophie", badge: "Rappel Bancaire", audioUrl: "/audio/voice-demos/sales-french-female.mp3" },
+        male: { voiceName: "Marc", badge: "Conseiller Crédit", audioUrl: "/audio/voice-demos/sales-french-male.mp3" },
+        context: "Rappel d'échéance financière respectueux avec envoi de lien de paiement.",
       },
     ],
   },
@@ -244,37 +297,57 @@ const DEMO_CARDS: DemoCardConfig[] = [
         code: "hinglish",
         label: "Hinglish",
         flag: "🇮🇳",
-        female: { voiceName: "Aria", badge: "Property Advisor", audioUrl: "/audio/voice-demos/sales-hinglish.mp3?v=3" },
-        male: { voiceName: "Madhur", badge: "Senior Consultant", audioUrl: "/audio/voice-demos/sales-hinglish-male.mp3?v=4" },
+        female: { voiceName: "Aria", badge: "Property Advisor", audioUrl: "/audio/voice-demos/sales-hinglish-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Senior Consultant", audioUrl: "/audio/voice-demos/sales-hinglish-male.mp3" },
         context: "High-intent buyer qualification (2BHK vs 3BHK, budget, possession) and weekend site visit booking in Hinglish.",
-        script: "Hello! Prestige Living से बात कर रहे हैं। क्या आप 2BHK या 3BHK फ्लैट्स देख रहे हैं? इस शनिवार सुबह 11 बजे हमारी प्रोजेक्ट साइट पर VIP वॉकथ्रू शेड्यूल कर दें?",
       },
       {
         code: "spanish",
         label: "Spanish",
         flag: "🇪🇸",
-        female: { voiceName: "Sofía", badge: "Asesora Inmobiliaria", audioUrl: "/audio/voice-demos/emi-spanish.mp3" },
-        male: { voiceName: "Carlos", badge: "Experto en Bienes Raíces", audioUrl: "/audio/voice-demos/emi-spanish-male.mp3" },
+        female: { voiceName: "Sofía", badge: "Asesora Inmobiliaria", audioUrl: "/audio/voice-demos/sales-spanish-female.mp3" },
+        male: { voiceName: "Carlos", badge: "Experto en Bienes Raíces", audioUrl: "/audio/voice-demos/sales-spanish-male.mp3" },
         context: "Calificación de compradores e inversores residenciales con visita presencial.",
-        script: "Hola, le llamo de Residencial Vista Real. ¿Está buscando una propiedad para inversión o vivienda familiar? Tenemos visitas disponibles este fin de semana.",
       },
       {
         code: "us_english",
         label: "US English",
         flag: "🇺🇸",
-        female: { voiceName: "Aria", badge: "Luxury Realty", audioUrl: "/audio/voice-demos/sales-english.mp3" },
-        male: { voiceName: "Marcus", badge: "Advisory Voice", audioUrl: "/audio/voice-demos/us-converse-voice.mp3" },
+        female: { voiceName: "Aria", badge: "Luxury Realty", audioUrl: "/audio/voice-demos/sales-english-female.mp3" },
+        male: { voiceName: "Marcus", badge: "Advisory Voice", audioUrl: "/audio/voice-demos/sales-english-male.mp3" },
         context: "Residential property inquiry qualification, price estimation, and callback scheduling.",
-        script: "Hi! Thanks for inquiring about Skyline Heights. Are you looking for a two-bedroom or three-bedroom residence? We have private showings this Saturday at 11 AM.",
       },
       {
         code: "uk_english",
         label: "UK English",
         flag: "🇬🇧",
-        female: { voiceName: "Sarah", badge: "Prime Property", audioUrl: "/audio/voice-demos/uk-converse-voice.mp3" },
-        male: { voiceName: "Oliver", badge: "Prime Property", audioUrl: "/audio/voice-demos/uk-wealth-advisory.mp3" },
+        female: { voiceName: "Sarah", badge: "Prime Property", audioUrl: "/audio/voice-demos/sales-uk-female.mp3" },
+        male: { voiceName: "Oliver", badge: "Prime Property", audioUrl: "/audio/voice-demos/sales-uk-male.mp3" },
         context: "Premium London real estate site visit coordination with authentic British RP accent.",
-        script: "Good morning. I am calling from Mayfair Residential. We have exclusive viewing appointments available for our penthouse development this Saturday.",
+      },
+      {
+        code: "hindi",
+        label: "Hindi",
+        flag: "🇮🇳",
+        female: { voiceName: "Swara", badge: "प्रॉपर्टी सलाहकार", audioUrl: "/audio/voice-demos/appointment-hindi-female.mp3" },
+        male: { voiceName: "Madhur", badge: "साइट विज़िट", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3" },
+        context: "प्रीमियम प्रॉपर्टी साइट विज़िट और 2BHK/3BHK चयन हिंदी में।",
+      },
+      {
+        code: "german",
+        label: "German",
+        flag: "🇩🇪",
+        female: { voiceName: "Greta", badge: "Immobilien", audioUrl: "/audio/voice-demos/sales-german-female.mp3" },
+        male: { voiceName: "Klaus", badge: "Objektberater", audioUrl: "/audio/voice-demos/sales-german-male.mp3" },
+        context: "Immobilienbesichtigung und Beratung auf Deutsch.",
+      },
+      {
+        code: "french",
+        label: "French",
+        flag: "🇫🇷",
+        female: { voiceName: "Sophie", badge: "Prestige Immobilier", audioUrl: "/audio/voice-demos/sales-french-female.mp3" },
+        male: { voiceName: "Marc", badge: "Agent Immobilier", audioUrl: "/audio/voice-demos/sales-french-male.mp3" },
+        context: "Visite de biens immobiliers de prestige et réservation en français.",
       },
     ],
   },
@@ -295,37 +368,49 @@ const DEMO_CARDS: DemoCardConfig[] = [
         code: "uk_english",
         label: "UK English",
         flag: "🇬🇧",
-        female: { voiceName: "Sarah", badge: "Dealership Concierge", audioUrl: "/audio/voice-demos/uk-converse-voice.mp3" },
-        male: { voiceName: "James", badge: "Service Specialist", audioUrl: "/audio/voice-demos/uk-automotive-mot.mp3" },
+        female: { voiceName: "Sarah", badge: "Dealership Concierge", audioUrl: "/audio/voice-demos/sales-uk-female.mp3" },
+        male: { voiceName: "Oliver", badge: "Service Specialist", audioUrl: "/audio/voice-demos/sales-uk-male.mp3" },
         context: "Automotive dealership booking test drives and annual maintenance appointments.",
-        script: "Good afternoon! This is Converse Automotive. I see you're interested in the new hybrid SUV. We have test drive slots available this Saturday at 11 AM or Sunday at 2 PM.",
       },
       {
         code: "hindi",
         label: "Hindi",
         flag: "🇮🇳",
-        female: { voiceName: "Swara", badge: "Showroom Assistant", audioUrl: "/audio/voice-demos/appointment-hindi.mp3?v=3" },
-        male: { voiceName: "Madhur", badge: "Service Advisor", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3?v=4" },
+        female: { voiceName: "Swara", badge: "Showroom Assistant", audioUrl: "/audio/voice-demos/appointment-hindi-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Service Advisor", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3" },
         context: "शोरूम टेस्ट ड्राइव और अधिकृत सर्विस सेंटर अपॉइंटमेंट बुकिंग हिंदी में।",
-        script: "नमस्ते! ऑटोमोबाइल डीलरशिप से बात कर रहे हैं। आपकी नई SUV की टेस्ट ड्राइव के लिए शनिवार सुबह 11 बजे का स्लॉट उपलब्ध है। क्या हम आपकी बुकिंग कन्फर्म कर दें?",
       },
       {
         code: "us_english",
         label: "US English",
         flag: "🇺🇸",
-        female: { voiceName: "Aria", badge: "Sales Advisor", audioUrl: "/audio/voice-demos/sales-english.mp3" },
-        male: { voiceName: "Marcus", badge: "Service Manager", audioUrl: "/audio/voice-demos/us-converse-voice.mp3" },
+        female: { voiceName: "Aria", badge: "Sales Advisor", audioUrl: "/audio/voice-demos/sales-english-female.mp3" },
+        male: { voiceName: "Marcus", badge: "Service Manager", audioUrl: "/audio/voice-demos/sales-english-male.mp3" },
         context: "US automotive dealership test drive scheduling and trim level configuration.",
-        script: "Hi there! Following up on your request to test drive the new EV crossover. We have VIP slots open this weekend. Would morning or afternoon suit you best?",
       },
       {
         code: "french",
         label: "French",
         flag: "🇫🇷",
-        female: { voiceName: "Sophie", badge: "Conseillère Auto", audioUrl: "/audio/voice-demos/french-hospitality.mp3" },
-        male: { voiceName: "Marc", badge: "Expert Concession", audioUrl: "/audio/voice-demos/appointment-french-male.mp3" },
+        female: { voiceName: "Sophie", badge: "Conseillère Auto", audioUrl: "/audio/voice-demos/sales-french-female.mp3" },
+        male: { voiceName: "Marc", badge: "Expert Concession", audioUrl: "/audio/voice-demos/sales-french-male.mp3" },
         context: "Réservation d'essais automobiles et entretiens périodiques en concession.",
-        script: "Bonjour ! Nous serions ravis de vous faire essayer notre nouveau modèle hybride ce samedi. Souhaitez-vous réserver un essai à 11 heures ?",
+      },
+      {
+        code: "german",
+        label: "German",
+        flag: "🇩🇪",
+        female: { voiceName: "Greta", badge: "Autohaus Service", audioUrl: "/audio/voice-demos/sales-german-female.mp3" },
+        male: { voiceName: "Klaus", badge: "Werkstattleiter", audioUrl: "/audio/voice-demos/sales-german-male.mp3" },
+        context: "Probefahrtvereinbarung und Werkstattservice auf Deutsch.",
+      },
+      {
+        code: "hinglish",
+        label: "Hinglish",
+        flag: "🇮🇳",
+        female: { voiceName: "Aria", badge: "Dealership Concierge", audioUrl: "/audio/voice-demos/appointment-hinglish-female.mp3" },
+        male: { voiceName: "Madhur", badge: "Test Drive Advisor", audioUrl: "/audio/voice-demos/appointment-hinglish-male.mp3" },
+        context: "New car showroom test drive booking and weekend VIP slots in Hinglish.",
       },
     ],
   },
@@ -346,37 +431,49 @@ const DEMO_CARDS: DemoCardConfig[] = [
         code: "german",
         label: "German",
         flag: "🇩🇪",
-        male: { voiceName: "Klaus", badge: "Logistik Assistent", audioUrl: "/audio/voice-demos/german-logistics.mp3" },
-        female: { voiceName: "Greta", badge: "Express Support", audioUrl: "/audio/voice-demos/sales-german.mp3" },
+        female: { voiceName: "Greta", badge: "Express Support", audioUrl: "/audio/voice-demos/sales-german-female.mp3" },
+        male: { voiceName: "Klaus", badge: "Logistik Assistent", audioUrl: "/audio/voice-demos/sales-german-male.mp3" },
         context: "Automatische Lieferbenachrichtigung und Adressbestätigung für Expresssendungen.",
-        script: "Guten Tag, hier ist der Logistikdienst von Express Delivery. Ihre Sendung befindet sich heute in der Zustellung. Bitte bestätigen Sie Ihre Lieferadresse.",
       },
       {
         code: "hindi",
         label: "Hindi",
         flag: "🇮🇳",
-        female: { voiceName: "Swara", badge: "डिस्पैच सपोर्ट", audioUrl: "/audio/voice-demos/appointment-hindi.mp3?v=3" },
-        male: { voiceName: "Madhur", badge: "डिलीवरी मैनेजर", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3?v=4" },
+        female: { voiceName: "Swara", badge: "डिस्पैच सपोर्ट", audioUrl: "/audio/voice-demos/appointment-hindi-female.mp3" },
+        male: { voiceName: "Madhur", badge: "डिलीवरी मैनेजर", audioUrl: "/audio/voice-demos/appointment-hindi-male.mp3" },
         context: "COD पता सत्यापन और ग्राहक डिलीवरी समय स्लॉट पुष्टि।",
-        script: "नमस्ते, आपका पार्सल आज दोपहर 2 बजे तक डिलीवर किया जाएगा। कृपया कन्फर्म करें कि डिलीवरी के समय पते पर कोई उपस्थित रहेगा?",
       },
       {
         code: "english",
         label: "English",
         flag: "🌐",
-        female: { voiceName: "Aria", badge: "Dispatch Desk", audioUrl: "/audio/voice-demos/sales-english.mp3" },
-        male: { voiceName: "Marcus", badge: "Courier Lead", audioUrl: "/audio/voice-demos/us-converse-voice.mp3" },
+        female: { voiceName: "Aria", badge: "Dispatch Desk", audioUrl: "/audio/voice-demos/sales-english-female.mp3" },
+        male: { voiceName: "Marcus", badge: "Courier Lead", audioUrl: "/audio/voice-demos/sales-english-male.mp3" },
         context: "Real-time delivery verification, ETA notification, and gate entry code verification.",
-        script: "Hi, this is Express Logistics calling regarding your package delivery scheduled for today between 1 PM and 3 PM. Would you like contactless drop-off?",
       },
       {
         code: "uk_english",
         label: "UK English",
         flag: "🇬🇧",
-        female: { voiceName: "Sarah", badge: "Customer Care", audioUrl: "/audio/voice-demos/uk-converse-voice.mp3" },
-        male: { voiceName: "Oliver", badge: "Operations", audioUrl: "/audio/voice-demos/uk-wealth-advisory.mp3" },
+        female: { voiceName: "Sarah", badge: "Customer Care", audioUrl: "/audio/voice-demos/sales-uk-female.mp3" },
+        male: { voiceName: "Oliver", badge: "Operations", audioUrl: "/audio/voice-demos/sales-uk-male.mp3" },
         context: "UK courier service resolving delivery timeframes and safe place instructions.",
-        script: "Good afternoon. We are attempting delivery of your parcel today. If you are not at home, would you like us to leave it with a neighbour?",
+      },
+      {
+        code: "spanish",
+        label: "Spanish",
+        flag: "🇪🇸",
+        female: { voiceName: "Sofía", badge: "Despacho Logístico", audioUrl: "/audio/voice-demos/sales-spanish-female.mp3" },
+        male: { voiceName: "Carlos", badge: "Coordinador Envíos", audioUrl: "/audio/voice-demos/sales-spanish-male.mp3" },
+        context: "Seguimiento de envíos, despacho aduanero y verificación de entrega en español.",
+      },
+      {
+        code: "french",
+        label: "French",
+        flag: "🇫🇷",
+        female: { voiceName: "Sophie", badge: "Suivi Colis", audioUrl: "/audio/voice-demos/sales-french-female.mp3" },
+        male: { voiceName: "Marc", badge: "Logistique Express", audioUrl: "/audio/voice-demos/sales-french-male.mp3" },
+        context: "Confirmation de livraison de fret et suivi de dédouanement en français.",
       },
     ],
   },
@@ -399,9 +496,6 @@ export default function SarvamVoiceDemoSection() {
     });
     return initial;
   });
-
-  // Expanded transcripts state
-  const [expandedTranscripts, setExpandedTranscripts] = useState<Record<string, boolean>>({});
 
   // Stop audio on component unmount
   useEffect(() => {
@@ -476,7 +570,6 @@ export default function SarvamVoiceDemoSection() {
   };
 
   const handleGenderSwitch = (cardId: string, newGender: Gender) => {
-    // If this card is currently playing, pause it to swap cleanly
     if (playingCardId === cardId) {
       stopCurrentAudio();
     }
@@ -499,13 +592,6 @@ export default function SarvamVoiceDemoSection() {
         ...prev[cardId],
         lang: newLang,
       },
-    }));
-  };
-
-  const toggleTranscript = (cardId: string) => {
-    setExpandedTranscripts((prev) => ({
-      ...prev,
-      [cardId]: !prev[cardId],
     }));
   };
 
@@ -537,7 +623,6 @@ export default function SarvamVoiceDemoSection() {
             const activeVoice = currentState.gender === "female" ? activeLang.female : activeLang.male;
             const isThisCardPlaying = playingCardId === card.id;
             const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-            const isTranscriptOpen = !!expandedTranscripts[card.id];
             const CardIcon = card.icon;
 
             return (
@@ -689,41 +774,6 @@ export default function SarvamVoiceDemoSection() {
                     <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
                       💬 <span className="italic">{activeLang.context}</span>
                     </p>
-                  </div>
-
-                  {/* 4. View Transcript Accordion */}
-                  <div className="mt-3">
-                    <button
-                      type="button"
-                      onClick={() => toggleTranscript(card.id)}
-                      className="w-full flex items-center justify-between text-xs text-muted-foreground hover:text-foreground font-medium py-1 transition-colors"
-                    >
-                      <span>{isTranscriptOpen ? "Hide Call Transcript" : "View Spoken Transcript"}</span>
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                          isTranscriptOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence>
-                      {isTranscriptOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="mt-2 p-3 rounded-lg bg-card border border-border/70 text-xs text-foreground/90 leading-relaxed font-sans shadow-inner">
-                            <span className="font-semibold text-primary block mb-1">
-                              Agent Script ({activeLang.label} — {activeVoice.voiceName}):
-                            </span>
-                            "{activeLang.script}"
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </div>
                 </div>
               </motion.div>

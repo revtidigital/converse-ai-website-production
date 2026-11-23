@@ -15,13 +15,17 @@ import { generateAiraReply, type AiraResponse, type BookingLead } from "./airaEn
 import { submitContactForm } from "@/lib/submitContactForm";
 import { Button } from "@/components/ui/button";
 
+interface BookingCardData extends BookingLead {
+  status: "idle" | "submitting" | "confirmed";
+}
+
 interface Message {
   id: string;
   sender: "user" | "aira";
   text: string;
   timestamp: string;
   navigation?: AiraResponse["navigation"];
-  bookingCard?: BookingLead;
+  bookingCard?: BookingCardData;
   quickReplies?: string[];
 }
 
@@ -30,7 +34,6 @@ export default function VoiceAssistant() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [activeLead, setActiveLead] = useState<BookingLead | undefined>();
-  const [bookingStatus, setBookingStatus] = useState<"idle" | "submitting" | "confirmed">("idle");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -55,9 +58,80 @@ export default function VoiceAssistant() {
     }
   }, [messages, isOpen, isTyping]);
 
+  const handleBookingConfirm = async (messageId: string, lead: BookingCardData) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId && m.bookingCard
+          ? { ...m, bookingCard: { ...m.bookingCard, status: "submitting" } }
+          : m
+      )
+    );
+
+    try {
+      await submitContactForm({
+        fullName: lead.name || "Aira Web Visitor",
+        email: lead.email || "consultation@theconverseai.com",
+        phone: lead.phone || "+919982323333",
+        product: lead.service || "AI Voice Agents",
+        subject: "Direct In-Chat Booking via Aira Consultant",
+        message: lead.message || "Booked through Aira Conversational Consultant on site.",
+        form_source: "Aira In-Chat Booking",
+      });
+
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId && m.bookingCard
+            ? { ...m, bookingCard: { ...m.bookingCard, status: "confirmed" } }
+            : m
+        )
+      );
+
+      // Clear active lead state so subsequent new leads don't inherit previous user's data
+      setActiveLead(undefined);
+
+      // Add a confirmation message from Aira with follow-up options
+      const confirmationMsg: Message = {
+        id: `aira-${Date.now()}`,
+        sender: "aira",
+        text: `Great news ${lead.name ? lead.name : ""}! Your consultation request for ${lead.service} has been successfully submitted. Our solutions engineering team will reach out to you via ${lead.email || lead.phone || "your contact details"} shortly.`,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        quickReplies: ["Voice Agents Demo", "Explore Case Studies", "View Pricing & Plans"],
+      };
+      setMessages((prev) => [...prev, confirmationMsg]);
+    } catch {
+      // Fallback: route directly to book-demo page with prefilled parameters
+      const params = new URLSearchParams();
+      if (lead.service) params.set("service", lead.service);
+      if (lead.name) params.set("name", lead.name);
+      if (lead.email) params.set("email", lead.email);
+      if (lead.phone) params.set("phone", lead.phone);
+      navigate(`/book-demo?${params.toString()}`);
+      setIsOpen(false);
+    }
+  };
+
   const handleSend = (textToSend?: string) => {
     const query = textToSend || input;
     if (!query.trim()) return;
+
+    const trimmedLower = query.trim().toLowerCase();
+
+    // If user clicked or typed "Confirm Consultation", execute booking on the active pending card
+    if (trimmedLower === "confirm consultation" || trimmedLower === "confirm & book consultation") {
+      const pendingMsg = [...messages].reverse().find((m) => m.bookingCard && m.bookingCard.status === "idle");
+      if (pendingMsg && pendingMsg.bookingCard) {
+        const userMsg: Message = {
+          id: `user-${Date.now()}`,
+          sender: "user",
+          text: query,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        };
+        setMessages((prev) => [...prev, userMsg]);
+        if (!textToSend) setInput("");
+        handleBookingConfirm(pendingMsg.id, pendingMsg.bookingCard);
+        return;
+      }
+    }
 
     const userMessage: Message = {
       id: `user-${Date.now()}`,
@@ -84,38 +158,15 @@ export default function VoiceAssistant() {
         text: response.reply,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         navigation: response.navigation,
-        bookingCard: response.bookingCard,
+        bookingCard: response.bookingCard
+          ? { ...response.bookingCard, status: "idle" }
+          : undefined,
         quickReplies: response.quickReplies,
       };
 
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
     }, 700);
-  };
-
-  const handleBookingConfirm = async (lead: BookingLead) => {
-    setBookingStatus("submitting");
-    try {
-      await submitContactForm({
-        fullName: lead.name || "Aira Web Visitor",
-        email: lead.email || "consultation@theconverseai.com",
-        phone: lead.phone || "+919982323333",
-        product: lead.service || "AI Voice Agents",
-        subject: "Direct In-Chat Booking via Aira Consultant",
-        message: lead.message || "Booked through Aira Conversational Consultant on site.",
-        form_source: "Aira In-Chat Booking",
-      });
-      setBookingStatus("confirmed");
-    } catch {
-      // Fallback: route directly to book-demo page with prefilled parameters
-      const params = new URLSearchParams();
-      if (lead.service) params.set("service", lead.service);
-      if (lead.name) params.set("name", lead.name);
-      if (lead.email) params.set("email", lead.email);
-      if (lead.phone) params.set("phone", lead.phone);
-      navigate(`/book-demo?${params.toString()}`);
-      setIsOpen(false);
-    }
   };
 
   const handleNavigate = (url: string) => {
@@ -289,7 +340,7 @@ export default function VoiceAssistant() {
                         </div>
                       </div>
 
-                      {bookingStatus === "confirmed" ? (
+                      {msg.bookingCard.status === "confirmed" ? (
                         <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-500/10 text-emerald-600 font-semibold text-xs border border-emerald-500/20">
                           <CheckCircle2 className="w-4 h-4 shrink-0" />
                           <span>Booking Confirmed! Our solutions engineer will contact you shortly.</span>
@@ -297,11 +348,11 @@ export default function VoiceAssistant() {
                       ) : (
                         <Button
                           size="sm"
-                          disabled={bookingStatus === "submitting"}
-                          onClick={() => handleBookingConfirm(msg.bookingCard!)}
+                          disabled={msg.bookingCard.status === "submitting"}
+                          onClick={() => handleBookingConfirm(msg.id, msg.bookingCard!)}
                           className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold text-xs h-8 rounded-lg shadow-sm"
                         >
-                          {bookingStatus === "submitting" ? (
+                          {msg.bookingCard.status === "submitting" ? (
                             <>
                               <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                               Confirming...

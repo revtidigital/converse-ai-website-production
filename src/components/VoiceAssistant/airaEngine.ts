@@ -160,10 +160,18 @@ export function generateAiraReply(userInput: string, existingLead?: BookingLead)
   // Step 1: Check for single-sentence lead submission
   const extractedLead = extractLeadDetails(userInput);
   if (extractedLead && (extractedLead.email || extractedLead.phone)) {
+    // If the new submission has distinct contact info, treat it as a fresh lead rather than merging
+    const isNewContact =
+      existingLead &&
+      ((extractedLead.email && existingLead.email && extractedLead.email !== existingLead.email) ||
+        (extractedLead.phone && existingLead.phone && extractedLead.phone !== existingLead.phone) ||
+        (extractedLead.name && existingLead.name && extractedLead.name.toLowerCase() !== existingLead.name.toLowerCase()));
+
+    const baseLead = isNewContact ? {} : (existingLead || {});
     const combinedLead: BookingLead = {
-      ...existingLead,
+      ...baseLead,
       ...extractedLead,
-      service: extractedLead.service || existingLead?.service || "AI Voice Agents",
+      service: extractedLead.service || baseLead.service || "AI Voice Agents",
     };
 
     return {
