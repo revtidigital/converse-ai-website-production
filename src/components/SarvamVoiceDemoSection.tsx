@@ -482,6 +482,8 @@ const DEMO_CARDS: DemoCardConfig[] = [
 export default function SarvamVoiceDemoSection() {
   // Global Audio Player Reference ensuring single audio stream
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Audio Preload Cache Pool for instant 0ms latency playback
+  const audioCacheRef = useRef<Map<string, HTMLAudioElement>>(new Map());
 
   // Active playing state
   const [playingCardId, setPlayingCardId] = useState<string | null>(null);
@@ -496,6 +498,30 @@ export default function SarvamVoiceDemoSection() {
     });
     return initial;
   });
+
+  // Helper to get or preload audio
+  const getAudio = (url: string) => {
+    if (typeof window === "undefined") return null;
+    if (!audioCacheRef.current.has(url)) {
+      const a = new Audio(url);
+      a.preload = "auto";
+      audioCacheRef.current.set(url, a);
+    }
+    return audioCacheRef.current.get(url)!;
+  };
+
+  // Preload visible cards' active audio tracks for instant zero-latency playback
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    DEMO_CARDS.slice(0, 3).forEach((card) => {
+      const state = cardStates[card.id];
+      if (state) {
+        const lang = card.languages.find((l) => l.code === state.lang) || card.languages[0];
+        const voice = state.gender === "female" ? lang.female : lang.male;
+        getAudio(voice.audioUrl);
+      }
+    });
+  }, [cardStates]);
 
   // Stop audio on component unmount
   useEffect(() => {
@@ -517,6 +543,7 @@ export default function SarvamVoiceDemoSection() {
   const stopCurrentAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       audioRef.current = null;
     }
     setPlayingCardId(null);
@@ -539,8 +566,9 @@ export default function SarvamVoiceDemoSection() {
     // New card / track clicked: pause existing audio
     stopCurrentAudio();
 
-    const audio = new Audio(audioUrl);
+    const audio = getAudio(audioUrl) || new Audio(audioUrl);
     audioRef.current = audio;
+    audio.currentTime = 0;
 
     audio.onloadedmetadata = () => {
       setDuration(audio.duration || 0);
@@ -562,7 +590,12 @@ export default function SarvamVoiceDemoSection() {
 
     audio
       .play()
-      .then(() => setPlayingCardId(card.id))
+      .then(() => {
+        setPlayingCardId(card.id);
+        if (audio.duration) {
+          setDuration(audio.duration);
+        }
+      })
       .catch((err) => {
         console.warn("Audio playback prevented:", err);
         setPlayingCardId(null);
