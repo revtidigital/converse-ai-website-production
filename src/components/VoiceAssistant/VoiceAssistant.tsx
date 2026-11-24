@@ -69,13 +69,17 @@ export default function VoiceAssistant() {
 
     try {
       await submitContactForm({
-        fullName: lead.name || "Aira Web Visitor",
+        fullName: lead.name || "Converse AI Web Visitor",
         email: lead.email || "consultation@theconverseai.com",
         phone: lead.phone || "+919982323333",
         product: lead.service || "AI Voice Agents",
-        subject: "Direct In-Chat Booking via Aira Consultant",
-        message: lead.message || "Booked through Aira Conversational Consultant on site.",
-        form_source: "Aira In-Chat Booking",
+        subject: "Direct In-Chat Booking via Converse AI Assistant",
+        message: lead.message || `Booked through Converse AI Conversational Consultant on site.${lead.preferredTime ? ` Preferred Slot: ${lead.preferredTime}` : ""}`,
+        form_source: "Converse AI In-Chat Booking",
+        extraFields: {
+          preferred_time: lead.preferredTime || "Flexible",
+          booking_channel: "Chatbot Interactive Scheduler",
+        },
       });
 
       setMessages((prev) =>
@@ -89,11 +93,11 @@ export default function VoiceAssistant() {
       // Clear active lead state so subsequent new leads don't inherit previous user's data
       setActiveLead(undefined);
 
-      // Add a confirmation message from Aira with follow-up options
+      // Add a confirmation message with follow-up options
       const confirmationMsg: Message = {
         id: `aira-${Date.now()}`,
         sender: "aira",
-        text: `Great news ${lead.name ? lead.name : ""}! Your consultation request for ${lead.service} has been successfully submitted. Our solutions engineering team will reach out to you via ${lead.email || lead.phone || "your contact details"} shortly.`,
+        text: `Great news ${lead.name ? lead.name : ""}! Your consultation for ${lead.service} has been successfully scheduled${lead.preferredTime ? ` for ${lead.preferredTime}` : ""}. Our solutions engineering team will reach out to you via ${lead.email || lead.phone || "your contact details"} with the meeting invite and link.`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         quickReplies: ["Voice Agents Demo", "Explore Case Studies", "View Pricing & Plans"],
       };
@@ -105,6 +109,7 @@ export default function VoiceAssistant() {
       if (lead.name) params.set("name", lead.name);
       if (lead.email) params.set("email", lead.email);
       if (lead.phone) params.set("phone", lead.phone);
+      if (lead.preferredTime) params.set("preferred_time", lead.preferredTime);
       navigate(`/book-demo?${params.toString()}`);
       setIsOpen(false);
     }
@@ -338,6 +343,12 @@ export default function VoiceAssistant() {
                           <span className="font-medium text-foreground">Service:</span>
                           <span className="text-primary font-semibold">{msg.bookingCard.service}</span>
                         </div>
+                        {msg.bookingCard.preferredTime && (
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-foreground">Preferred Slot:</span>
+                            <span className="text-foreground font-medium">{msg.bookingCard.preferredTime}</span>
+                          </div>
+                        )}
                       </div>
 
                       {msg.bookingCard.status === "confirmed" ? (

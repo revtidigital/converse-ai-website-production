@@ -1,10 +1,11 @@
 /**
- * Aira Engine — Enterprise Conversational AI Consultant for ConverseAI
+ * Converse AI Conversational Knowledge Base & Scheduling Engine
  * Provides:
- * 1. Clean, professional English responses & greetings
- * 2. Bilingual comprehension (understands both English & Hinglish/Hindi queries)
- * 3. Accurate enterprise knowledge retrieval (Voice AI latency, accents, compliance, ticketing, integrations)
- * 4. Single-sentence lead extraction & interactive booking summary cards
+ * 1. Comprehensive knowledge retrieval covering all products, services, differences from traditional chatbots,
+ *    industries, team location, security, pricing, and architecture.
+ * 2. Bilingual natural language understanding (English, Hindi, and Hinglish queries).
+ * 3. Step-by-step interactive conversational form-filling & call scheduling.
+ * 4. Single-sentence / multi-entity extraction with booking cards.
  */
 
 export interface BookingLead {
@@ -12,6 +13,8 @@ export interface BookingLead {
   email?: string;
   phone?: string;
   service?: string;
+  preferredTime?: string;
+  step?: "awaiting_name" | "awaiting_email" | "awaiting_phone" | "awaiting_service" | "awaiting_time" | "ready" | "idle";
   message?: string;
 }
 
@@ -28,15 +31,311 @@ export interface AiraResponse {
   quickReplies?: string[];
 }
 
-// ── 1. Single-Sentence Lead Extraction Helper ──
-export function extractLeadDetails(input: string): BookingLead | null {
+// ── 1. Comprehensive ConverseAI Knowledge Base ──
+
+interface KnowledgeTopic {
+  id: string;
+  triggers: string[];
+  reply: string;
+  navigation?: NavigationAction;
+  quickReplies?: string[];
+}
+
+const KNOWLEDGE_BASE: KnowledgeTopic[] = [
+  // 1. Comparison: ConverseAI vs Traditional Chatbots (Tidio, Intercom, Drift, Botpress)
+  {
+    id: "vs_traditional_chatbots",
+    triggers: [
+      "tidio", "intercom", "botpress", "drift", "zendesk", "freshdesk", "normal chatbot",
+      "traditional chatbot", "different from", "alag kaise", "difference", "kyu choose kare",
+      "why converseai", "simple chatbot", "traditional bot", "chatbot vs agent", "versus", "vs"
+    ],
+    reply: `Traditional chatbots (such as Tidio, Intercom, or basic widget bots) rely on rigid rule-based decision trees, static FAQ matches, and pre-scripted buttons that often frustrate users and cannot take real-world actions.
+
+ConverseAI is fundamentally different:
+1. Autonomous Action Execution: Our agents don't just chat — they query live databases, book calendar consultation slots, process refunds, verify KYC, dispatch UPI payment links, and write directly into your CRM (Salesforce, HubSpot, Zoho, SAP).
+2. Human-Parity Voice AI (<800ms): We build live telephony voice agents with sub-800ms response times, authentic Indian & international accents (Hindi, Hinglish, US/UK English), and natural barge-in (callers can interrupt the bot naturally at any time).
+3. Fully Built & Operated by Us: You don't need to hire an internal AI team. We scope your business problem, build the custom agent, integrate your telephony & APIs, and run it in production with guaranteed SLAs.
+4. Warm Human Handoff: Complex edge cases are transferred seamlessly to human agents with full conversational transcripts, sentiment scores, and CRM context so customers never re-explain themselves.`,
+    navigation: {
+      label: "Why ConverseAI Over Chatbots",
+      url: "/about-us",
+      type: "route",
+    },
+    quickReplies: ["Voice Agents Demo", "WhatsApp AI Solutions", "Book a Consultation", "Pricing & ROI"],
+  },
+
+  // 2. What ConverseAI Does & Industries We Help
+  {
+    id: "what_we_do_and_industries",
+    triggers: [
+      "kya karta hai", "kya karte ho", "what is converseai", "what does converseai do",
+      "what do you do", "kin businesses", "who do you help", "industries", "clients",
+      "kaise help karte ho", "target audience", "about converseai", "converse ai kya hai",
+      "tell me about converse", "overview", "what are your services", "tum kya karte ho", "use case"
+    ],
+    reply: `ConverseAI builds, integrates, and operates custom enterprise AI agents in production — focusing on ultra-low latency Voice Agents, intelligent WhatsApp automation, and autonomous agentic workflows.
+
+We do not just sell DIY software; we scope your problem, build the custom agent, connect your telephony/APIs, and run it in production with guaranteed SLAs. No in-house AI team is needed on your end.
+
+Key Industries We Serve:
+• Healthcare & Clinics: Patient symptom triage, doctor availability checks, appointment booking, and SMS confirmation.
+• BFSI & NBFC Lending: DLT-compliant early-bucket EMI payment reminders, instant UPI payment links, and customer KYC verification.
+• E-Commerce & D2C Brands: WhatsApp Shop catalogs, instant order tracking (ETA), returns, and automated cart recovery.
+• B2B SaaS & High-Ticket: Autonomous SDR lead qualification (BANT/MEDDIC), demo booking, and calendar invites.
+• Real Estate: High-intent buyer qualification (budget, 2BHK/3BHK), property viewing and site visit scheduling.
+• Logistics & Automotive: Consignment tracking, Frankfurt/India customs clearance updates, and showroom test drive booking.`,
+    navigation: {
+      label: "Explore All AI Services",
+      url: "/services",
+      type: "route",
+    },
+    quickReplies: ["Voice Agents Demo", "Case Studies & ROI", "Book a Consultation", "View Pricing & Plans"],
+  },
+
+  // 3. Team Location, Office Address & Company Background
+  {
+    id: "team_and_location",
+    triggers: [
+      "team based", "where is your team", "office kahan hai", "kahan based ho", "location",
+      "headquarters", "jaipur", "address", "where are you located", "office address",
+      "company address", "who founded", "revti digital", "where are you from", "office"
+    ],
+    reply: `ConverseAI is headquartered in Jaipur, Rajasthan, India:
+📍 Office Address: F-21, Madhuban Colony, Barkat Nagar, Tonk Phatak, Jaipur, Rajasthan 302015.
+
+We are an enterprise AI engineering brand operated by Revti Digital. Our engineering team operates globally, delivering production deployments for growing mid-market and enterprise businesses across India, North America, the UK, Europe, and the Middle East.
+
+Contact & Communication:
+• Official Email: contact@theconverseai.com
+• Phone: +91-9982323333 / +91-7023084065
+• Consultation: You can schedule a 1:1 consultation directly in this chat!`,
+    navigation: {
+      label: "Contact ConverseAI Team",
+      url: "/contact-us",
+      type: "route",
+    },
+    quickReplies: ["Book a Consultation", "Explore Services", "View Case Studies"],
+  },
+
+  // 4. Case Studies & Proven Results
+  {
+    id: "case_studies",
+    triggers: [
+      "case studies", "case study", "portfolio", "past work", "success stories", "client results",
+      "case studies dikhao", "examples of what you have built", "results dikhao", "examples", "proof", "clients"
+    ],
+    reply: `Here are verified enterprise client results achieved with ConverseAI agents in production:
+• StyleMart India (E-Commerce / D2C): 3× repeat revenue growth and 65% customer support cost savings via WhatsApp automation.
+• EdTech Global: 4.2× increase in qualified demo bookings and 92% reduction in lead response time with Voice AI qualification.
+• CareFirst Healthcare: 400+ weekly clinic appointments booked autonomously, eliminating phone queue hold times.
+• NBFC Lending: 38% improvement in early-stage EMI collections with respectful, DLT-compliant voice reminders.`,
+    navigation: {
+      label: "Explore Case Studies",
+      url: "/case-studies",
+      type: "route",
+    },
+    quickReplies: ["Book a Live Demo", "View Pricing & ROI", "Talk to Sales"],
+  },
+
+  // 5. AI Voice Agents & Calling Technology
+  {
+    id: "voice_agents",
+    triggers: [
+      "voice agent", "voice agents", "calling bot", "inbound outbound", "voice demo", "voice sample",
+      "voice call", "voice bot", "sarvam voice", "audio demo", "phone agent", "calling ai", "voice samples"
+    ],
+    reply: `ConverseAI Voice Agents deliver human-like phone conversations with sub-800ms streaming latency.
+
+Key Capabilities:
+• Authentic Regional Dialects: Fluent in Hindi, natural conversational Hinglish, US & UK English, Tamil, German, French, and Spanish.
+• Natural Barge-In: Powered by Silero VAD, callers can interrupt the AI naturally at any point in the conversation.
+• Telephony Ready: Plugs directly into Exotel, Twilio, Plivo, FreePBX, Asterisk, and cloud contact centers via SIP trunks.
+• Full Workflows: 24/7 inbound reception, B2B lead qualification, clinic bookings, payment reminders, and warm transfer to human agents.`,
+    navigation: {
+      label: "Listen to Voice Demos",
+      url: "/services/ai-voice-agents",
+      type: "route",
+    },
+    quickReplies: ["Listen to Voice Demos", "Book Voice Demo", "Pricing Details"],
+  },
+
+  // 6. WhatsApp AI Chatbot & WhatsApp Shop
+  {
+    id: "whatsapp_solutions",
+    triggers: [
+      "whatsapp", "whatsapp bot", "whatsapp ai", "whatsapp shop", "wa bot", "whatsapp automation",
+      "whatsapp marketing", "meta tech provider", "catalog"
+    ],
+    reply: `As an official Meta Tech Provider, ConverseAI delivers end-to-end WhatsApp automation:
+• WhatsApp Shop & Catalogs: In-chat product browsing, cart checkout, and instant UPI/NetBanking payment link dispatch.
+• 24/7 Customer Care: Automated order tracking (ETA), returns/refunds, and 80%+ FAQ deflection.
+• Automated Lead Qualification: Interactive qualification flows, lead scoring, and instant CRM sync.
+• Marketing & Abandoned Cart Recovery: DLT and Meta policy-compliant promotional broadcasts with high conversion rates.`,
+    navigation: {
+      label: "WhatsApp AI Solutions",
+      url: "/whatsapp-ai-chatbot",
+      type: "route",
+    },
+    quickReplies: ["WhatsApp Shop Demo", "CRM Integrations", "Book a Consultation"],
+  },
+
+  // 7. Agentic Automation & Custom Workflows
+  {
+    id: "agentic_automation",
+    triggers: [
+      "agentic", "workflow", "workflows", "process automation", "document processing",
+      "invoice", "ocr", "autonomous agents", "agent sprint"
+    ],
+    reply: `Our Agentic Automation services build autonomous AI systems that execute complex, multi-step business operations:
+• Intelligent Document Processing: Extracts structured data from invoices, purchase orders, medical records, and scanned PDFs.
+• Cross-System Reconciliation: Matches bank statements with ERP entries (SAP, Tally, Zoho Books).
+• Human-in-the-Loop Controls: Flags anomalies for human review while automating 85%+ of repetitive workflows.
+• 4-Week Agent Sprint: We deploy your first production agent in 30 days.`,
+    navigation: {
+      label: "Agentic Automation",
+      url: "/services/agentic-automation",
+      type: "route",
+    },
+    quickReplies: ["Book an Agent Sprint", "See Integrations", "Case Studies"],
+  },
+
+  // 8. AI Strategy & Readiness Audit
+  {
+    id: "ai_strategy_audit",
+    triggers: [
+      "ai audit", "audit", "readiness audit", "strategy audit", "audit karwana hai",
+      "ai assessment", "90-day roadmap", "roadmap"
+    ],
+    reply: `The ConverseAI AI Readiness Audit is a 3-week fixed-fee strategic engagement designed to cut through AI hype:
+1. We analyze your tech stack, databases, workflows, and unit economics.
+2. We identify and prioritize your 5–10 highest-ROI AI use cases based on feasibility and impact.
+3. We deliver a complete architecture blueprint, vendor selection, and an actionable 90-day execution roadmap.
+
+Best part: 100% of the audit fee is credited toward your first custom build with us.`,
+    navigation: {
+      label: "AI Strategy & Readiness Audit",
+      url: "/services/ai-strategy-audit",
+      type: "route",
+    },
+    quickReplies: ["Book Free Fit Call", "Audit Pricing", "Case Studies"],
+  },
+
+  // 9. Integrations & Model Context Protocol (MCP)
+  {
+    id: "integrations",
+    triggers: [
+      "integration", "integrations", "crm sync", "mcp", "salesforce", "hubspot", "zoho",
+      "tally", "erp", "sap", "snowflake", "bigquery", "telephony", "api connect", "database"
+    ],
+    reply: `ConverseAI integrates seamlessly with your existing tech stack without requiring you to replace your software:
+• CRMs: Salesforce, HubSpot, Zoho CRM, LeadSquared, Pipedrive.
+• ERP & Accounting: SAP, Tally Prime, Zoho Books, NetSuite.
+• Telephony: Exotel, Twilio, Plivo, FreePBX, Asterisk, Genesys.
+• Helpdesks: Zendesk, Freshdesk, Intercom.
+• Databases & AI Protocols: Model Context Protocol (MCP), Snowflake, BigQuery, PostgreSQL, and custom REST/GraphQL APIs.`,
+    navigation: {
+      label: "AI Integration Services",
+      url: "/services/ai-integration",
+      type: "route",
+    },
+    quickReplies: ["Book a Consultation", "Voice Agents", "Security & Compliance"],
+  },
+
+  // 10. Pricing & Plans
+  {
+    id: "pricing",
+    triggers: [
+      "pricing", "cost", "plans", "rate", "kitna kharcha", "price", "kitne ka hai",
+      "pricing kitna hai", "plans dikhao", "charges", "subscription"
+    ],
+    reply: `ConverseAI offers transparent, outcome-aligned pricing tailored to your scale:
+• Starter & Growth Tiers: Designed for SMBs scaling customer support and lead qualification.
+• Enterprise Custom Tiers: High-volume concurrent voice channels, custom fine-tuned LLMs, dedicated telephony SIP trunks, and 24/7 dedicated engineering support.
+• AI Strategy Audit: Fixed-fee 3-week engagement where 100% of the audit cost is credited toward your first build.
+
+We provide clear ROI estimations before kicking off any engagement.`,
+    navigation: {
+      label: "View Pricing & Plans",
+      url: "/pricing",
+      type: "route",
+    },
+    quickReplies: ["Book a Demo", "Calculate ROI", "AI Audit Details"],
+  },
+
+  // 11. Security, Compliance & Data Privacy
+  {
+    id: "security_and_compliance",
+    triggers: [
+      "security", "compliance", "gdpr", "soc2", "hipaa", "dpdp", "privacy", "data safe", "encryption"
+    ],
+    reply: `Enterprise security and data privacy are core to ConverseAI:
+• Certifications & Standards: Built for GDPR, CCPA, HIPAA, and India DPDP Act 2023 compliance.
+• Encryption: Strict TLS 1.3 in transit and AES-256 at rest.
+• Zero Data Retention: Sensitive customer PII and voice recordings can be wiped immediately post-call or tokenized.
+• Private Cloud / VPC: Option to deploy on your own AWS/GCP virtual private cloud or on-premise infrastructure.`,
+    navigation: {
+      label: "Schedule Security Review",
+      url: "/book-demo",
+      type: "route",
+    },
+    quickReplies: ["Schedule Security Review", "Book a Consultation", "Privacy Policy"],
+  },
+
+  // 12. Human Transfer & Escalation
+  {
+    id: "human_handoff",
+    triggers: [
+      "human", "agent transfer", "warm transfer", "talk to human", "escalation", "customer care", "human handoff"
+    ],
+    reply: `Our AI agents feature intelligent Warm Human Transfer. Whenever a caller requests a human, gets frustrated, or presents an edge case outside the AI's guardrails, the agent transfers the call or chat instantly to your human team — passing full conversation transcripts, caller intent, and CRM history so the customer never repeats themselves.`,
+    navigation: {
+      label: "See Omnichannel Support",
+      url: "/omni-channel",
+      type: "route",
+    },
+    quickReplies: ["Book a Demo", "Voice Agents Demo", "Contact Sales"],
+  },
+
+  // 13. Latency & Audio Infrastructure
+  {
+    id: "latency_and_speed",
+    triggers: ["latency", "speed", "delay", "fast", "kitni der", "response time"],
+    reply: `Our voice infrastructure delivers sub-800ms turn response times using streaming STT, low-latency Groq LLM pipelines, and neural TTS models. Coupled with direct SIP trunking into Exotel, Twilio, and PBX systems, interactions feel natural, instant, and virtually indistinguishable from a human agent.`,
+    navigation: {
+      label: "Test Voice Agents",
+      url: "/services/ai-voice-agents",
+      type: "route",
+    },
+    quickReplies: ["Book a Demo", "Case Studies", "Contact Sales"],
+  },
+
+  // 14. Website Sitemap & Directory
+  {
+    id: "sitemap_directory",
+    triggers: ["sitemap", "directory", "all pages", "site map", "navigation list"],
+    reply: `Explore our complete website directory and structured HTML sitemap covering all products, services, case studies, and resources:`,
+    navigation: {
+      label: "View Website Directory",
+      url: "/sitemap",
+      type: "route",
+    },
+    quickReplies: ["Explore Services", "Case Studies", "Book a Demo"],
+  },
+];
+
+// ── 2. Entity Extraction Helpers ──
+
+export function extractLeadDetails(input: string): Partial<BookingLead> {
   const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
   const phoneRegex = /(?:(?:\+91|0)?[ -]?)?([6-9]\d{9})/i;
-  const nameRegex = /(?:my name is|i am|i'm|this is|naam hai|main)\s+([a-zA-Z]{2,20}(?:\s+[a-zA-Z]{2,20})?)/i;
+  const nameRegex = /(?:my name is|i am|i'm|this is|naam hai|main|myself)\s+([a-zA-Z]{2,20}(?:\s+[a-zA-Z]{2,20})?)/i;
+  const timeRegex = /(?:tomorrow|today|monday|tuesday|wednesday|thursday|friday|saturday|sunday|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)?)\s*(?:at|@)?\s*(?:\d{1,2}(?::\d{2})?\s*(?:am|pm)?|morning|afternoon|evening)?|\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b/i;
 
   const emailMatch = input.match(emailRegex);
   const phoneMatch = input.match(phoneRegex);
   const nameMatch = input.match(nameRegex);
+  const timeMatch = input.match(timeRegex);
 
   // Detect service intent
   let service: string | undefined;
@@ -55,218 +354,211 @@ export function extractLeadDetails(input: string): BookingLead | null {
     service = "Custom AI Agents";
   }
 
-  if (emailMatch || phoneMatch || nameMatch) {
-    return {
-      name: nameMatch ? nameMatch[1].trim() : undefined,
-      email: emailMatch ? emailMatch[1].trim() : undefined,
-      phone: phoneMatch ? phoneMatch[1].trim() : undefined,
-      service: service || "AI Voice Agents",
-      message: input,
-    };
-  }
-
-  return null;
+  return {
+    name: nameMatch ? nameMatch[1].trim() : undefined,
+    email: emailMatch ? emailMatch[1].trim() : undefined,
+    phone: phoneMatch ? phoneMatch[1].trim() : undefined,
+    preferredTime: timeMatch ? timeMatch[0].trim() : undefined,
+    service: service,
+    message: input,
+  };
 }
 
-// ── 2. Bilingual Route & Intent Mapping (Answers in English) ──
-const NAVIGATION_INTENTS: Array<{
-  triggers: string[];
-  route: string;
-  label: string;
-  reply: string;
-}> = [
-  {
-    triggers: [
-      "case studies", "case study", "portfolio", "past work", "success stories", "client results",
-      "case studies dikhao", "case study dikhao", "previous work", "clients dikhao", "results dikhao"
-    ],
-    route: "/case-studies",
-    label: "Explore Case Studies",
-    reply: "Here are verified case studies and ROI metrics from our enterprise client deployments — including StyleMart India (3× repeat revenue, 65% support cost savings) and EdTech lead qualification:",
-  },
-  {
-    triggers: [
-      "voice agent", "voice agents", "calling bot", "inbound outbound", "voice demo", "voice sample",
-      "voice agents page pe le chalo", "voice call", "voice bot", "sarvam voice", "voice samples suno", "audio demo"
-    ],
-    route: "/services/ai-voice-agents",
-    label: "View AI Voice Agents",
-    reply: "We build and manage production-grade conversational AI Voice Agents with sub-800ms latency across US/UK English, Hindi, Hinglish, and regional dialects. Listen to interactive call recordings:",
-  },
-  {
-    triggers: [
-      "book a demo", "get a demo", "schedule demo", "meeting fix karo", "demo schedule karna hai",
-      "call book karni hai", "talk to human", "schedule call", "demo chahiye", "book demo"
-    ],
-    route: "/book-demo",
-    label: "Book a 1:1 Live Demo",
-    reply: "You can schedule a personalized 1:1 platform walkthrough with our solutions team. We will configure an interactive demo tailored to your industry and telephony stack:",
-  },
-  {
-    triggers: [
-      "pricing", "cost", "plans", "rate", "kitna kharcha", "price", "kitne ka hai", "pricing kitna hai", "plans dikhao"
-    ],
-    route: "/pricing",
-    label: "View Pricing & Plans",
-    reply: "ConverseAI plans are transparent, flexible, and outcome-aligned — designed for growing businesses and high-volume enterprise operations. Review our tiers here:",
-  },
-  {
-    triggers: [
-      "whatsapp", "whatsapp bot", "whatsapp ai", "whatsapp shop", "wa bot", "whatsapp automation",
-      "whatsapp marketing", "whatsapp chatbot"
-    ],
-    route: "/whatsapp-ai-chatbot",
-    label: "WhatsApp AI Solutions",
-    reply: "As an official Meta Tech Provider, ConverseAI builds intelligent WhatsApp AI bots, native catalog stores, automated lead qualification, and cart-recovery flows:",
-  },
-  {
-    triggers: [
-      "ai audit", "audit", "readiness audit", "strategy audit", "audit karwana hai", "ai assessment"
-    ],
-    route: "/services/ai-strategy-audit",
-    label: "AI Strategy & Readiness Audit",
-    reply: "Our 3-week fixed-fee AI Opportunity Audit maps the 5–10 highest-ROI automation workflows across your business, providing a clear architecture and build plan:",
-  },
-  {
-    triggers: [
-      "integration", "integrations", "crm sync", "mcp", "salesforce", "hubspot", "zoho", "tally", "erp", "snowflake", "bigquery"
-    ],
-    route: "/services/ai-integration",
-    label: "AI Integration Services",
-    reply: "We build bidirectional real-time AI integrations with Salesforce, HubSpot, Zoho CRM, SAP, Tally, Snowflake, and custom REST/GraphQL APIs via Model Context Protocol (MCP):",
-  },
-  {
-    triggers: [
-      "contact", "contact us", "support", "email", "phone number", "office", "jaipur office", "talk to sales", "call us"
-    ],
-    route: "/contact-us",
-    label: "Contact ConverseAI",
-    reply: "You can connect directly with our enterprise team via email at contact@theconverseai.com or by calling +91-9982323333. Our office is located in Jaipur, India:",
-  },
-  {
-    triggers: [
-      "sitemap", "directory", "all pages", "site map", "navigation list"
-    ],
-    route: "/sitemap",
-    label: "View Website Directory",
-    reply: "Explore our complete website directory and structured HTML sitemap covering all products, services, case studies, and resources:",
-  },
+// ── 3. Conversational Multi-Step Scheduling & Knowledge Engine ──
+
+const BOOKING_INTENT_TRIGGERS = [
+  "book consultation", "book a consultation", "schedule demo", "book demo", "schedule a demo",
+  "book a demo", "call book karni hai", "meeting fix karo", "talk to human", "schedule call",
+  "demo schedule karna hai", "consultation chahiye", "book call", "want to book", "need a demo",
+  "consultation booking", "schedule consultation"
 ];
 
-// ── 3. Enterprise Knowledge Retrieval Engine (English Responses) ──
 export function generateAiraReply(userInput: string, existingLead?: BookingLead): AiraResponse {
   const query = userInput.trim().toLowerCase();
+  const trimmed = userInput.trim();
 
-  // Step 1: Check for single-sentence lead submission
-  const extractedLead = extractLeadDetails(userInput);
-  if (extractedLead && (extractedLead.email || extractedLead.phone)) {
-    // If the new submission has distinct contact info, treat it as a fresh lead rather than merging
+  // ── A. Check if user is in an active conversational form-filling flow ──
+  if (existingLead && existingLead.step && existingLead.step !== "idle" && existingLead.step !== "ready") {
+    const updatedLead: BookingLead = { ...existingLead };
+
+    // Case 1: Waiting for Name
+    if (existingLead.step === "awaiting_name") {
+      const extracted = extractLeadDetails(userInput);
+      let nameCandidate = extracted.name;
+      if (!nameCandidate && !trimmed.includes("@") && !/\d/.test(trimmed) && trimmed.split(/\s+/).length <= 4) {
+        // Direct name given (e.g., "Rahul Sharma")
+        nameCandidate = trimmed.replace(/^(my name is|i am|i'm|this is|naam hai)\s+/i, "").trim();
+      }
+
+      if (nameCandidate) {
+        updatedLead.name = nameCandidate;
+        updatedLead.step = "awaiting_email";
+        return {
+          reply: `Pleasure to meet you, ${nameCandidate}! What is your **Work Email address** so we can send you the calendar invite and meeting link?`,
+          bookingCard: updatedLead,
+          quickReplies: ["rahul@example.com", "Skip Email (Use Phone)"],
+        };
+      }
+    }
+
+    // Case 2: Waiting for Email
+    if (existingLead.step === "awaiting_email") {
+      const extracted = extractLeadDetails(userInput);
+      if (extracted.email) {
+        updatedLead.email = extracted.email;
+        updatedLead.step = "awaiting_phone";
+        return {
+          reply: `Thank you! Could you also share your **Phone or WhatsApp number** for meeting confirmation and SMS reminder?`,
+          bookingCard: updatedLead,
+          quickReplies: ["9876543210", "Skip Phone"],
+        };
+      } else if (trimmed.toLowerCase().includes("skip") || trimmed.toLowerCase().includes("nahi")) {
+        updatedLead.step = "awaiting_phone";
+        return {
+          reply: `No problem! Could you share your **Phone or WhatsApp number** instead?`,
+          bookingCard: updatedLead,
+          quickReplies: ["9876543210"],
+        };
+      }
+    }
+
+    // Case 3: Waiting for Phone
+    if (existingLead.step === "awaiting_phone") {
+      const extracted = extractLeadDetails(userInput);
+      if (extracted.phone) {
+        updatedLead.phone = extracted.phone;
+      }
+      if (!updatedLead.service) {
+        updatedLead.step = "awaiting_service";
+        return {
+          reply: `Got it! Which **ConverseAI solution** are you most interested in automating for your business?`,
+          bookingCard: updatedLead,
+          quickReplies: ["AI Voice Agents", "WhatsApp AI Chatbot", "Agentic Automation", "AI Readiness Audit"],
+        };
+      } else {
+        updatedLead.step = "awaiting_time";
+        return {
+          reply: `Great! What **date and time** works best for your schedule? (For example: Tomorrow at 3 PM, Thursday morning, or any preferred time)`,
+          bookingCard: updatedLead,
+          quickReplies: ["Tomorrow at 3 PM", "Tomorrow at 11 AM", "Friday at 2 PM", "As soon as possible"],
+        };
+      }
+    }
+
+    // Case 4: Waiting for Service
+    if (existingLead.step === "awaiting_service") {
+      const extracted = extractLeadDetails(userInput);
+      updatedLead.service = extracted.service || trimmed;
+      updatedLead.step = "awaiting_time";
+      return {
+        reply: `Awesome! What **date and time** works best for your consultation? (For example: Tomorrow at 3 PM, Friday 11 AM, or any preferred slot)`,
+        bookingCard: updatedLead,
+        quickReplies: ["Tomorrow at 3 PM", "Tomorrow at 11 AM", "Friday at 2 PM", "As soon as possible"],
+      };
+    }
+
+    // Case 5: Waiting for Preferred Date/Time
+    if (existingLead.step === "awaiting_time") {
+      const extracted = extractLeadDetails(userInput);
+      updatedLead.preferredTime = extracted.preferredTime || trimmed;
+      updatedLead.step = "ready";
+
+      return {
+        reply: `Thank you ${updatedLead.name || ""}! I have captured all your consultation details. Please review your booking summary below and click **Confirm** to lock in your slot:`,
+        bookingCard: updatedLead,
+        quickReplies: ["Confirm Consultation", "Edit Details", "Ask a Question First"],
+      };
+    }
+  }
+
+  // ── B. Check for single-sentence lead submission with multiple entities ──
+  const singleShot = extractLeadDetails(userInput);
+  if (singleShot && (singleShot.email || singleShot.phone) && singleShot.name) {
     const isNewContact =
       existingLead &&
-      ((extractedLead.email && existingLead.email && extractedLead.email !== existingLead.email) ||
-        (extractedLead.phone && existingLead.phone && extractedLead.phone !== existingLead.phone) ||
-        (extractedLead.name && existingLead.name && extractedLead.name.toLowerCase() !== existingLead.name.toLowerCase()));
+      ((singleShot.email && existingLead.email && singleShot.email !== existingLead.email) ||
+        (singleShot.phone && existingLead.phone && singleShot.phone !== existingLead.phone) ||
+        (singleShot.name && existingLead.name && singleShot.name.toLowerCase() !== existingLead.name.toLowerCase()));
 
     const baseLead = isNewContact ? {} : (existingLead || {});
     const combinedLead: BookingLead = {
       ...baseLead,
-      ...extractedLead,
-      service: extractedLead.service || baseLead.service || "AI Voice Agents",
+      ...singleShot,
+      service: singleShot.service || baseLead.service || "AI Voice Agents",
+      preferredTime: singleShot.preferredTime || baseLead.preferredTime || "Tomorrow at 3:00 PM",
+      step: "ready",
     };
 
     return {
-      reply: `Thank you ${combinedLead.name || ""}! I have captured your consultation request. Please review your details below and confirm to book:`,
+      reply: `Thank you ${combinedLead.name}! I have captured your consultation request. Please review your details below and confirm to schedule:`,
       bookingCard: combinedLead,
       quickReplies: ["Confirm Consultation", "Edit Details", "Ask a Question First"],
     };
   }
 
-  // Step 2: Check for direct navigation intents
-  for (const intent of NAVIGATION_INTENTS) {
-    if (intent.triggers.some((trigger) => query.includes(trigger))) {
+  // ── C. Check if user explicitly requests to book a consultation / demo ──
+  if (BOOKING_INTENT_TRIGGERS.some((tr) => query.includes(tr))) {
+    const baseLead: BookingLead = existingLead ? { ...existingLead } : {};
+
+    if (!baseLead.name) {
+      baseLead.step = "awaiting_name";
       return {
-        reply: intent.reply,
-        navigation: {
-          label: intent.label,
-          url: intent.route,
-          type: "route",
-        },
-        quickReplies: ["Book a Live Demo", "View Pricing & ROI", "Talk to Sales"],
+        reply: `I'd be glad to schedule a 1:1 consultation with our solutions engineering team! To get started, what is your **Full Name**?`,
+        bookingCard: baseLead,
+        quickReplies: ["I'm Rahul", "I'm Priya", "Schedule on Form Page"],
+      };
+    } else if (!baseLead.email) {
+      baseLead.step = "awaiting_email";
+      return {
+        reply: `Great to connect, ${baseLead.name}! What is your **Work Email** so we can send you the calendar invite?`,
+        bookingCard: baseLead,
+        quickReplies: ["name@company.com"],
+      };
+    } else if (!baseLead.phone) {
+      baseLead.step = "awaiting_phone";
+      return {
+        reply: `Got it! What is your **Phone or WhatsApp number** for meeting confirmation?`,
+        bookingCard: baseLead,
+        quickReplies: ["9876543210"],
+      };
+    } else {
+      baseLead.step = "awaiting_time";
+      return {
+        reply: `What **date and time** would you prefer for the consultation? (e.g. Tomorrow at 3 PM, Friday 11 AM)`,
+        bookingCard: baseLead,
+        quickReplies: ["Tomorrow at 3 PM", "Tomorrow at 11 AM", "Friday at 2 PM", "As soon as possible"],
       };
     }
   }
 
-  // Step 3: Specific Enterprise Knowledge Questions (English Responses)
-
-  // Accent & Regional Cadence Comprehension
-  if (
-    query.includes("accent") || query.includes("hinglish") || query.includes("hindi") ||
-    query.includes("language") || query.includes("regional") || query.includes("bhasha")
-  ) {
-    return {
-      reply: "ConverseAI Voice Agents natively support authentic Indian regional cadences (North Indian, Mumbai, Chennai, Bangalore) along with fluid Hinglish code-switching. With sub-800ms streaming latency and Silero VAD, conversations feel natural and callers can interrupt the bot at any time (barge-in).",
-      navigation: {
-        label: "Listen to Voice Demos",
-        url: "/services/ai-voice-agents",
-        type: "route",
-      },
-      quickReplies: ["Book Voice Demo", "Supported Integrations", "Security & Compliance"],
-    };
+  // ── D. Search ConverseAI Knowledge Base ──
+  for (const topic of KNOWLEDGE_BASE) {
+    if (topic.triggers.some((trigger) => query.includes(trigger))) {
+      return {
+        reply: topic.reply,
+        navigation: topic.navigation,
+        quickReplies: topic.quickReplies || ["Book a Consultation", "Explore Services", "View Pricing & Plans"],
+      };
+    }
   }
 
-  // Security & Compliance
-  if (
-    query.includes("security") || query.includes("compliance") || query.includes("gdpr") ||
-    query.includes("soc2") || query.includes("hipaa") || query.includes("dpdp") || query.includes("privacy")
-  ) {
-    return {
-      reply: "Enterprise security is foundational at ConverseAI. We deliver SOC2, GDPR, HIPAA, and DPDP India-compliant architectures. Highlights include end-to-end TLS 1.3/AES-256 encryption, zero data retention for sensitive customer workflows, and dedicated VPC / on-premise deployment options.",
-      navigation: {
-        label: "Schedule Security Review",
-        url: "/book-demo",
-        type: "route",
-      },
-      quickReplies: ["Book an AI Audit", "Explore Voice Agents", "Case Studies"],
-    };
-  }
-
-  // L1/L2 Support & Ticketing
-  if (
-    query.includes("ticket") || query.includes("ticketing") || query.includes("l1") ||
-    query.includes("l2") || query.includes("helpdesk") || query.includes("zendesk") || query.includes("freshdesk")
-  ) {
-    return {
-      reply: "ConverseAI automates 80%+ of repetitive L1 & L2 customer support tickets. Our agents classify intent, query backend CRM/ERP data for instant resolutions, and seamlessly escalate complex issues with full conversational context to human agents.",
-      navigation: {
-        label: "See Omnichannel Support",
-        url: "/omni-channel",
-        type: "route",
-      },
-      quickReplies: ["WhatsApp AI Bot", "Book a Demo", "Pricing Details"],
-    };
-  }
-
-  // Latency & Infrastructure
-  if (query.includes("latency") || query.includes("speed") || query.includes("delay") || query.includes("fast")) {
-    return {
-      reply: "Our voice infrastructure delivers sub-800ms turn response times using streaming STT, Groq Whisper models, and low-latency LLMs. Coupled with direct SIP trunking into Exotel, Twilio, and PBX systems, interactions feel virtually indistinguishable from a human agent.",
-      navigation: {
-        label: "Test Voice Agents",
-        url: "/services/ai-voice-agents",
-        type: "route",
-      },
-      quickReplies: ["Book a Demo", "Case Studies", "Contact Sales"],
-    };
-  }
-
-  // Default clean, friendly enterprise greeting in English
+  // ── E. Fallback: Intelligent, helpful enterprise greeting ──
   return {
-    reply: "Hello! I'm Converse AI's Consultant. I can help you evaluate AI Voice Agents, WhatsApp Automation, CRM/ERP integrations, or custom agentic workflows for your business. How can I assist you today?",
+    reply: `I can help you with anything about ConverseAI! You can ask me:
+• What ConverseAI does and who we help
+• How we are different from traditional chatbots like Tidio or Intercom
+• Our AI Voice Agents, latency, and live call demos
+• WhatsApp AI automation and catalog stores
+• Enterprise CRM/ERP integrations, pricing, or our Jaipur headquarters
+• Or schedule a consultation right here!
+
+How can I assist you today?`,
     quickReplies: [
+      "What is ConverseAI?",
+      "How are you different from Tidio?",
       "Voice Agents Demo",
-      "Case Studies & ROI",
+      "Where is your team based?",
       "Book a Consultation",
-      "View Pricing & Plans",
     ],
   };
 }
