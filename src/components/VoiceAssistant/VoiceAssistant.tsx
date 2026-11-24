@@ -41,7 +41,7 @@ export default function VoiceAssistant() {
     {
       id: "initial-1",
       sender: "aira",
-      text: "Hello! I'm Aira, ConverseAI's Enterprise AI Consultant. How can I help you automate and scale your customer engagement today?",
+      text: "Hello! I'm Converse AI's Consultant. How can I help you automate and scale your customer engagement today?",
       timestamp: "Just now",
       quickReplies: [
         "Voice Agents Demo",
@@ -231,13 +231,13 @@ export default function VoiceAssistant() {
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h3 className="font-bold text-white text-sm">Aira</h3>
+                    <h3 className="font-bold text-white text-sm">Converse AI</h3>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white font-medium">
-                      AI Consultant
+                      Your AI Consultant
                     </span>
                   </div>
                   <p className="text-[11px] text-white/80 flex items-center gap-1 font-normal">
-                    ConverseAI Enterprise Assistant &bull; 24/7 Active
+                    Enterprise Assistant
                   </p>
                 </div>
               </div>
@@ -264,7 +264,7 @@ export default function VoiceAssistant() {
                   {/* Sender label for bot */}
                   {msg.sender === "aira" && (
                     <div className="flex items-center gap-1.5 mb-1 pl-1">
-                      <span className="text-[11px] font-semibold text-primary">Aira</span>
+                      <span className="text-[11px] font-semibold text-primary">Converse AI</span>
                       <span className="text-[10px] text-muted-foreground/70">{msg.timestamp}</span>
                     </div>
                   )}

@@ -261,7 +261,7 @@ export function generateAiraReply(userInput: string, existingLead?: BookingLead)
 
   // Default clean, friendly enterprise greeting in English
   return {
-    reply: "Hello! I'm Aira, ConverseAI's Enterprise AI Consultant. I can help you evaluate AI Voice Agents, WhatsApp Automation, CRM/ERP integrations, or custom agentic workflows for your business. How can I assist you today?",
+    reply: "Hello! I'm Converse AI's Consultant. I can help you evaluate AI Voice Agents, WhatsApp Automation, CRM/ERP integrations, or custom agentic workflows for your business. How can I assist you today?",
     quickReplies: [
       "Voice Agents Demo",
       "Case Studies & ROI",
