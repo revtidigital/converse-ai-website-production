@@ -46,6 +46,9 @@ const KNOWLEDGE_BASE: KnowledgeTopic[] = [
   {
     id: "vs_traditional_chatbots",
     triggers: [
+      "how is it different from", "how is it different", "how is converseai different",
+      "different from a normal chatbot", "different from a normal", "different from traditional",
+      "different from tidio", "different from intercom", "why converseai over", "tidio or intercom",
       "tidio", "intercom", "botpress", "drift", "zendesk", "freshdesk", "normal chatbot",
       "traditional chatbot", "different from", "alag kaise", "difference", "kyu choose kare",
       "why converseai", "simple chatbot", "traditional bot", "chatbot vs agent", "versus", "vs"
@@ -322,6 +325,120 @@ We provide clear ROI estimations before kicking off any engagement.`,
     },
     quickReplies: ["Explore Services", "Case Studies", "Book a Demo"],
   },
+
+  // 15. Greetings & Polite Salutations
+  {
+    id: "greetings",
+    triggers: [
+      "hi", "hello", "hey", "namaste", "good morning", "good evening", "good afternoon",
+      "kaise ho", "kya haal hai", "start chat", "salaam", "kem cho"
+    ],
+    reply: `Hello! Welcome to ConverseAI. I'm your Enterprise AI Consultant. How can I help you automate and scale your business today?
+
+You can ask me about our ultra-low latency Voice Agents, WhatsApp automation, enterprise CRM integrations, or schedule a 1:1 consultation directly here!`,
+    quickReplies: [
+      "Voice Agents Demo",
+      "WhatsApp AI Solutions",
+      "What is ConverseAI?",
+      "Book a Consultation",
+    ],
+  },
+
+  // 16. Gratitude & Closing
+  {
+    id: "gratitude_and_closing",
+    triggers: [
+      "thank you", "thanks", "dhanyawad", "shukriya", "great thanks", "bye", "goodbye",
+      "alvida", "see you", "thank u", "thx"
+    ],
+    reply: `You're very welcome! If you'd like to explore how ConverseAI can help automate customer engagement or schedule a 1:1 call with our solutions engineering team, I'm always available 24/7. Have a great day!`,
+    quickReplies: [
+      "Book a Consultation",
+      "Explore Services",
+      "View Pricing & Plans",
+    ],
+  },
+
+  // 17. Languages & Accent Support
+  {
+    id: "languages_supported",
+    triggers: [
+      "which languages", "what languages", "languages do you support", "language support",
+      "languages supported", "regional languages", "language", "languages", "hindi and hinglish",
+      "hindi support", "bhasha", "multilingual", "regional accents", "accent", "accents",
+      "bilingual", "telugu", "tamil language"
+    ],
+    reply: `ConverseAI Voice and WhatsApp Agents are built for true multilingual enterprise fluency:
+• Indian Regional Languages: Fluent in Hindi (pure & conversational), natural everyday Hinglish, Tamil, Telugu, Kannada, Bengali, and Marathi.
+• International Languages: US, UK, and Australian English, German, French, Spanish, and Arabic.
+• Regional Dialects & Barge-in: Trained on real-world conversational cadence with natural barge-in (interruption) without breaking context.`,
+    navigation: {
+      label: "Listen to Multilingual Demos",
+      url: "/services/ai-voice-agents",
+      type: "route",
+    },
+    quickReplies: ["Listen to Voice Demos", "Book a Live Demo", "Talk to Sales"],
+  },
+
+  // 18. Sales AI & Autonomous Outbound Calling
+  {
+    id: "sales_ai",
+    triggers: [
+      "sales ai", "sales outreach", "cold calling", "outbound", "outbound calling",
+      "sdr", "lead qualification", "prospecting", "cold call", "sales bot"
+    ],
+    reply: `ConverseAI Sales AI acts as an autonomous 24/7 SDR for inbound and outbound pipeline generation:
+• Speed-to-Lead (<30s): Instantly calls inbound form leads within 30 seconds to qualify intent while prospects are hot.
+• BANT / MEDDIC Qualification: Engages prospects in natural dialogue to verify budget, authority, need, and timeline.
+• Live Calendar Booking: Directly books high-intent prospects onto your sales reps' Google or Outlook calendars.
+• Zero Burned Numbers: Fully compliant with telecom regulations and DLT norms.`,
+    navigation: {
+      label: "Explore Sales AI",
+      url: "/services/sales-ai",
+      type: "route",
+    },
+    quickReplies: ["Book a Sales AI Demo", "Pricing Details", "Case Studies"],
+  },
+
+  // 19. Custom AI Agents & Fine-Tuned Models
+  {
+    id: "custom_ai_agents",
+    triggers: [
+      "custom ai", "custom agent", "custom agents", "bespoke", "custom model",
+      "fine-tuning", "fine tuning", "private llm", "on-premise", "on premise"
+    ],
+    reply: `We build bespoke, production-grade AI agents tailored to your exact schemas, workflows, and brand voice:
+• Tailored Architecture: Customized system prompts, deterministic guardrails, and proprietary knowledge bases.
+• Fine-Tuned Domain Models: Optimized on your historical tickets, transcripts, and industry terminology.
+• Enterprise Deployment Options: Run securely on ConverseAI cloud, in your private AWS/GCP VPC, or on-premise for regulated banking and healthcare environments.`,
+    navigation: {
+      label: "Custom AI Agents",
+      url: "/services/custom-ai-agents",
+      type: "route",
+    },
+    quickReplies: ["Book a Consultation", "Security Architecture", "Case Studies"],
+  },
+
+  // 20. Omnichannel Support
+  {
+    id: "omnichannel",
+    triggers: [
+      "omnichannel", "omni-channel", "channels", "unified inbox", "all channels",
+      "sms and whatsapp", "multi-channel", "multichannel"
+    ],
+    reply: `ConverseAI unites all your customer communication touchpoints into a unified intelligence layer:
+• Live Telephony (Inbound & Outbound Voice)
+• WhatsApp Business API & WhatsApp Shop
+• Webchat & In-App Widgets
+• Email & SMS Notifications
+Customer profile, intent, and conversational history persist seamlessly across channels so customers never repeat themselves.`,
+    navigation: {
+      label: "Omnichannel Solutions",
+      url: "/omni-channel",
+      type: "route",
+    },
+    quickReplies: ["Book a Demo", "Explore WhatsApp Solutions", "View Pricing"],
+  },
 ];
 
 // ── 2. Entity Extraction Helpers ──
@@ -371,6 +488,38 @@ const BOOKING_INTENT_TRIGGERS = [
   "book a demo", "call book karni hai", "meeting fix karo", "talk to human", "schedule call",
   "demo schedule karna hai", "consultation chahiye", "book call", "want to book", "need a demo",
   "consultation booking", "schedule consultation"
+];
+
+const OUT_OF_CONTEXT_TRIGGERS = [
+  // General knowledge, trivia, politics, sports
+  "capital of", "who is the prime minister", "who is the president", "who won", "world cup",
+  "cricket match", "football", "nba", "ipl", "population of", "distance between", "how far is",
+  "history of", "who invented", "when was", "who discovered", "currency of", "flag of",
+  "prime minister", "president of",
+
+  // Food, cooking, recipes
+  "recipe", "how to cook", "how to make", "ingredients for", "bake cake", "make biryani", "recipe for",
+  "cooking", "dinner recipe", "breakfast recipe",
+
+  // Weather & environment
+  "weather", "forecast", "temperature in", "is it raining", "climate in", "weather today",
+
+  // Entertainment / movies / music / celebrity
+  "movie", "cinema", "song", "lyrics", "celebrity", "actor", "actress", "box office", "netflix",
+
+  // Casual chitchat / jokes / poetry / personal
+  "tell me a joke", "joke sunao", "tell a joke", "say a joke", "sing a song", "sing song",
+  "write a poem", "write poem", "shayari", "tell me a story", "kahani sunao", "tell a story",
+  "are you single", "do you love me", "who is your girlfriend", "who is your boyfriend",
+  "marry me", "how old are you", "what is your age", "what are you wearing", "joke", "shayari sunao",
+
+  // General coding / academic homework / math
+  "write a python script", "write code for", "binary search", "leetcode", "write java code",
+  "write c++", "solve equation", "calculate ", "integral of", "derivative of", "write an essay",
+  "do my homework", "solve this math",
+
+  // Crypto / stock market tips
+  "crypto", "bitcoin", "ethereum", "stock tip", "share market tip"
 ];
 
 export function generateAiraReply(userInput: string, existingLead?: BookingLead): AiraResponse {
@@ -531,18 +680,53 @@ export function generateAiraReply(userInput: string, existingLead?: BookingLead)
     }
   }
 
-  // ── D. Search ConverseAI Knowledge Base ──
+  // ── D. Search ConverseAI Knowledge Base (Longest Specific Match Priority) ──
+  let bestTopic: KnowledgeTopic | null = null;
+  let bestTriggerLen = 0;
+
   for (const topic of KNOWLEDGE_BASE) {
-    if (topic.triggers.some((trigger) => query.includes(trigger))) {
-      return {
-        reply: topic.reply,
-        navigation: topic.navigation,
-        quickReplies: topic.quickReplies || ["Book a Consultation", "Explore Services", "View Pricing & Plans"],
-      };
+    for (const trigger of topic.triggers) {
+      if (query.includes(trigger) && trigger.length > bestTriggerLen) {
+        bestTriggerLen = trigger.length;
+        bestTopic = topic;
+      }
     }
   }
 
-  // ── E. Fallback: Intelligent, helpful enterprise greeting ──
+  if (bestTopic) {
+    return {
+      reply: bestTopic.reply,
+      navigation: bestTopic.navigation,
+      quickReplies: bestTopic.quickReplies || ["Book a Consultation", "Explore Services", "View Pricing & Plans"],
+    };
+  }
+
+  // ── E. Out-of-Context & Off-Topic Query Detection ──
+  const isOutOfContext =
+    OUT_OF_CONTEXT_TRIGGERS.some((tr) => query.includes(tr)) ||
+    /\d+\s*[\+\-\*\/\^%]\s*\d+/.test(query);
+
+  if (isOutOfContext) {
+    return {
+      reply: `I specialize strictly as ConverseAI's Enterprise AI Consultant. I'm unable to assist with general knowledge, off-topic, or casual queries (such as recipes, weather, trivia, or general coding).
+
+However, I would be delighted to assist you with anything regarding ConverseAI:
+• Human-parity AI Voice Agents (<800ms latency for inbound & outbound customer calls)
+• WhatsApp AI Chatbots & WhatsApp Shop catalog automation
+• Enterprise CRM & ERP integrations (Salesforce, Zoho, HubSpot, SAP, Tally)
+• Client case studies, ROI metrics, transparent pricing, or scheduling a consultation!
+
+Would you like to explore our AI solutions or schedule a consultation?`,
+      quickReplies: [
+        "What is ConverseAI?",
+        "Voice Agents Demo",
+        "WhatsApp AI Solutions",
+        "Book a Consultation",
+      ],
+    };
+  }
+
+  // ── F. Fallback: Intelligent, helpful enterprise greeting ──
   return {
     reply: `I can help you with anything about ConverseAI! You can ask me:
 • What ConverseAI does and who we help

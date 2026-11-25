@@ -108,6 +108,29 @@ describe("VoiceAssistant UI Component Integration Tests", () => {
     expect(screen.getByText(/Revti Digital/i)).toBeInTheDocument();
   });
 
+  it("handles out-of-context off-topic questions politely in the UI", async () => {
+    renderAssistant();
+    fireEvent.click(screen.getByLabelText("Open AI Consultant chat"));
+
+    const input = screen.getByPlaceholderText("Ask a question...");
+    fireEvent.change(input, {
+      target: { value: "What is the capital of France and how to make biryani?" },
+    });
+
+    fireEvent.click(screen.getByLabelText("Send message"));
+
+    act(() => {
+      vi.advanceTimersByTime(800);
+    });
+
+    expect(
+      screen.getByText(/I specialize strictly as ConverseAI's Enterprise AI Consultant/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/unable to assist with general knowledge, off-topic, or casual queries/i)
+    ).toBeInTheDocument();
+  });
+
   it("guides user through full conversational step-by-step consultation scheduling", async () => {
     renderAssistant();
     fireEvent.click(screen.getByLabelText("Open AI Consultant chat"));
