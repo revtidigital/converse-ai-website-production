@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,6 +33,8 @@ const ContactUs = () => {
     agreeToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [intent, setIntent] = useState<string>("");
+  const location = useLocation();
   const capturePartialLead = usePartialLeadCapture("Partial Lead – Contact Page");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -42,6 +44,56 @@ const ContactUs = () => {
   useEffect(() => {
     trackFormView("contact_page_form", { form_location: "contact_page" });
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const productParam = params.get("product") || params.get("service");
+    const intentParam = params.get("intent");
+
+    if (intentParam) {
+      setIntent(intentParam);
+    }
+
+    if (productParam || intentParam) {
+      setFormData((prev) => {
+        let matchedProduct = prev.product;
+        if (productParam) {
+          const norm = productParam.toLowerCase().replace(/[^a-z0-9]/g, "");
+          if (norm.includes("voice")) matchedProduct = "ai-voice-agents";
+          else if (norm.includes("whatsapp")) matchedProduct = "whatsapp-ai-chatbot";
+          else if (norm.includes("chatbot")) matchedProduct = "conversational-ai-chatbot";
+          else if (norm.includes("livechat")) matchedProduct = "live-chat";
+          else if (norm.includes("omni")) matchedProduct = "omni-channel";
+          else if (norm.includes("prechat")) matchedProduct = "pre-chat-forms";
+          else if (norm.includes("marketing")) matchedProduct = "whatsapp-marketing";
+          else if (norm.includes("audit") || norm.includes("strategy")) matchedProduct = "services";
+          else if (norm.includes("agent") || norm.includes("automation") || norm.includes("sales")) matchedProduct = "services";
+        }
+
+        let subject = prev.subject;
+        if (intentParam) {
+          if (intentParam === "agent-sprint") {
+            subject = "Interest in 4-Week Agent Sprint";
+            matchedProduct = matchedProduct || "services";
+          } else if (intentParam === "sales-pilot") {
+            subject = "Interest in Sales AI Performance Pilot";
+            matchedProduct = matchedProduct || "services";
+          } else if (intentParam === "audit-fit-call") {
+            subject = "AI Readiness Audit Fit Call";
+            matchedProduct = matchedProduct || "services";
+          } else {
+            subject = `Enquiry: ${intentParam}`;
+          }
+        }
+
+        return {
+          ...prev,
+          product: matchedProduct || prev.product,
+          subject: subject || prev.subject,
+        };
+      });
+    }
+  }, [location.search]);
 
   const handleFormStart = () => {
     if (hasStartedForm.current) return;
@@ -80,6 +132,7 @@ const ContactUs = () => {
         subject: formData.subject,
         message: formData.message,
         form_source: "Contact Page Form",
+        extraFields: intent ? { intent } : undefined,
       });
       
       trackFormSuccess("contact_page_form", { form_location: "contact_page" });

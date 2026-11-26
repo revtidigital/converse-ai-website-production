@@ -56,6 +56,7 @@ const BookDemo = () => {
   const { toast } = useToast();
   const hasStartedForm = useRef(false);
 
+  const [intent, setIntent] = useState<string>("");
   const location = useLocation();
 
   useEffect(() => {
@@ -65,21 +66,36 @@ const BookDemo = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const serviceParam = params.get("service") || params.get("product");
+    const intentParam = params.get("intent");
     const nameParam = params.get("name");
     const emailParam = params.get("email");
     const phoneParam = params.get("phone");
 
+    if (intentParam) {
+      setIntent(intentParam);
+    }
+
     setFormData((prev) => {
       let matchedService = prev.product;
-      if (serviceParam) {
-        const matched = services.find(
-          (s) =>
-            s.toLowerCase().replace(/[\s&]+/g, "-") === serviceParam.toLowerCase() ||
-            s.toLowerCase().replace(/\s+/g, "-") === serviceParam.toLowerCase() ||
-            s.toLowerCase() === serviceParam.toLowerCase()
-        );
-        if (matched) {
-          matchedService = matched;
+      if (serviceParam || intentParam) {
+        const query = (serviceParam || intentParam || "").toLowerCase();
+        const norm = query.replace(/[^a-z0-9]/g, "");
+        if (norm.includes("whatsapp")) matchedService = "WhatsApp AI Chatbot";
+        else if (norm.includes("voice")) matchedService = "AI Voice Agents";
+        else if (norm.includes("audit") || norm.includes("strategy")) matchedService = "AI Strategy & Audit";
+        else if (norm.includes("sprint") || norm.includes("agentic")) matchedService = "Agentic Automation";
+        else if (norm.includes("sales") || norm.includes("pilot")) matchedService = "Sales AI";
+        else if (norm.includes("integration")) matchedService = "AI Integration";
+        else if (norm.includes("knowledge")) matchedService = "Knowledge Intelligence";
+        else if (norm.includes("chatbot")) matchedService = "Conversational AI Chatbot";
+        else {
+          const matched = services.find(
+            (s) =>
+              s.toLowerCase().replace(/[\s&]+/g, "-") === query ||
+              s.toLowerCase().replace(/\s+/g, "-") === query ||
+              s.toLowerCase() === query
+          );
+          if (matched) matchedService = matched;
         }
       }
 
@@ -127,9 +143,10 @@ const BookDemo = () => {
         phone: formData.phone,
         countryName: formData.countryName,
         product: formData.product,
-        subject: "",
+        subject: intent ? `Demo Booking (${intent})` : "",
         message: formData.message,
         form_source: "Book Demo Page Form",
+        extraFields: intent ? { intent } : undefined,
       });
 
       trackFormSuccess("book_demo_page_form", { form_location: "book_demo_page" });

@@ -74,7 +74,7 @@ const WhatsAppAIChatbot = () => {
                 Simplify customer queries with AI-driven WhatsApp automation, deliver personalized replies, and improve engagement at scale.
               </p>
               
-              <Link to="/contact-us">
+              <Link to="/book-demo?product=whatsapp-ai">
                 <Button title="Request a Demo with ConverseAI" size="lg" className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-primary/25">
                   Request a Demo
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -220,7 +220,7 @@ const WhatsAppAIChatbot = () => {
                 <p title="Power up your workflow with integrations into your favourite tools" className="text-lg text-muted-foreground mb-8">
                   Power up your workflow with integrations into your favourite tools.
                 </p>
-                <Link to="/contact-us">
+                <Link to="/services/ai-integration">
                   <Button title="Explore Integrations" variant="outline" size="lg" className="border-2 border-primary text-primary hover:bg-primary hover:text-white">
                     Explore Integrations
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -245,7 +245,7 @@ const WhatsAppAIChatbot = () => {
                 Join thousands of businesses delivering exceptional customer experiences on WhatsApp
               </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact-us">
+            <Link to="/book-demo?product=whatsapp-ai">
               <Button
                 title="Get Started Free with ConverseAI"
                 variant="hero-outline"
@@ -255,7 +255,7 @@ const WhatsAppAIChatbot = () => {
                 Get Started Free
               </Button>
             </Link>
-            { <Link to="/contact-us">
+            { <Link to="/contact-us?product=whatsapp-ai">
               <Button
                 title="Contact Sales"
                 variant="outline"

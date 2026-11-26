@@ -70,9 +70,9 @@ const servicesMenu = [
 
 const navLinks = [
   { label: "Home", href: "/", isRoute: true },
-  { label: "Features", href: "#features", isRoute: false, hasDropdown: "features" },
+  { label: "Features", href: "/#features", isRoute: false, hasDropdown: "features" },
   { label: "Agentic AI", href: "/services", isRoute: true, hasDropdown: "services" },
-  { label: "Products", href: "#products", isRoute: false, hasDropdown: "products" },
+  { label: "Products", href: "/#products", isRoute: false, hasDropdown: "products" },
   { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "Case Studies", href: "/case-studies", isRoute: true },
   { label: "Blog", href: "https://blog.theconverseai.com/", isRoute: false, isExternal: true },
@@ -265,10 +265,25 @@ const Header = () => {
     // Absolute URLs (blog host → main site, or the external Blog link) navigate
     // natively — checked first so a dropdown parent like "Agentic AI" still works.
     if (/^https?:\/\//.test(link.href)) { setIsMobileMenuOpen(false); return; }
-    if (link.hasDropdown && !link.isRoute) { e.preventDefault(); return; }
-    if (link.isExternal) { setIsMobileMenuOpen(false); return; }
     // Let browser handle Ctrl/Cmd/middle-click natively (open in new tab)
     if (e.ctrlKey || e.metaKey || e.button === 1) { return; }
+    
+    // For homepage hash anchor links (/#features, /#products)
+    if (link.href.startsWith("/#")) {
+      const hash = link.href.slice(1); // "#features"
+      if (location.pathname === "/") {
+        e.preventDefault();
+        document.querySelector(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        // Navigate to homepage with hash so browser or router lands on the section
+        navigate(link.href);
+      }
+      setIsMobileMenuOpen(false);
+      return;
+    }
+
+    if (link.hasDropdown && !link.isRoute) { e.preventDefault(); return; }
+    if (link.isExternal) { setIsMobileMenuOpen(false); return; }
     e.preventDefault();
     if (link.isRoute) { navigate(link.href); setActiveDropdown(null); setIsMobileMenuOpen(false); return; }
     if (link.href === "#") {

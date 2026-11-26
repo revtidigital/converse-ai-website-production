@@ -21,7 +21,7 @@ const products = [
   { icon: Smartphone, title: 'WhatsApp AI', description: 'AI-driven WhatsApp automation with personalized, context-aware responses and multi-language support.', path: '/whatsapp-ai-chatbot' },
   { icon: Globe, title: 'Omni-Channel', description: 'Unified inbox across website, WhatsApp, social media, and email with seamless channel switching.', path: '/omni-channel' },
   { icon: BarChart3, title: 'Analytics Suite', description: 'Comprehensive agent, team, CSAT, and inbox reports with AI-generated insights and live monitoring.', path: '/agent-reports' },
-  { icon: Users, title: 'Team Management', description: 'Agent capacity management, smart assignment, overload prevention, and team-based routing.', path: '/about-us' },
+  { icon: Users, title: 'Team Management', description: 'Agent capacity management, smart assignment, overload prevention, and team-based routing.', path: '/agent-capacity' },
 ]
 
 const stats = [
@@ -183,14 +183,12 @@ export default function Index() {
                   From WhatsApp automation to custom AI voice agents — we build AI systems that engage your customers and run your workflows. You focus on growth; we run the agents.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <a
-                    href="https://theconverseai.com/book-demo"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to="/services/ai-strategy-audit/start"
                     className={buttonVariants({ variant: 'hero', size: 'xl' })}
                   >
                     Get a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </a>
+                  </Link>
                   <Link to="/services" className={buttonVariants({ variant: 'hero-outline', size: 'xl' })}>
                     See What We Build
                   </Link>
@@ -264,14 +262,12 @@ export default function Index() {
               <p className="text-muted-foreground mb-6 text-base">
                 Not sure where to start? A free AI Opportunity Audit maps the right workflow, channel, and build approach for your business.
               </p>
-              <a
-                href="https://theconverseai.com/book-demo"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/services/ai-strategy-audit/start"
                 className={buttonVariants({ variant: 'hero', size: 'xl' })}
               >
                 Book a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </a>
+              </Link>
             </motion.div>
           </div>
         </section>
@@ -430,14 +426,12 @@ export default function Index() {
                 Join 50+ growing businesses already using ConverseAI to engage customers and run their workflows.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a
-                  href="https://theconverseai.com/book-demo"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to="/services/ai-strategy-audit/start"
                   className="bg-white text-primary font-semibold px-8 py-3.5 rounded-full hover:shadow-xl hover:-translate-y-0.5 transition-all no-underline inline-flex items-center gap-2"
                 >
                   Book a Free AI Opportunity Audit <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </a>
+                </Link>
                 <Link
                   to="/contact-us"
                   className="border-2 border-white text-white font-semibold px-8 py-3.5 rounded-full hover:bg-white/10 transition-all no-underline"

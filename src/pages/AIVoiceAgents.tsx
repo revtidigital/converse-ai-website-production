@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, Phone, Mic, Volume2, Play, Square } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
 import Footer from "@/components/Footer";
@@ -457,6 +457,8 @@ const VoicePlayer = ({ script, lang, audioSrc }: { script: string; lang: string;
 };
 
 const AIVoiceAgents = () => {
+  const [callMePhone, setCallMePhone] = useState("");
+  const navigate = useNavigate();
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -841,7 +843,7 @@ const AIVoiceAgents = () => {
                 <p className="text-xl font-semibold text-foreground">Want to hear our AI voice agent on your use case?</p>
                 <p className="text-muted-foreground mt-1">We'll build a working demo for your scenario before you commit to anything.</p>
               </div>
-              <Link to="/contact-us" className="shrink-0">
+              <Link to="/book-demo?product=ai-voice-agents" className="shrink-0">
                 <Button variant="default" size="lg" title="Request a live demo">
                   Request a live demo <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -1000,14 +1002,27 @@ const AIVoiceAgents = () => {
                     placeholder="Enter your phone number"
                     className="h-12 w-full sm:w-72 bg-white/80 border-primary/20 focus:ring-primary"
                     aria-label="Phone number for AI voice demo"
+                    value={callMePhone}
+                    onChange={(e) => setCallMePhone(e.target.value)}
                   />
-                  <Button variant="hero" size="lg" type="button" title="Call me">
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    type="button"
+                    title="Call me"
+                    onClick={() => {
+                      const targetUrl = callMePhone.trim()
+                        ? `/book-demo?product=ai-voice-agents&phone=${encodeURIComponent(callMePhone.trim())}`
+                        : `/book-demo?product=ai-voice-agents`;
+                      navigate(targetUrl);
+                    }}
+                  >
                     Call me →
                   </Button>
                 </div>
               </AnimatedSection>
               <AnimatedSection delay={0.3}>
-                <Link to="/contact-us" className="text-primary font-semibold inline-flex items-center gap-2 mt-6">
+                <Link to="/book-demo?product=ai-voice-agents" className="text-primary font-semibold inline-flex items-center gap-2 mt-6">
                   Contact us for a tailored quote
                   <ArrowRight className="w-4 h-4" />
                 </Link>

@@ -311,7 +311,7 @@ const AIStrategyAudit = () => {
                           <ArrowRight className="w-5 h-5" />
                         </Button>
                       </Link>
-                      <Link to="/contact-us">
+                      <Link to="/book-demo?product=ai-strategy-audit&intent=audit-fit-call">
                         <Button variant="hero-outline" size="xl" title="Book a free 20-min fit call">
                           Book a free 20-min fit call
                           <ArrowRight className="w-5 h-5" />
@@ -482,7 +482,7 @@ const AIStrategyAudit = () => {
                 <p className="text-xl font-semibold text-foreground">Wondering if your business is AI-ready?</p>
                 <p className="text-muted-foreground mt-1">Get a free 20-min fit call to find out before committing to anything.</p>
               </div>
-              <Link to="/contact-us" className="shrink-0">
+              <Link to="/book-demo?product=ai-strategy-audit&intent=audit-fit-call" className="shrink-0">
                 <Button variant="default" size="lg" title="Book a free call">
                   Book a free call <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -597,7 +597,7 @@ const AIStrategyAudit = () => {
                 </p>
               </AnimatedSection>
               <AnimatedSection delay={0.2}>
-                <Link to="/contact-us">
+                <Link to="/book-demo?product=ai-strategy-audit&intent=audit-fit-call">
                   <Button variant="hero" size="xl" title="Book my fit call">
                     Book my fit call
                     <ArrowRight className="w-5 h-5" />
