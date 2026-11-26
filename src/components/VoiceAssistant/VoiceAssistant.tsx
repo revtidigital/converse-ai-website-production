@@ -182,12 +182,12 @@ export default function VoiceAssistant() {
   return (
     <>
       {/* ── Floating Launcher Button (Matches User Reference Image) ── */}
-      <div className="fixed bottom-6 right-20 sm:right-22 z-40">
+      <div className="fixed bottom-5 sm:bottom-6 right-5 sm:right-6 z-50">
         <motion.button
           onClick={() => setIsOpen(!isOpen)}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
-          className="relative w-14 h-14 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white flex items-center justify-center shadow-xl shadow-purple-600/30 hover:shadow-purple-600/50 transition-all duration-300 border-2 border-white/20 focus:outline-none focus:ring-4 focus:ring-purple-400/30"
+          className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white flex items-center justify-center shadow-xl shadow-purple-600/30 hover:shadow-purple-600/50 transition-all duration-300 border-2 border-white/20 focus:outline-none focus:ring-4 focus:ring-purple-400/30"
           aria-label={isOpen ? "Close AI Consultant chat" : "Open AI Consultant chat"}
         >
           {/* Top-Right Online Status Badge with Translucent Halo */}
@@ -219,11 +219,11 @@ export default function VoiceAssistant() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.94 }}
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 18, scale: 0.94 }}
+            exit={{ opacity: 0, y: 14, scale: 0.96 }}
             transition={{ type: "spring", damping: 26, stiffness: 320 }}
-            className="fixed bottom-24 right-4 sm:right-6 w-[92vw] sm:w-[410px] h-[590px] max-h-[82vh] z-50 rounded-2xl bg-card border border-border/80 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl"
+            className="fixed bottom-[76px] sm:bottom-[86px] right-3 sm:right-6 w-[calc(100vw-24px)] sm:w-[400px] h-[min(530px,calc(100dvh-100px))] max-h-[calc(100dvh-100px)] z-50 rounded-2xl bg-card border border-border/80 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl"
           >
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-[#7C3AED] via-[#6D28D9] to-[#7C3AED] text-white flex items-center justify-between shadow-sm">
