@@ -417,11 +417,11 @@ const ContactUs = () => {
                       <h4 className="font-semibold text-foreground mb-1">Phone</h4>
                       <div className="flex flex-col gap-1">
                         <a 
-                          href="tel:+919982323333" 
-                          title="Call ConverseAI at +91 99823 23333"
+                          href="tel:+917891331221" 
+                          title="Call ConverseAI at +91 78913 31221"
                           className="text-muted-foreground text-sm hover:text-primary transition-colors"
                         >
-                          +91-9982323333
+                          +91-7891331221
                         </a>
                         <a 
                           href="tel:+917023084065" 

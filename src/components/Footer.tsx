@@ -200,12 +200,12 @@ const Footer = forwardRef<HTMLElement>((_, ref) => {
                 contact@theconverseai.com
               </a>
               <a 
-                href="tel:+919982323333" 
+                href="tel:+917891331221" 
                 className="text-sm text-footer-text hover:text-primary transition-colors block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-footer rounded"
-                aria-label="Call us at +91 99823 23333"
-                title="Call +91 99823 23333"
+                aria-label="Call us at +91 78913 31221"
+                title="Call +91 78913 31221"
               >
-                +91-9982323333
+                +91-7891331221
               </a>
               <a 
                 href="tel:+917023084065" 
