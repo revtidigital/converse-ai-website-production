@@ -102,7 +102,9 @@ Key Industries We Serve:
     triggers: [
       "team based", "where is your team", "office kahan hai", "kahan based ho", "location",
       "headquarters", "jaipur", "address", "where are you located", "office address",
-      "company address", "who founded", "revti digital", "where are you from", "office"
+      "company address", "who founded", "revti digital", "where are you from", "office",
+      "contact number", "phone number", "business hours", "contact details", "contact us",
+      "official email", "working hours", "timings", "call number"
     ],
     reply: `ConverseAI is headquartered in Jaipur, Rajasthan, India:
 📍 Office Address: F-21, Madhuban Colony, Barkat Nagar, Tonk Phatak, Jaipur, Rajasthan 302015.
@@ -149,7 +151,7 @@ Contact & Communication:
       "voice agent", "voice agents", "calling bot", "inbound outbound", "voice demo", "voice sample",
       "voice call", "voice bot", "sarvam voice", "audio demo", "phone agent", "calling ai", "voice samples"
     ],
-    reply: `ConverseAI Voice Agents deliver human-like phone conversations with sub-800ms streaming latency.
+    reply: `ConverseAI Voice Agents deliver human-like phone conversations with sub-800ms (<800ms) streaming latency.
 
 Key Capabilities:
 • Authentic Regional Dialects: Fluent in Hindi, natural conversational Hinglish, US & UK English, Tamil, German, French, and Spanish.
@@ -523,6 +525,15 @@ const OUT_OF_CONTEXT_TRIGGERS = [
   "crypto", "bitcoin", "ethereum", "stock tip", "share market tip"
 ];
 
+function matchesTrigger(query: string, trigger: string): boolean {
+  if (trigger.length <= 3) {
+    const escaped = trigger.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`\\b${escaped}\\b`, "i");
+    return regex.test(query);
+  }
+  return query.includes(trigger);
+}
+
 export function generateAiraReply(userInput: string, existingLead?: BookingLead): AiraResponse {
   const query = userInput.trim().toLowerCase();
   const trimmed = userInput.trim();
@@ -681,31 +692,21 @@ export function generateAiraReply(userInput: string, existingLead?: BookingLead)
     }
   }
 
-  // ── D. Search ConverseAI Knowledge Base (Longest Specific Match Priority) ──
-  let bestTopic: KnowledgeTopic | null = null;
-  let bestTriggerLen = 0;
+  // ── D. Out-of-Context & Off-Topic Query Detection ──
+  const hasBrandContext =
+    query.includes("converse") ||
+    query.includes("voice agent") ||
+    query.includes("whatsapp") ||
+    query.includes("agentic") ||
+    query.includes("case stud") ||
+    query.includes("audit") ||
+    query.includes("consultation") ||
+    query.includes("pricing");
 
-  for (const topic of KNOWLEDGE_BASE) {
-    for (const trigger of topic.triggers) {
-      if (query.includes(trigger) && trigger.length > bestTriggerLen) {
-        bestTriggerLen = trigger.length;
-        bestTopic = topic;
-      }
-    }
-  }
-
-  if (bestTopic) {
-    return {
-      reply: bestTopic.reply,
-      navigation: bestTopic.navigation,
-      quickReplies: bestTopic.quickReplies || ["Book a Consultation", "Explore Services", "View Pricing & Plans"],
-    };
-  }
-
-  // ── E. Out-of-Context & Off-Topic Query Detection ──
   const isOutOfContext =
-    OUT_OF_CONTEXT_TRIGGERS.some((tr) => query.includes(tr)) ||
-    /\d+\s*[\+\-\*\/\^%]\s*\d+/.test(query);
+    !hasBrandContext &&
+    (OUT_OF_CONTEXT_TRIGGERS.some((tr) => matchesTrigger(query, tr)) ||
+      /\d+\s*[\+\-\*\/\^%]\s*\d+/.test(query));
 
   if (isOutOfContext) {
     return {
@@ -724,6 +725,27 @@ Would you like to explore our AI solutions or schedule a consultation?`,
         "WhatsApp AI Solutions",
         "Book a Consultation",
       ],
+    };
+  }
+
+  // ── E. Search ConverseAI Knowledge Base (Longest Specific Match Priority) ──
+  let bestTopic: KnowledgeTopic | null = null;
+  let bestTriggerLen = 0;
+
+  for (const topic of KNOWLEDGE_BASE) {
+    for (const trigger of topic.triggers) {
+      if (matchesTrigger(query, trigger) && trigger.length > bestTriggerLen) {
+        bestTriggerLen = trigger.length;
+        bestTopic = topic;
+      }
+    }
+  }
+
+  if (bestTopic) {
+    return {
+      reply: bestTopic.reply,
+      navigation: bestTopic.navigation,
+      quickReplies: bestTopic.quickReplies || ["Book a Consultation", "Explore Services", "View Pricing & Plans"],
     };
   }
 
